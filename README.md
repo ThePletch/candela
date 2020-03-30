@@ -1,6 +1,25 @@
 # candela
 A fully-virtual web app to play the tabletop RPG Ten Candles with friends remotely.
 
+## Technical Requirements
+* This application will have a backend in Ruby on Rails
+* The frontend will be in React.js using the Redux framework
+* The data model will be as follows:
+  * Games - Represents a full, end-to-end game of Ten Candles.
+    * has_many Scene
+    * has_many Player
+  * Scene - Represents a single round of Ten Candles
+    * belongs_to Game
+  * Conflict - Represents an event with a chance of failure
+    * belongs_to Scene
+    * belongs_to Player (active player, nullable)
+    * state
+      * 
+  * Players - Represents someone playing a game of Ten Candles.
+    * belongs_to Game
+    * role - [GM, Player]
+  * 
+
 ## Business Requirements
 ### Mandatory for initial release
 * Allows games to be started by a GM at will and joined by players by clicking a link generated at game start.

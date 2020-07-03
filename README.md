@@ -8,17 +8,65 @@ A fully-virtual web app to play the tabletop RPG Ten Candles with friends remote
   * Games - Represents a full, end-to-end game of Ten Candles.
     * has_many Scene
     * has_many Player
+    * setup_state
+      * :nascent, game has just begun and is waiting for players to join
+        * validation: players cannot be added to a Game unless its setup state is :nascent
+      * :traits, players are assigning virtues and vices
+        * validation: cannot be entered unless there are at least two players (not including the GM)
+      * :module_intro, GM is introducing the module
+        * validation: cannot be entered unless all non-gm players have written their virtues and vices
+      * :character_concept, non-gm players are writing their character concept
+      * :moments, non-gm players are writing their Moment
+        * validation: cannot be entered unless all non-gm players have a character concept
+      * :brinks, ALL players are assigning brinks
+        * validation: cannot be entered unless all non-gm players have a moment
+      * :order_cards, non-gm players are arranging their virtue, vice, and moment cards
+        * validation: cannot be entered unless ALL players have a brink
+      * :ready, game is ready to begin
+        * validation: cannot be entered unless all players have finalized their card order
+        * creates the initial Scene after advancing to this state
   * Scene - Represents a single round of Ten Candles
     * belongs_to Game
+    * cannot be created unless game is in the :ready state
   * Conflict - Represents an event with a chance of failure
     * belongs_to Scene
-    * belongs_to Player (active player, nullable)
+    * has_many :resolutions
+    * is_dire - bool
+  * Resolution - An action taken in response to a conflict.
+    * belongs_to :conflict
+    * belongs_to :player
+    * belongs_to :resolution (nullable, used for overrides to point at original resolution)
+    * has_one :override (mirror of belongs_to :resolution)
+    * belongs_to :beneficiary_player (designates a hope die recipient if this resolution killed its active player)
+    * burned_trait_type - str (designates which trait was burned for a 'trait' type roll)
+    * type - str, bounded list
+      * 'roll' - active player rolls it
+      * 'martyr' - allowed for rerolls only, on dire conflicts only, kills active player
+      * 'moment' - same as 'roll,' but grants hope die if overall was a success
+      * 'trait' - allowed for rerolls only, rerolls the ones from its parent resolution and burns the specified trait
+        * validation: specified trait type cannot already have been burned for this player
+        * validation: specified trait type must be at the top of the player's stack
+      * 'brink' - allowed for rerolls only, rerolls the entire pool from its parent resolution and makes the player's brink visible
+    * roll_result - str (list of dice rolled)
     * state
-      * 
-  * Players - Represents someone playing a game of Ten Candles.
-    * belongs_to Game
+      * :proposed - used for actions that need to be justified to the GM. can only advance to 'rolled' by GM action
+      * :rolled - dice have been rolled, but result is not finalized, either because the result has not yet been accepted or because there was an overriding action
+      * :confirmed - result has been accepted by the player and no further actions can be taken
+        * if there are follow-on actions here, e.g. a hope die transfer, they must be adjudicated as part of the transition to 'confirmed'
+  * Participation - Represents a player's membership in a game of Ten Candles.
+    * belongs_to :game
+    * guid - used in URLs to let players rejoin a specific game as their playr without needing to be logged in
     * role - [GM, Player]
-  * 
+    * position - int (order in the circle)
+    * virtue - str (virtue given to this character)
+    * vice - str (vice given to this character)
+    * written_virtue - str (virtue written by this player for adjacent player)
+    * written_vice - str (vice written by this player for adjacent player)
+    * character_concept - str
+    * moment - str
+    * brink - str (brink given to this character)
+    * written_brink - str (brink written by this player/gm for adjacent player/gm)
+    * card_order - str-ish (write custom get/sets here with validation. virtue/vice/moment are 0/1/2, a card order is represented as, e.g., 201 for moment-virtue-vice. top card is the first character.
 
 ## Business Requirements
 ### Mandatory for initial release
@@ -35,7 +83,7 @@ A fully-virtual web app to play the tabletop RPG Ten Candles with friends remote
     * Light three more candles. Prompt players (and the GM) to write a Brink. Players passing to a player should be prompted with 'I've seen you...'. The player passing to the GM should be prompted with 'I've seen Them...'. The GM should be prompted with 'They have seen you...'. When all players and the GM have confirmed their brink, pass them to the left and advance to the next step.
     * Allow players to arrange their stack of cards. The Brink is locked to the bottom, but the virtue, vice, and moment can be arranged in any order. When players have confirmed their stack, advance to the next step.
     * Light the final candle. The game begins. Prompt the GM to record a parting message for each player in a modal. Allow them to dismiss this modal at their leisure. The modal should not otherwise restrict gameplay.
-  * Allows the GM to call for a conflict or dire conflict. When a conflict is called for, a prompt is displayed to all players that allows them to roll for the conflict. Only the player who rolls for the conflict may burn their cards or use their hope die.
+  * Allows the GM to call for a conflict or dire conflict. When a conflict is called for, a prompt is displayed to all living players that allows them to roll for the conflict. Only the player who rolls for the conflict may burn their cards or use their hope die.
     * If a player has a moment at the top of their stack, they are shown a second choice: 'live moment,' which makes them the active player and burns their moment. If the conflict is a success, this grants them a hope die. They get nothing, and still lose the moment, if the conflict is a failure.
     * When a conflict is resolved, it should display whether it was successful or failed. If it succeeded, it should display who gained narrative control based on who rolled the most sixes. The GM wins ties.
     * Allows the active player to choose from available options when a roll is made. The option that is always available is 'accept result,' which ends the conflict with whatever result that dictates. Other options are available as follows:

@@ -1,0 +1,2 @@
+class RollResolution < Resolution
+end

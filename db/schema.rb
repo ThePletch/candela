@@ -10,13 +10,14 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_03_194525) do
+ActiveRecord::Schema.define(version: 2020_10_03_232122) do
 
   create_table "conflicts", force: :cascade do |t|
     t.integer "scene_id"
     t.boolean "dire"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.boolean "narrated"
     t.index ["scene_id"], name: "index_conflicts_on_scene_id"
   end
 
@@ -49,19 +50,18 @@ ActiveRecord::Schema.define(version: 2020_07_03_194525) do
 
   create_table "resolutions", force: :cascade do |t|
     t.integer "conflict_id"
-    t.integer "player_id"
     t.integer "resolution_id"
+    t.integer "player_id"
     t.integer "beneficiary_player_id"
     t.string "burned_trait_type"
     t.string "type"
     t.string "player_roll_result"
     t.string "gm_roll_result"
     t.string "state"
+    t.boolean "succeeded"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.index ["beneficiary_player_id"], name: "index_resolutions_on_beneficiary_player_id"
     t.index ["conflict_id"], name: "index_resolutions_on_conflict_id"
-    t.index ["player_id"], name: "index_resolutions_on_player_id"
     t.index ["resolution_id"], name: "index_resolutions_on_resolution_id"
   end
 
@@ -69,7 +69,16 @@ ActiveRecord::Schema.define(version: 2020_07_03_194525) do
     t.integer "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.string "state"
     t.index ["game_id"], name: "index_scenes_on_game_id"
+  end
+
+  create_table "truths", force: :cascade do |t|
+    t.integer "participation_id"
+    t.string "description"
+    t.integer "scene_id"
+    t.index ["participation_id"], name: "index_truths_on_participation_id"
+    t.index ["scene_id"], name: "index_truths_on_scene_id"
   end
 
 end

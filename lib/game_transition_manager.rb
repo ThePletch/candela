@@ -1,7 +1,7 @@
 class GameTransitionManager
 	attr_reader :game
 
-	def new(game)
+	def initialize(game)
 		@game = game
 	end
 

@@ -21,4 +21,9 @@ class GameTransitionManager
 		end
 	end
 
+	def create_first_scene!
+		scene = game.scenes.create!
+		scene.finish_stating_truths!
+	end
+
 end

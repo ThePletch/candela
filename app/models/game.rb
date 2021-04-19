@@ -17,7 +17,7 @@ class Game < ApplicationRecord
 		state :moments
 		state :brinks, before_exit: Proc.new { GameTransitionManager.new(self).distribute_brinks! }
 		state :order_cards
-		state :ready, after_enter: Proc.new { scene = self.scenes.create!; scene.finish_stating_truths! }
+		state :ready, after_enter: Proc.new { GameTransitionManager.new(self).create_first_scene! }
 
 		event :transition_to_next_stage do
 			transitions from: :nascent, to: :traits, if: :minimum_players?
@@ -56,7 +56,7 @@ class Game < ApplicationRecord
 	end
 
 	def over?
-		ready? and participations.players.alive.none?
+		ready? and participations.players.any? and participations.players.alive.none?
 	end
 
 	def gm
@@ -66,7 +66,7 @@ class Game < ApplicationRecord
 	private
 
 	def minimum_players?
-		(participations.players.count >= MIN_PLAYERS) and gm.present?
+		(participations.players.length >= MIN_PLAYERS) and gm.present?
 	end
 
 	def all_players_wrote_traits?

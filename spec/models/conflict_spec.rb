@@ -4,7 +4,7 @@ RSpec.describe Conflict, type: :model do
   it "is active if no confirmed resolution exists" do
     conflict = FactoryBot.create(:conflict)
     expect(conflict).to be_active
-    resolution = FactoryBot.create(:resolution, :succeeded,  conflict: conflict, confirmed: true)
+    resolution = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict)
     expect(conflict).not_to be_active
   end
 
@@ -35,14 +35,14 @@ RSpec.describe Conflict, type: :model do
   it "is failed if a confirmed failed resolution exists" do
     conflict = FactoryBot.create(:conflict)
     expect(conflict).to be_active
-    resolution = FactoryBot.create(:resolution, :failed, conflict: conflict, confirmed: true)
+    resolution = FactoryBot.create(:resolution, :failed, :confirmed, conflict: conflict)
     expect(conflict).not_to be_succeeded
   end
 
   it "succeeds if a confirmed successful resolution exists" do
     conflict = FactoryBot.create(:conflict)
     expect(conflict).to be_active
-    resolution = FactoryBot.create(:resolution, :succeeded, conflict: conflict, confirmed: true)
+    resolution = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict)
     expect(conflict).to be_succeeded
   end
 

@@ -5,6 +5,7 @@ class MartyrResolution < Resolution
 	validate :resolves_dire_conflict
 	validate :different_active_player_in_parent
 	validate :parent_failed
+	validates_with ResolutionBeneficiaryValidator
 
 	delegate :dice_lost, to: :parent_resolution
 

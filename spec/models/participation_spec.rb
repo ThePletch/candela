@@ -37,7 +37,7 @@ RSpec.describe Participation, type: :model do
   end
 
   it "tracks the hope dice a player gains from living their moment" do
-    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, confirmed: false)
+    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded)
     participant = moment_resolution.active_player
     expect(participant.hope_die_count).to eq 0
     moment_resolution.confirm!
@@ -45,23 +45,22 @@ RSpec.describe Participation, type: :model do
   end
 
   it "tracks hope dice given to a player by dead fellow players" do
-    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, confirmed: true)
+    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, :confirmed)
     hoped_participant = moment_resolution.active_player
     expect(hoped_participant.hope_die_count).to eq 1
 
     other_player = hoped_participant.game.participations.players.find{|x| x != hoped_participant }
     expect(other_player.hope_die_count).to eq 0
-    martyrdom = FactoryBot.create(:martyr_resolution,
+    martyrdom = FactoryBot.create(:martyr_resolution, :confirmed,
       game: hoped_participant.game,
       active_player: hoped_participant,
-      beneficiary_player: other_player,
-      confirmed: true)
+      beneficiary_player: other_player)
     expect(other_player.hope_die_count).to eq 1
   end
 
   it "marks a player as dead if they failed a dire conflict" do
     dire_conflict = FactoryBot.create(:conflict, dire: true)
-    dire_resolution = FactoryBot.create(:resolution, :failed, conflict: dire_conflict, confirmed: false)
+    dire_resolution = FactoryBot.create(:resolution, :failed, conflict: dire_conflict)
     expect(dire_resolution.active_player.alive?).to be true
     dire_resolution.confirm!
     expect(dire_resolution.active_player.alive?).to be false
@@ -79,7 +78,7 @@ RSpec.describe Participation, type: :model do
     game = FactoryBot.create(:game_ready)
     player_one = game.participations.players.take
     expect(player_one.top_trait).to eq "virtue"
-    FactoryBot.create(:trait_resolution, :succeeded, burned_trait_type: '0', active_player: player_one, game: game, confirmed: true)
+    FactoryBot.create(:trait_resolution, :succeeded, :confirmed, burned_trait_type: '0', active_player: player_one, game: game)
     expect(player_one.top_trait).to eq "vice"
   end
 

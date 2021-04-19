@@ -1,57 +1,28 @@
 FactoryBot.define do
   factory :resolution, class: 'RollResolution' do
     transient do
-      game { create(:game_ready) }
-      scene { create(:scene, game: game)}
+      game { FactoryBot.build(:game_ready) }
+      scene { FactoryBot.build(:scene_with_truths, game: game) }
     end
 
-    conflict { association :conflict_narrated, scene: scene }
-    active_player { game.participations.players.first }
+    conflict { association :conflict, scene: scene }
+    active_player { association :active_player, game: conflict.scene.game }
 
     trait :failed do
-      transient do
-        confirmed { false }
-      end
-
-      after(:create) do |resolution, evaluator|
-        # replace all 5's and 6's with 4's to prevent success even with hope dice
-        new_player_roll = resolution.player_roll_result.chars.map do |single_roll|
-          if ['5', '6'].include?(single_roll)
-            '4'
-          else
-            single_roll
-          end
-        end.join
-
-        resolution.update_attributes(player_roll_result: new_player_roll)
-
-        resolution.confirm! if evaluator.confirmed
-      end
+      player_roll_result { instance.roll_for_player.gsub(/[56]/, '4') }
     end
 
     trait :at_least_one_one_rolled do
-      after(:create) do |resolution, evaluator|
-        # turn the first die roll into a 1
-        new_player_roll = resolution.player_roll_result.chars
-        new_player_roll[0] = '1'
+      player_roll_result { '1' + instance.roll_for_player[1..-1] }
+    end
 
-        resolution.update_attributes(player_roll_result: new_player_roll.join)
-      end
+    trait :confirmed do
+      state { 'confirmed' }
+      succeeded { instance.successful? }
     end
 
     trait :succeeded do
-      transient do
-        confirmed { false }
-      end
-
-      after(:create) do |resolution, evaluator|
-        # turn the first die roll into a 6
-        new_player_roll = resolution.player_roll_result.chars
-        new_player_roll[0] = '6'
-
-        resolution.update_attributes(player_roll_result: new_player_roll.join)
-        resolution.confirm! if evaluator.confirmed
-      end
+      player_roll_result { '6' + instance.roll_for_player[1..-1] }
     end
 
     trait :has_parent do
@@ -71,22 +42,15 @@ FactoryBot.define do
 
     factory :brink_resolution, class: 'BrinkResolution' do
       has_same_player_parent
-      active_player { association :participation_down_to_brink, game: instance.conflict.scene.game }
+
+      active_player { association :participation_down_to_brink, game: game }
     end
 
     factory :martyr_resolution, class: 'MartyrResolution' do
-      transient do
-        confirmed { false }
-      end
-
       conflict { association :conflict_narrated, scene: scene, dire: true }
-      parent_resolution { association :resolution, :failed, confirmed: true, conflict: instance.conflict }
-      beneficiary_player { instance.parent_resolution.active_player }
-      active_player { game.participations.players.find{|p| p != instance.beneficiary_player } }
+      parent_resolution { association :resolution, :failed, :confirmed, conflict: instance.conflict }
 
-      after(:create) do |resolution, evaluator|
-        resolution.confirm! if evaluator.confirmed
-      end
+      active_player { association :active_player, game: instance.conflict.scene.game }
     end
   end
 end

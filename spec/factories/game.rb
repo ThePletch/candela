@@ -8,73 +8,89 @@ FactoryBot.define do
         include_gm { true }
       end
 
-      after(:create) do |game, evaluator|
-        if evaluator.include_gm
-          create(:participation, game: game, role: 'gm')
-        end
-
-        create_list(:participation, evaluator.players_count, game: game, role: 'player')
+      participations do
+        Array.new(players_count) do
+          association :participation, role: 'player', game: instance
+        end + [association(:participation, role: 'gm', game: instance)]
       end
 
       factory :game_in_traits_stage do
-        after(:create) do |game, evaluator|
-          game.transition_to_next_stage!
-        end
+        setup_state { 'traits' }
 
         factory :game_in_module_intro do
-          after(:create) do |game, evaluator|
-            game.participations.players.each do |player|
-              player.written_virtue = player.name + ' Virtue'
-              player.written_vice = player.name + ' Vice'
-              player.save!
-            end
+          setup_state { 'module_intro' }
 
-            game.transition_to_next_stage!
+          participations do
+            Array.new(players_count) do
+              association :participation, :with_traits, role: 'player', game: instance
+            end + [association(:participation, role: 'gm', game: instance)]
           end
 
           factory :game_in_concepts_stage do
-            after(:create) do |game, evaluator|
-              game.transition_to_next_stage!
-            end
+            setup_state { 'character_concept' }
 
             factory :game_in_moments_stage do
-              after(:create) do |game, evaluator|
-                game.participations.players.each do |player|
-                  player.character_concept = player.name + ' Concept'
-                  player.save!
-                end
+              setup_state { 'moments' }
 
-                game.transition_to_next_stage!
+              participations do
+                Array.new(players_count) do
+                  association :participation,
+                    :with_traits,
+                    :with_concept,
+                    role: 'player',
+                    game: instance
+                end + [association(:participation, role: 'gm', game: instance)]
               end
 
               factory :game_in_brinks_stage do
-                after(:create) do |game, evaluator|
-                  game.participations.players.each do |player|
-                    player.moment = player.name + ' Moment'
-                    player.save!
-                  end
+                setup_state { 'brinks' }
 
-                  game.transition_to_next_stage!
+                participations do
+                  Array.new(players_count) do
+                    association :participation,
+                      :with_traits,
+                      :with_concept,
+                      :with_moment,
+                      role: 'player',
+                      game: instance
+                  end + [association(:participation, role: 'gm', game: instance)]
                 end
 
                 factory :game_in_card_ordering_stage do
-                  after(:create) do |game, evaluator|
-                    game.participations.each do |player|
-                      player.written_brink = player.name + ' Brink'
-                      player.save!
-                    end
+                  setup_state { 'order_cards' }
 
-                    game.transition_to_next_stage!
+                  participations do
+                    Array.new(players_count) do
+                      association :participation,
+                        :with_traits,
+                        :with_concept,
+                        :with_moment,
+                        :with_brink,
+                        role: 'player',
+                        game: instance
+                    end + [association(:participation, role: 'gm', game: instance)]
                   end
 
                   factory :game_ready do
-                    after(:create) do |game, evaluator|
-                      game.participations.players.each do |player|
-                        player.card_order = '012'
-                        player.save!
-                      end
+                    setup_state { 'ready' }
 
-                      game.transition_to_next_stage!
+                    transient do
+                      starting_scene { FactoryBot.build(:scene, game: instance) }
+                    end
+
+                    scenes { [starting_scene] }
+
+                    participations do
+                      Array.new(players_count) do
+                        association :participation,
+                          :with_traits,
+                          :with_concept,
+                          :with_moment,
+                          :with_brink,
+                          :with_card_order,
+                          role: 'player',
+                          game: instance
+                      end + [association(:participation, role: 'gm', game: instance)]
                     end
                   end
                 end

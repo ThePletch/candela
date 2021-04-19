@@ -22,29 +22,40 @@ RSpec.describe Scene, type: :model do
   end
 
   it "rotates through players when stating truths" do
-    failed_first_scene = FactoryBot.create(:scene, :failed, created_at: 10.minutes.ago)
+    failed_first_scene = FactoryBot.create(:scene, :failed)
+    expect(failed_first_scene).to be_failed
     second_scene = FactoryBot.create(:scene, game: failed_first_scene.game)
-    first_player, second_player, third_player = second_scene.game.participations
-    expect(second_scene.next_truth_stater).to eq first_player
-    FactoryBot.create(:truth, scene: second_scene, participation: first_player)
-    expect(second_scene.next_truth_stater).to eq second_player
-    FactoryBot.create(:truth, scene: second_scene, participation: second_player)
-    expect(second_scene.next_truth_stater).to eq third_player
-    FactoryBot.create(:truth, scene: second_scene, participation: third_player)
-    expect(second_scene.next_truth_stater).to eq first_player
-    FactoryBot.create(:truth, scene: second_scene, participation: first_player)
+    first_stater = failed_first_scene.failing_resolution.active_player
+    expect(second_scene.next_truth_stater).to eq first_stater
+    FactoryBot.create(:truth, scene: second_scene, participation: first_stater)
+    second_stater = first_stater.right_player(skip_gm: false)
+    expect(second_scene.next_truth_stater).to eq second_stater
+    FactoryBot.create(:truth, scene: second_scene, participation: second_stater)
+    third_stater = second_stater.right_player(skip_gm: false)
+    expect(second_scene.next_truth_stater).to eq third_stater
+    FactoryBot.create(:truth, scene: second_scene, participation: third_stater)
+    fourth_stater = third_stater.right_player(skip_gm: false)
+    expect(third_stater.right_player(skip_gm: false)).to eq fourth_stater
+    expect(second_scene.next_truth_stater).to eq fourth_stater
+    FactoryBot.create(:truth, scene: second_scene, participation: fourth_stater)
+    expect(fourth_stater.right_player(skip_gm: false)).to eq first_stater
+    expect(second_scene.next_truth_stater).to eq first_stater
   end
 
-  it "asks for a number of truths equal to candles lit after the first scene" do
-    failed_first_scene = FactoryBot.create(:scene, :failed, created_at: 10.minutes.ago)
+  it "asks for a number of truths equal to candles lit after the first scene (excluding the final, fixed truth)" do
+    failed_first_scene = FactoryBot.create(:scene, :failed)
     second_scene = FactoryBot.create(:scene, game: failed_first_scene.game)
-    expect(second_scene.expected_truth_count).to eq 9
+    # byebug
+    expect(failed_first_scene.game.scenes.count).to eq 2
+    expect(failed_first_scene.game.active_scene).to eq second_scene
+    expect(second_scene.expected_truth_count).to eq 8
   end
 
   it "automatically advances when the correct truth count is stated" do
-    failed_first_scene = FactoryBot.create(:scene, :failed, created_at: 10.minutes.ago)
+    failed_first_scene = FactoryBot.create(:scene, :failed)
     second_scene = FactoryBot.create(:scene, game: failed_first_scene.game)
-    9.times do
+    expect(failed_first_scene.game.scenes.count).to eq 2
+    8.times do
       expect(second_scene.state).to eq 'transitioning'
       FactoryBot.create(:truth, scene: second_scene)
     end
@@ -62,46 +73,46 @@ RSpec.describe Scene, type: :model do
   it "tracks the dice lost in each conflict" do
     scene = FactoryBot.create(:scene)
     expect(scene.dice_lost).to eq 0
-    expect(scene.player_dice_pool).to eq 10
+    expect(scene.base_player_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict, scene: scene)
-    resolution_one = FactoryBot.create(:resolution, :succeeded, conflict: conflict_one, confirmed: true)
+    resolution_one = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_one)
     resolution_one.update_attributes(player_roll_result: '1166666666')
     expect(scene.dice_lost).to eq 2
-    expect(scene.player_dice_pool).to eq 8
+    expect(scene.base_player_dice_pool).to eq 8
     conflict_two = FactoryBot.create(:conflict, scene: scene)
-    resolution_two = FactoryBot.create(:resolution, :succeeded, conflict: conflict_two, confirmed: true)
+    resolution_two = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_two)
     resolution_two.update_attributes(player_roll_result: '11166666')
     expect(scene.dice_lost).to eq 5
-    expect(scene.player_dice_pool).to eq 5
+    expect(scene.base_player_dice_pool).to eq 5
   end
 
   it "doesn't include lost dice from unconfirmed resolutions" do
     scene = FactoryBot.create(:scene)
     expect(scene.dice_lost).to eq 0
-    expect(scene.player_dice_pool).to eq 10
+    expect(scene.base_player_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict, scene: scene)
     resolution_one = FactoryBot.create(:resolution, conflict: conflict_one)
     resolution_one.update_attributes(player_roll_result: '1166666666')
     expect(scene.dice_lost).to eq 0
-    expect(scene.player_dice_pool).to eq 10
+    expect(scene.base_player_dice_pool).to eq 10
   end
 
   it "doesn't lose dice from conflicts in other scenes" do
     scene = FactoryBot.create(:scene)
     expect(scene.dice_lost).to eq 0
-    expect(scene.player_dice_pool).to eq 10
+    expect(scene.base_player_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict)
-    resolution_one = FactoryBot.create(:resolution, :succeeded, conflict: conflict_one, confirmed: true)
+    resolution_one = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_one)
     resolution_one.update_attributes(player_roll_result: '1166666666')
     expect(scene.dice_lost).to eq 0
-    expect(scene.player_dice_pool).to eq 10
+    expect(scene.base_player_dice_pool).to eq 10
   end
 
   it "doesn't take dice away from the GM for rolling ones" do
     scene = FactoryBot.create(:scene)
     expect(scene.gm_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict, scene: scene)
-    resolution_one = FactoryBot.create(:resolution, :succeeded, conflict: conflict_one, confirmed: true)
+    resolution_one = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_one)
     resolution_one.update_attributes(player_roll_result: '1166666666', gm_roll_result: '1116666666')
     expect(scene.gm_dice_pool).to eq 10
   end

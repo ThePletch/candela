@@ -34,12 +34,12 @@ RSpec.describe RollResolution, type: :model do
   end
 
   it "gives the player a hope die if they succeed" do
-    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, confirmed: true)
+    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, :confirmed)
     expect(moment_resolution.active_player.hope_die_count).to eq 1
   end
 
   it "does not give the player a hope die if they fail" do
-    moment_resolution = FactoryBot.create(:moment_resolution, :failed, confirmed: true)
+    moment_resolution = FactoryBot.create(:moment_resolution, :failed, :confirmed)
     expect(moment_resolution.active_player.hope_die_count).to eq 0
   end
 end

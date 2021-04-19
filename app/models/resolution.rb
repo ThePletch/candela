@@ -10,7 +10,6 @@ class Resolution < ApplicationRecord
 	# player who gets the hope die if the active player for this resolution dies
 	belongs_to :beneficiary_player, class_name: 'Participation', foreign_key: 'beneficiary_player_id', optional: true
 
-	validates_with ResolutionBeneficiaryValidator
 	validate :cannot_override_an_override
 
 	scope :successful, -> { confirmed.where(succeeded: true) }
@@ -62,11 +61,11 @@ class Resolution < ApplicationRecord
 	end
 
 	def roll_for_player
-		(0...scene.player_dice_pool(active_player, as_of: self.created_at)).collect{ self.get_single_die_roll }.join
+		(0...conflict.scene.player_dice_pool(active_player, as_of: self.created_at)).collect{ self.get_single_die_roll }.join
 	end
 
 	def roll_for_gm
-		(0...scene.gm_dice_pool).collect{ self.get_single_die_roll }.join
+		(0...conflict.scene.gm_dice_pool).collect{ self.get_single_die_roll }.join
 	end
 
 	# add one to each roll to get 1-6 instead of 0-5

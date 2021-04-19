@@ -51,10 +51,10 @@ RSpec.describe TraitResolution, type: :model do
     player.update_attributes(card_order: '012')
     prior_trait_burn = FactoryBot.create(:trait_resolution,
       :succeeded,
+      :confirmed,
       game: game_with_ready_players,
       active_player: player,
-      burned_trait_type: '0',
-      confirmed: true)
+      burned_trait_type: '0')
     expect(prior_trait_burn).to be_valid
     second_burn = FactoryBot.build(:trait_resolution,
       game: game_with_ready_players,

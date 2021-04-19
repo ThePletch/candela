@@ -68,6 +68,14 @@ class Game extends Component {
         }
     }
 
+    dicePoolIndicator() {
+        if (this.state.game.active_scene) {
+            return (<div>{_.times(this.state.game.active_scene.base_player_dice_pool, n => { return (<span className="badge badge-pill badge-info">&nbsp;</span>)})}</div>);
+        }
+
+        return (null);
+    }
+
     currentSetupStatePrompt() {
         const activeParticipant = this.activeParticipant();
         if (!activeParticipant){
@@ -108,14 +116,15 @@ class Game extends Component {
     render() {
         if (!this.state.game) { return (<p>Loading Game...</p>); }
         return (
-            <div>
+            <div className="container-fluid">
                 <h1>{this.state.game.name}</h1>
                 <div className="row">
                     <div className="col">
-                        {_.times(10, n => { return (<Candle key={n} lit={n < this.state.game.candles_lit} />) })}
-                        {this.currentSetupStatePrompt()}
+                        <div>{_.times(10, n => { return (<Candle key={n} lit={n < this.state.game.candles_lit} />) })}</div>
+                        {this.dicePoolIndicator()}
+                        <div>{this.currentSetupStatePrompt()}</div>
                     </div>
-                    <div className="col">
+                    <div className="col" style={{flexGrow: "2"}}>
                         <ParticipationsList participations={this.state.participations} activeParticipant={this.props.participantId} game={this.state.game} />
                     </div>
                 </div>

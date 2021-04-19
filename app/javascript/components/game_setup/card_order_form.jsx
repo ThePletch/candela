@@ -1,18 +1,51 @@
 import React from 'react';
 import { useForm } from 'react-hook-form';
 
+import Sortable from 'sortablejs';
+
 import { makePatchRequest } from 'util/requests';
 
 
-export default function CardOrderForm(props) {
-  const { register, handleSubmit, errors } = useForm();
-  const onSubmit = data => makePatchRequest(`/api/participations/${props.participant.id}/`, data);
+export default class CardOrderForm extends React.Component {
+  sortableCards = ['virtue', 'vice', 'moment'];
 
-  return (
-    <form onSubmit={handleSubmit(onSubmit)}>
-      <textarea name="participation[card_order]" ref={register({required: true})} />
+  cardListItem (name, index, sortable) {
+	// todo add a hamburger icon here to indicate draggability
+	return (<li className={`list-group-item ${sortable ? "" : "disabled"}`} key={index} data-id={index}>
+		<span>{name}</span>
+	</li>);
+  }
 
-      <input type="submit" />
-    </form>
-  );
+  submitCardOrder (e) {
+  	e.preventDefault();
+  	// slicing out the first three elements, since we aren't tracking brink's ordering
+  	const cardOrder = this.sortable.toArray().join("").slice(0, 3);
+	makePatchRequest(`/api/participations/${this.props.participant.id}/`, this.props.participant.guid, {
+		participation: {
+			card_order: cardOrder,
+		}
+	});
+  }
+
+  sortableContainersDecorator(componentBackingInstance) {
+    // check if backing instance not null
+    if (componentBackingInstance) {
+      this.sortable = Sortable.create(componentBackingInstance, {
+      	filter: ".disabled"
+      });
+    }
+  };
+  render() {
+	  return (
+	    <form onSubmit={this.submitCardOrder.bind(this)}>
+	  		<em>Order your cards.</em>
+	    	<ul className="list-group" ref={this.sortableContainersDecorator.bind(this)}>
+				{this.sortableCards.map((name, i) => this.cardListItem(name, i, true))}
+				{this.cardListItem('brink', 3, false)}
+	    	</ul>
+
+	      <input type="submit" />
+	    </form>
+	  );
+  }
 }

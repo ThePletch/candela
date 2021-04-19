@@ -88,9 +88,14 @@ class Scene < ApplicationRecord
 		resolutions.confirmed.where("resolutions.created_at < ?", as_of).map(&:dice_lost).sum
 	end
 
+	def base_player_dice_pool(as_of: nil)
+		as_of ||= Time.current
+		game.candles_lit(as_of: self.created_at) - dice_lost(as_of: as_of)
+	end
+
 	def player_dice_pool(active_player, as_of: nil)
 		as_of ||= Time.current
-		game.candles_lit(as_of: self.created_at) - dice_lost(as_of: as_of) + active_player.hope_die_count(as_of: as_of)
+		base_player_dice_pool(as_of: as_of) + active_player.hope_die_count(as_of: as_of)
 	end
 
 	def gm_dice_pool

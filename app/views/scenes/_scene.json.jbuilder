@@ -1,4 +1,4 @@
-json.extract! scene, :id, :state, :truths_remaining
+json.extract! scene, :id, :state, :truths_remaining, :base_player_dice_pool
 json.truths do
   json.array! scene.truths, partial:'truths/truth', as: :truth
 end

@@ -1,4 +1,21 @@
 json.extract! participation, :id, :name, :role, :position
+
+json.left_player do
+	json.extract! participation.left_player(skip_gm: true), :name, :role
+end
+
+json.right_player do
+	json.extract! participation.right_player(skip_gm: true), :name, :role
+end
+
+json.left_participant do
+	json.extract! participation.left_player(skip_gm: false), :name, :role
+end
+
+json.right_participant do
+	json.extract! participation.right_player(skip_gm: false), :name, :role
+end
+
 if not participation.game.ready?
   json.extract! participation, :written_brink
 end

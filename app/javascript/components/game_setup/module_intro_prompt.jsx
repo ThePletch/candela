@@ -1,8 +1,10 @@
 import React from 'react'
 import PropTypes from 'prop-types'
 
+import SetupForm from './setup_form'
 
-export default class ModuleIntroPrompt extends React.Component {
+
+export default class ModuleIntroPrompt extends SetupForm {
     static propTypes = {
         gameId: PropTypes.number.isRequired,
         activeParticipant: PropTypes.object,
@@ -21,10 +23,17 @@ export default class ModuleIntroPrompt extends React.Component {
         fetch(`/api/games/${this.props.gameId}/advance_setup_state`, requestOptions);
     }
 
-    render() {
+    actions() {
         if (this.props.activeParticipant.role == 'gm') {
-          return <button onClick={this.advanceStage.bind(this)}>Done introducing scenario</button>
-        } else {
+          return (<div>
+            <em>Introduce the scenario for the game to your players.</em>
+            <button className="btn btn-primary d-block" onClick={this.advanceStage.bind(this)}>Done introducing scenario</button>
+          </div>);
+        }
+    }
+
+    status() {
+        if (this.props.activeParticipant.role == 'player') {
           return <em>GM is introducing the scenario...</em>;
         }
     }

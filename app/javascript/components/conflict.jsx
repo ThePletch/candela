@@ -7,7 +7,7 @@ import { makePatchRequest, makePostRequest } from 'util/requests';
 class PlayerConflictOptions extends React.Component {
     rollForConflict() {
         makePostRequest(
-            `/api/conflicts/${this.props.conflictId}/resolutions`,
+            `/api/conflicts/${this.props.conflict.id}/resolutions`,
             this.props.activeParticipant.guid,
             {
                 type: 'RollResolution',
@@ -17,7 +17,7 @@ class PlayerConflictOptions extends React.Component {
 
     liveMoment() {
         makePostRequest(
-            `/api/conflicts/${this.props.conflictId}/resolutions`,
+            `/api/conflicts/${this.props.conflict.id}/resolutions`,
             this.props.activeParticipant.guid,
             {
                 type: 'MomentResolution',
@@ -25,25 +25,36 @@ class PlayerConflictOptions extends React.Component {
         )
     }
 
+    liveMomentButton() {
+        if (this.props.activeParticipant.top_trait == 'moment') {
+            return <button className="btn btn-primary" onClick={this.liveMoment.bind(this)}>Live Moment</button>
+        }
+
+        return (null);
+    }
+
+    direConflictWarning() {
+        if (this.props.conflict.dire) {
+            return (<strong>This is a dire conflict, and whoever rolls for it will die if they fail.</strong>);
+        }
+
+        return (null);
+    }
+
 
     render() {
         if (this.props.activeParticipant.is_alive) {
-            if (this.props.activeParticipant.top_trait == 'moment') {
-                return (
-                    <div>
-                        <button onClick={this.rollForConflict.bind(this)}>Roll</button>
-                        <button onClick={this.liveMoment.bind(this)}>Live Moment</button>
-                    </div>
-                )
-            } else {
-                return (
-                    <div>
-                        <button onClick={this.rollForConflict.bind(this)}>Roll</button>
-                    </div>
-                )
-            }
+            return (
+                <div>
+                    <h3>The GM has finished describing the conflict.</h3>
+                    <p>If your character will face this conflict, click the button below.</p>
+                    {this.direConflictWarning()}
+                    <button className="btn btn-primary" onClick={this.rollForConflict.bind(this)}>Roll</button>
+                    {this.liveMomentButton()}
+                </div>
+            )
         } else {
-            return (<em>You have passed on and cannot face this conflict.</em>);
+            return (<h4>You have passed on and cannot face this conflict.</h4>);
         }
     }
 }
@@ -63,11 +74,14 @@ export default class Conflict extends React.Component {
                 return (
                     <div>
                         <p>Narrate the conflict. What's happening?</p>
-                        <button onClick={this.finishNarration.bind(this)}>Finish Narration</button>
+                        <button className="btn btn-primary" onClick={this.finishNarration.bind(this)}>Finish Narration</button>
                     </div>
                 );
             } else {
-                return (<em>The GM is narrating the conflict.</em>);
+                return (<div>
+                    <h3>A conflict has begun. The GM is explaining the situation.</h3>
+                    <em>Stand by to react.</em>
+                </div>);
             }
         } else {
             if (this.props.conflict.active_resolutions.length > 0) {
@@ -78,9 +92,9 @@ export default class Conflict extends React.Component {
                     gameId={this.props.gameId} />);
             } else {
                 if (this.props.activeParticipant.role == 'gm') {
-                    return (<em>The players are deciding who will face the challenge.</em>);
+                    return (<h3>The players are deciding who will face the challenge.</h3>);
                 } else {
-                    return (<PlayerConflictOptions activeParticipant={this.props.activeParticipant} conflictId={this.props.conflict.id} />)
+                    return (<PlayerConflictOptions activeParticipant={this.props.activeParticipant} conflict={this.props.conflict} />)
                 }
             }
         }

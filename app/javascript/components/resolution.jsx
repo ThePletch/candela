@@ -3,12 +3,34 @@ import React from 'react';
 import { createCableStateManager, listStateReducer } from 'util/cable_tracker'
 import { makePatchRequest, makePostRequest } from 'util/requests';
 
+function getHopeDieColor(valueRolled) {
+    switch (valueRolled) {
+        case "5", "6":
+            return 'badge-info';
+        case "1":
+            return 'badge-warning';
+        default:
+            return 'badge-primary';
+    }
+}
+
+function getRegularDieColor(valueRolled) {
+    switch (valueRolled) {
+        case "6":
+            return 'badge-success';
+        case "1":
+            return 'badge-danger';
+        default:
+            return 'badge-secondary';
+    }
+}
+
 function Die(props) {
     let color;
     if (props.hopeDie) {
-        color = ["5", "6"].includes(props.roll) ? 'badge-info' : 'badge-primary';
+        color = getHopeDieColor(props.roll);
     } else {
-        color = props.roll == "6" ? 'badge-success': 'badge-secondary';
+        color = getRegularDieColor(props.roll);
     }
 
     return (<span className={`badge ${color}`}>{props.roll}</span>);
@@ -42,7 +64,7 @@ class BurnTraitButton extends React.Component {
             } else {
                 return (
                     <button className="btn btn-primary" onClick={this.burnTrait.bind(this)}>
-                        Burn your {this.props.activeParticipant.top_trait} ({this.props.activeParticipant.top_trait_value})
+                        Burn your {this.props.activeParticipant.top_trait} ({this.props.activeParticipant.top_trait_value}) to reroll ones.
                     </button>
                 );
             }
@@ -196,16 +218,17 @@ class ResolutionAcceptanceOptions extends React.Component {
     }
 }
 
+// todo better indicate when someone martyrs themselves
 export default class Resolution extends React.Component {
     render() {
         return (<div>
             <h3>Conflict results</h3>
             <ul>
-                <li>Active player was {this.props.resolution.active_player}</li>
-                <li>PLAYER: {this.props.resolution.player_roll_result.split("").map((roll, i) => <Die key={"player-" + i} hopeDie={i <= this.props.resolution.hope_die_count} roll={roll} />)}</li>
-                <li>GM: {this.props.resolution.gm_roll_result.split("").map((roll, i) => <Die hopeDie={false} roll={roll} />)}</li>
-                <li>{this.props.resolution.successful ? "Succeeded" : "Failed"}</li>
-                <li>Narrative control will go to {this.props.resolution.narrative_control}</li>
+                <li>{this.props.resolution.active_player} chose to face this conflict.</li>
+                <li>PLAYER: {this.props.resolution.player_roll_result.split("").map((roll, i) => <Die key={"player-" + i} hopeDie={i < this.props.resolution.hope_die_count} roll={roll} />)}</li>
+                <li>GM: {this.props.resolution.gm_roll_result.split("").map((roll, i) => <Die key={"gm-" + i} hopeDie={false} roll={roll} />)}</li>
+                <li>{this.props.resolution.active_player + " " + (this.props.resolution.successful ? "succeeded." : "failed.")}</li>
+                <li>Narrative control will go to {this.props.resolution.narrative_control}.</li>
             </ul>
             <ResolutionAcceptanceOptions {...this.props} />
         </div>);

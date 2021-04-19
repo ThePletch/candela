@@ -3,8 +3,9 @@ import PropTypes from 'prop-types'
 
 import CharacterConceptForm from './character_concept_form'
 
+import SetupForm from './setup_form'
 
-export default class CharacterConceptPrompt extends React.Component {
+export default class CharacterConceptPrompt extends SetupForm {
     static propTypes = {
         participations: PropTypes.array.isRequired,
         gameId: PropTypes.number.isRequired,
@@ -32,25 +33,29 @@ export default class CharacterConceptPrompt extends React.Component {
         return participant.role == 'player' && participant.character_concept === null;
     }
 
-    render() {
+    actions() {
+        const unfilledConceptPlayers = this.playersWithUnfilledConcept();
+
+        if (this.props.activeParticipant.role == 'gm' && unfilledConceptPlayers.length == 0) {
+            return <button className="btn btn-primary" onClick={this.advanceStage.bind(this)}>Proceed to Moments</button>
+        } else if (this.playerWithConceptUnfilled(this.props.activeParticipant)) {
+            return <CharacterConceptForm participant={this.props.activeParticipant} />
+        }
+    }
+
+    status() {
         const unfilledConceptPlayers = this.playersWithUnfilledConcept();
 
         if (unfilledConceptPlayers.length == 0) {
-            if (this.props.activeParticipant.role == 'gm') {
-              return <button onClick={this.advanceStage.bind(this)}>Proceed to Moments</button>
-            } else {
-              return <em>Waiting for GM to continue...</em>;
+            if (this.props.activeParticipant.role == 'player') {
+                return <em>All character concepts submitted. Waiting for GM to continue...</em>;
             }
         } else {
-            if (this.props.activeParticipant.role == 'gm' || !this.playerWithConceptUnfilled(this.props.activeParticipant)) {
-                return (
-                    <ul>
-                        {unfilledConceptPlayers.map(player => <li key={player.id}>{player.name} is writing their character concept...</li>)}
-                    </ul>
-                );
-            } else {
-                return <CharacterConceptForm participant={this.props.activeParticipant} />
-            }
+            return (
+                <ul>
+                    {unfilledConceptPlayers.map(player => <li key={player.id}>{player.name} is writing their character concept...</li>)}
+                </ul>
+            );
         }
     }
 };

@@ -72,9 +72,22 @@ class Participation < ApplicationRecord
 
 	def burned_traits(as_of: nil)
 		as_of ||= Time.current
-		resolutions.where.not(burned_trait_type: nil)
-						   .created_before(as_of)
-							 .pluck(:burned_trait_type)
+		already_burned = resolutions.where.not(burned_trait_type: nil)
+										    .created_before(as_of)
+											  .pluck(:burned_trait_type)
+		if MomentResolution.where(player_id: self.id)
+											 .created_before(as_of)
+											 .exists?
+			already_burned.append('2')
+		end
+
+		if BrinkResolution.where(player_id: self.id)
+											 .created_before(as_of)
+											 .exists?
+			already_burned.append('3')
+		end
+
+		already_burned
 	end
 
 	def top_trait(as_of: nil)
@@ -85,12 +98,6 @@ class Participation < ApplicationRecord
 	def top_trait_id(as_of: nil)
 		as_of ||= Time.current
 		already_burned = burned_traits(as_of: as_of)
-
-		if MomentResolution.where(player_id: self.id)
-											 .created_before(as_of)
-											 .exists?
-			already_burned.append('2')
-		end
 
 		card_ids.find{|card_id| already_burned.exclude?(card_id) } or '3'
 	end

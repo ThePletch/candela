@@ -1,4 +1,4 @@
-json.extract! participation, :id, :name, :role, :position
+json.extract! participation, :id, :name, :role, :position, :burned_traits, :brink
 
 json.left_player do
 	json.extract! participation.left_player(skip_gm: true), :name, :role
@@ -26,7 +26,6 @@ if participation.player?
   end
 
   json.extract! participation, :character_concept, :top_trait_id, :top_trait, :top_trait_value,
-                               :hope_die_count, :virtue, :vice, :brink, :moment, :card_order,
-                               :burned_traits
+                               :hope_die_count, :virtue, :vice, :moment, :card_order
   json.is_alive participation.alive?
 end

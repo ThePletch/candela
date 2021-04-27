@@ -36,13 +36,21 @@ function cardColorClass(props) {
 }
 
 // todo make this account for who gave you the trait
-function traitCardPretext(type) {
+function traitCardPretext(type, giver, holderRole) {
     switch (type) {
         case 'brink':
+            if (giver.role == 'gm') {
+                return "They've seen you...";
+            }
+
+            if (holderRole == 'gm') {
+                return "I've seen Them...";
+            }
+
             return "I've seen you...";
         case 'virtue':
         case 'vice':
-            return '';
+            return 'I am...';
         case 'moment':
             return 'I will find hope...';
     }
@@ -52,7 +60,7 @@ function TraitCard(props) {
     return (
         <li key={props.traitType} className={`list-group-item ${props.burned ? "bg-secondary" : "bg-light" }`}>
             <h6 className="float-right">{props.traitType}</h6>
-            <div className="text-muted"><em>{traitCardPretext(props.traitType)}</em></div>
+            <div className="text-muted"><em>{traitCardPretext(props.traitType, props.traitGiver, props.holderRole)}</em></div>
             <span>{props.traitValue}</span>
         </li>
     );
@@ -69,27 +77,40 @@ function brinkValueToDisplay(props) {
 function traitCardForTraitId(id, props) {
     let traitType;
     let traitValue;
+    let traitGiver;
 
     switch (id) {
         case "0":
             traitType = "virtue";
             traitValue = props.virtue;
+            traitGiver = props.right_player;
             break;
         case "1":
             traitType = "vice";
             traitValue = props.vice;
+            traitGiver = props.left_player;
             break;
         case "2":
             traitType = "moment";
             traitValue = props.moment;
+            traitGiver = null;
             break;
         case "3":
             traitType = "brink";
             traitValue = brinkValueToDisplay(props);
+            traitGiver = props.right_participant;
             break;
     }
 
-    return (<TraitCard key={id} burned={props.burned_traits.includes(id)} traitType={traitType} traitValue={traitValue}/>);
+    return (
+        <TraitCard
+            key={id}
+            burned={props.burned_traits.includes(id)}
+            holderRole={props.role}
+            traitType={traitType}
+            traitValue={traitValue}
+            traitGiver={traitGiver}
+        />);
 }
 
 function cardsToRender(props) {
@@ -97,27 +118,31 @@ function cardsToRender(props) {
         return [];
     }
     if (props.controlledByUser) {
-        if (['module_intro', 'character_concept', 'moments'].includes(props.game.setup_state)) {
-            return ['0', '1'];
-        }
-
-        if (props.game.setup_state == 'brinks') {
-            return ['0', '1', '2'];
-        }
-
-        if (props.game.setup_state == 'order_cards') {
-            if (props.card_order) {
-                return props.card_order.split("").concat(["3"]);
+        if (props.role == 'player') {
+            if (['module_intro', 'character_concept', 'moments'].includes(props.game.setup_state)) {
+                return ['0', '1'];
             }
 
-            return ['0', '1', '2', '3'];
-        }
+            if (props.game.setup_state == 'brinks') {
+                return ['0', '1', '2'];
+            }
 
-        if (props.game.setup_state == 'ready') {
-            return props.card_order.split("").concat(["3"]);
+            if (props.game.setup_state == 'order_cards') {
+                if (props.card_order) {
+                    return props.card_order.split("").concat(["3"]);
+                }
+
+                return ['0', '1', '2', '3'];
+            }
+
+            if (props.game.setup_state == 'ready') {
+                return props.card_order.split("").concat(["3"]);
+            }
+        } else if (['order_cards', 'ready'].includes(props.game.setup_state)) {
+            return ['3'];
         }
     } else {
-        if (props.game.setup_state == 'ready') {
+        if (props.game.setup_state == 'ready' && props.role == 'player') {
             return [props.top_trait_id]
         }
 
@@ -130,15 +155,11 @@ function TraitCardList(props) {
         return (null);
     }
 
-    if (props.role == 'player') {
-        return (
-            <ul className={"list-group list-group-flush d-block " + cardColorClass(props)}>
-                {cardsToRender(props).map(cardId => traitCardForTraitId(cardId, props))}
-            </ul>
-        );
-    } else {
-        return (null);
-    }
+    return (
+        <ul className={"list-group list-group-flush d-block " + cardColorClass(props)}>
+            {cardsToRender(props).map(cardId => traitCardForTraitId(cardId, props))}
+        </ul>
+    );
 }
 
 function HopeDieIndicator(props) {

@@ -67,7 +67,7 @@ function TraitCard(props) {
 }
 
 function brinkValueToDisplay(props) {
-    if (props.controlledByUser || props.burned_traits.includes("3")) {
+    if (props.controlledByUser || props.brink_embraced) {
         return props.brink;
     }
 

@@ -3,6 +3,9 @@ require 'rails_helper'
 RSpec.describe BrinkResolution, type: :model do
   it "rerolls the entire dice pool" do
     resolution = FactoryBot.create(:brink_resolution)
+    # [note]
+    # not much of a way to test this programmatically since it's random.
+    # maybe we could rework it to identify which dice it's going to reroll and test that way?
     expect(resolution.parent_resolution.player_roll_result).not_to eq resolution.player_roll_result
   end
 

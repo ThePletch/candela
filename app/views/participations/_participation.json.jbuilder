@@ -26,6 +26,6 @@ if participation.player?
   end
 
   json.extract! participation, :character_concept, :top_trait_id, :top_trait, :top_trait_value,
-                               :hope_die_count, :virtue, :vice, :moment, :card_order
+                               :hope_die_count, :virtue, :vice, :moment, :card_order, :brink_embraced
   json.is_alive participation.alive?
 end

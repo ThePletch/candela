@@ -86,8 +86,29 @@ RSpec.describe Participation, type: :model do
     on_the_brink = FactoryBot.create(:participation_down_to_brink)
     expect(on_the_brink.top_trait).to eq "brink"
     expect(on_the_brink.top_trait_value).to eq "(hidden)"
-    FactoryBot.create(:brink_resolution, :succeeded, active_player: on_the_brink, game: on_the_brink.game)
+    expect(on_the_brink.brink_embraced).to eq false
+
+    FactoryBot.create(:brink_resolution, :succeeded, :confirmed, active_player: on_the_brink, game: on_the_brink.game)
 
     expect(on_the_brink.top_trait_value).to eq on_the_brink.brink
+    expect(on_the_brink.brink_embraced).to eq true
+
+  end
+
+  it "only burns a brink if the player fails a brink reroll" do
+    on_the_brink = FactoryBot.create(:participation_down_to_brink)
+    expect(on_the_brink.burned_traits).not_to include("3")
+    FactoryBot.create(:brink_resolution, :succeeded, :confirmed, active_player: on_the_brink, game: on_the_brink.game)
+    expect(on_the_brink.burned_traits).not_to include("3")
+    FactoryBot.create(:brink_resolution, :failed, :confirmed, active_player: on_the_brink, game: on_the_brink.game)
+    expect(on_the_brink.burned_traits).to include("3")
+  end
+
+  it "discards a player's hope dice if they fail a brink reroll" do
+    moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, :confirmed)
+    hoped_participant = moment_resolution.active_player
+    expect(hoped_participant.hope_die_count).to eq 1
+    FactoryBot.create(:brink_resolution, :failed, :confirmed, active_player: hoped_participant, game: hoped_participant.game)
+    expect(hoped_participant.hope_die_count).to eq 0
   end
 end

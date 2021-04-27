@@ -70,6 +70,13 @@ class Participation < ApplicationRecord
 		end
 	end
 
+	def brink_embraced(as_of: nil)
+		as_of ||= Time.current
+		BrinkResolution.where(player_id: self.id)
+								   .created_before(as_of)
+								   .exists?
+	end
+
 	def burned_traits(as_of: nil)
 		as_of ||= Time.current
 		already_burned = resolutions.where.not(burned_trait_type: nil)
@@ -83,6 +90,7 @@ class Participation < ApplicationRecord
 
 		if BrinkResolution.where(player_id: self.id)
 											 .created_before(as_of)
+											 .failed
 											 .exists?
 			already_burned.append('3')
 		end
@@ -124,17 +132,25 @@ class Participation < ApplicationRecord
 	def hope_die_count(as_of: nil)
 		as_of ||= Time.current
 		# count any hope dice given to this player by dying players
-		count = Resolution.joins(conflict: {scene: :game})
+		bequeathals = Resolution.joins(conflict: {scene: :game})
 								      .where(resolutions: {beneficiary_player: self}, games: {id: game.id})
-								      .where("resolutions.created_at < ?", as_of)
-								      .count
+								      .created_before(as_of)
 
-		# add one hope die if the player has lived their moment
-		if resolutions.successful.created_before(as_of).where(type: 'MomentResolution').exists?
-			count += 1
+		failed_brink_embrace = BrinkResolution.where(player_id: self.id)
+																					.created_before(as_of)
+																				  .failed
+																				  .take
+
+		if failed_brink_embrace
+			# if a player has been consumed by their brink, they lose all their hope dice (including
+			# from a lived moment). the only way they can have hope dice is if someone gives them one
+			# AFTER they've been consumed by their brink.
+			bequeathals.where("resolutions.created_at > ?", failed_brink_embrace.created_at).count
+		else
+			# add a hope die if the player has lived their moment successfully
+			lived_moment = resolutions.successful.created_before(as_of).where(type: 'MomentResolution').count
+			bequeathals.count + lived_moment
 		end
-
-		count
 	end
 
 	def alive?

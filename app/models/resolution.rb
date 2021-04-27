@@ -3,79 +3,99 @@ class Resolution < ApplicationRecord
 
 	belongs_to :conflict
 	has_one :scene, through: :conflict
-	belongs_to :active_player, class_name: 'Participation'
-	belongs_to :parent_resolution, class_name: 'Resolution'
-	has_one :override, inverse_of: :parent_resolution
+	belongs_to :active_player, class_name: 'Participation', inverse_of: :resolutions, foreign_key: 'player_id'
+	belongs_to :parent_resolution, class_name: 'Resolution', foreign_key: 'resolution_id', optional: true
+	has_one :override, class_name: 'Resolution', foreign_key: 'resolution_id', inverse_of: :parent_resolution
 
 	# player who gets the hope die if the active player for this resolution dies
-	belongs_to :beneficiary_player, class_name: 'Participation'
+	belongs_to :beneficiary_player, class_name: 'Participation', foreign_key: 'beneficiary_player_id', optional: true
 
-	scope :successful, -> { confirmed.where(failed: false) }
-	scope :failed, -> { confirmed.where(failed: true) }
-	scope :deadly, -> { joins(:conflict).where(conflict: {dire: true}) }
+	validate :cannot_override_an_override
+
+	scope :successful, -> { confirmed.where(succeeded: true) }
+	scope :failed, -> { confirmed.where(succeeded: false) }
+	scope :deadly, -> { joins(:conflict).where(conflicts: {dire: true}) }
+	scope :created_before, ->(timestamp) { where("resolutions.created_at < ?", timestamp) }
+	scope :not_overridden, -> { joins("LEFT OUTER JOIN resolutions AS children on resolutions.id = children.resolution_id").where("children.id IS NULL") }
 
 	# there can be only one confirmed resolution for a conflict, and that resolution
 	# cannot have been overridden
-	validates :state, distinct: { scope: :conflict }, if: :confirmed?
-	validates :override, absence: true, if: :confirmed?
+	# validates :state, distinct: { scope: :conflict }, if: :confirmed?
+	# validates :override, absence: true, if: :confirmed?
 
-	aasm do
-		state :rolled, initial: true, before_enter: :record_rolls!
-		state :confirmed
+	aasm(:state) do
+		state :rolled, initial: true
+		state :confirmed, before_enter: :record_success
 
 		event :confirm do
-			transitions from: :rolled, to: :confirmed
+			transitions from: :rolled, to: :confirmed, if: :no_overrides?
+
+			after_commit do
+				if not self.scene.active?
+					if not self.scene.game.over?
+						self.scene.game.scenes.create!
+					end
+				end
+			end
 		end
 	end
 
-	def player_dice_pool
-		scene.game.candles_lit(as_of: self.created_at) - dice_lost_in_past_scenes
-	end
-
-	def gm_dice_pool
-		scene.game.candles_lit(as_of: self.created_at)
-	end
-
-	def dice_lost_in_past_scenes
-		scene.resolutions.confirmed.where("created_at < ?", self.created_at).map(&:dice_lost).sum
-	end
+	before_create :record_rolls
 
 	# default logic implementations that can have new logic added in subclasses
 
 	def successful?
-		hope_dice_roll = player_dice_roll[0...active_player.hope_die_count]
+		hope_dice_roll = player_roll_result[0...active_player.hope_die_count(as_of: self.created_at)]
 
-		player_dice_roll.include?('6') or hope_dice_roll.include?('5')
+		player_roll_result.include?('6') or hope_dice_roll.include?('5')
 	end
 
 	def dice_lost
 		# player can't lose hope dice, so exclude them.
-		losable_dice = player_dice_roll[active_player.hope_die_count..-1]
-
+		losable_dice = player_roll_result[active_player.hope_die_count(as_of: self.created_at)..-1]
 		losable_dice.count('1')
 	end
 
 	def narrative_control
-		player_dice_roll.count('6') > gm_dice_roll.count('6') ? active_player : scene.game.gm
-	end
-
-	def record_rolls!
-		self.update(player_dice_roll: roll_for_player, gm_dice_roll: roll_for_gm)
+		player_roll_result.count('6') > gm_roll_result.count('6') ? active_player : scene.game.gm
 	end
 
 	def roll_for_player
-		(0...player_dice_pool).collect{ self.get_single_die_roll }
+		(0...conflict.scene.player_dice_pool(active_player, as_of: self.created_at)).collect{ self.get_single_die_roll }.join
 	end
 
 	def roll_for_gm
-		(0...gm_dice_pool).collect{ self.get_single_die_roll }
+		(0...conflict.scene.gm_dice_pool).collect{ self.get_single_die_roll }.join
 	end
 
+	# add one to each roll to get 1-6 instead of 0-5
 	def get_single_die_roll
-		Random.rand(6).to_s
+		(Random.rand(6) + 1).to_s
 	end
 
-	def no_overrides
+	def no_overrides?
 		self.override.nil?
 	end
+
+	def rolled?
+		[self.player_roll_result, self.gm_roll_result].all?(&:present?)
+	end
+
+	private
+
+	def cannot_override_an_override
+		if parent_resolution.present? and parent_resolution.parent_resolution.present?
+			self.errors.add(:resolution_id, "Can't override a resolution that is overriding a different resolution")
+		end
+	end
+
+	def record_rolls
+		self.player_roll_result ||= roll_for_player
+		self.gm_roll_result ||= roll_for_gm
+	end
+
+	def record_success
+		self.succeeded = self.successful?
+	end
+
 end

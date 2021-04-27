@@ -1,0 +1,49 @@
+controllers:
+game:
+	- make a new game
+		- creates the game
+		- creates you as the gm
+		- validation: requires a name
+	- list games available to join (nascent games)
+	- show
+		- returns base attributes of a game plus:
+			- info about its current scene (if it's in the ready state)
+			- its participations (excluding their GUID)
+				- tracks top card for each player
+				- doesn't return the description for a player's brink unless the brink has been used
+			- lit candle count
+			- current player dice pool size
+	- advance to state X
+		- attempts to advance to state X (must specify state to avoid multiple 'advance to next state' commands going through back to back)
+
+participation:
+	- join a game
+		- identify a game by its id
+		- creates a participation (player)
+		- returns the guid for that participation
+	- show
+		- gets all attributes of a user plus these computed attributes:
+			- hope dice count
+			- whether cards have been burned
+			- is player dead
+truth:
+	- create
+		- requires scene is in initial state
+		- creator must be the current truth stater for the scene
+		- must not have exceeded truth count for scene
+scene:
+conflict:
+	- create
+		- require 'is dire' flag
+resolution:
+	- create
+		- double check validations for 'only one active conflict at a time'
+		- optionally accept parent resolution id
+		- require resolution type
+	- confirm
+		- member action
+		- sets the resolution to 'confirmed'
+		- must be done by the active player
+	- show
+		- shows resolution type and results
+		- if overriding resolution, shows parent info

@@ -1,4 +1,4 @@
-<%= form_with(model: participation, local: true) do |form| %>
+<%= form_with(model: participation, url: join_game_path(participation.game), local: true) do |form| %>
   <% if participation.errors.any? %>
     <div id="error_explanation">
       <h2><%= pluralize(participation.errors.count, "error") %> prohibited this participation from being saved:</h2>
@@ -10,8 +10,10 @@
       </ul>
     </div>
   <% end %>
+  <%= form.label(:name) %>
+  <%= form.text_field(:name) %>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit("Join") %>
   </div>
 <% end %>

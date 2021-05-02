@@ -22,6 +22,4 @@ test:
 
 production:
   <<: *default
-  database: candela_prod
-  username: candela
-  password: <%= ENV['CANDELA_DATABASE_PASSWORD'] %>
+  url: <%= ENV['DATABASE_URL'] %>

@@ -12,6 +12,9 @@
 
 ActiveRecord::Schema.define(version: 2020_10_03_232122) do
 
+  # These are extensions that must be enabled in order to support this database
+  enable_extension "plpgsql"
+
   create_table "conflicts", force: :cascade do |t|
     t.integer "scene_id"
     t.boolean "dire"

@@ -150,9 +150,13 @@ function cardsToRender(props) {
             if (props.game.setup_state == 'ready') {
                 return props.card_order.split("").concat(["3"]);
             }
-        } else if (['order_cards', 'ready'].includes(props.game.setup_state)) {
+        }
+
+        if (['order_cards', 'ready'].includes(props.game.setup_state)) {
             return ['3'];
         }
+
+        return [];
     } else {
         if (props.game.setup_state == 'ready' && props.role == 'player') {
             return [props.top_trait_id]

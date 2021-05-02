@@ -35,35 +35,47 @@ function cardColorClass(props) {
     return 'bg-light';
 }
 
-// todo make this account for who gave you the trait
-function traitCardPretext(type, giver, holderRole) {
-    switch (type) {
-        case 'brink':
-            if (giver.role == 'gm') {
-                return "They've seen you...";
-            }
 
-            if (holderRole == 'gm') {
-                return "I've seen Them...";
-            }
 
-            return "I've seen you...";
-        case 'virtue':
-        case 'vice':
-            return 'I am...';
-        case 'moment':
-            return 'I will find hope...';
+class TraitCard extends React.Component {
+    pretext() {
+        switch (this.props.traitType) {
+            case 'brink':
+                if (this.props.traitGiver.role == 'gm') {
+                    return "They've seen you...";
+                }
+
+                if (this.props.holderRole == 'gm') {
+                    return "I've seen Them...";
+                }
+
+                return "I've seen you...";
+            case 'virtue':
+                return "My virtue:"
+            case 'vice':
+                return 'My vice:';
+            case 'moment':
+                return 'I will find hope...';
+        }
     }
-}
 
-function TraitCard(props) {
-    return (
-        <li key={props.traitType} className={`list-group-item ${props.burned ? "bg-secondary" : "bg-light" }`}>
-            <h6 className="float-right">{props.traitType}</h6>
-            <div className="text-muted"><em>{traitCardPretext(props.traitType, props.traitGiver, props.holderRole)}</em></div>
-            <span>{props.traitValue}</span>
-        </li>
-    );
+    pretextColorClass() {
+        return this.props.burned ? 'text-white' : 'text-muted';
+    }
+
+    mainTextColorClass() {
+        return this.props.burned ? 'text-white' : 'text-body';
+    }
+
+    render() {
+        return (
+            <li key={this.props.traitType} className={`list-group-item ${this.props.burned ? "bg-secondary" : "bg-light" }`}>
+                <h6 className={`float-right ${this.mainTextColorClass()}`}>{this.props.traitType}</h6>
+                <div className={this.pretextColorClass()}><em>{this.pretext()}</em></div>
+                <span className={this.mainTextColorClass()}>{this.props.traitValue}</span>
+            </li>
+        );
+    }
 }
 
 function brinkValueToDisplay(props) {
@@ -163,6 +175,7 @@ function TraitCardList(props) {
 }
 
 function HopeDieIndicator(props) {
+    console.log(props)
     if (props.role == 'player' && props.hope_die_count > 0) {
         return (<div>
             Hope dice:&nbsp;

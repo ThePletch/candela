@@ -68,6 +68,10 @@ class Resolution < ApplicationRecord
 		(0...conflict.scene.gm_dice_pool).collect{ self.get_single_die_roll }.join
 	end
 
+	def burned_trait_name
+		Participation::CARD_MAPPING.fetch(burned_trait_type, nil)
+	end
+
 	# add one to each roll to get 1-6 instead of 0-5
 	def get_single_die_roll
 		(Random.rand(6) + 1).to_s

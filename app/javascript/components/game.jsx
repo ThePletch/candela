@@ -70,7 +70,7 @@ class Game extends Component {
 
     dicePoolIndicator() {
         if (this.state.game.active_scene) {
-            return (<div>{_.times(this.state.game.active_scene.base_player_dice_pool, n => { return (<span className="badge badge-pill badge-info">&nbsp;</span>)})}</div>);
+            return (<div>{_.times(this.state.game.active_scene.base_player_dice_pool, n => { return (<span key={`pool-${n}`} className="badge badge-pill badge-info">&nbsp;</span>)})}</div>);
         }
 
         return (null);
@@ -120,7 +120,9 @@ class Game extends Component {
                 <h1>{this.state.game.name}</h1>
                 <div className="row">
                     <div className="col">
+                        <h6>Candles Lit</h6>
                         <div>{_.times(10, n => { return (<Candle key={n} lit={n < this.state.game.candles_lit} />) })}</div>
+                        <h6>Dice In Pool</h6>
                         {this.dicePoolIndicator()}
                         <div>{this.currentSetupStatePrompt()}</div>
                     </div>

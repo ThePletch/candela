@@ -1,6 +1,6 @@
 import React from 'react';
 
-import Resolution from './resolution';
+import { Resolution } from './resolution/resolution';
 import { makePatchRequest, makePostRequest } from 'util/requests';
 
 

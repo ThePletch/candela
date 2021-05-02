@@ -151,6 +151,7 @@ GEM
       execjs
       railties (>= 3.2)
       tilt
+    redis (4.2.5)
     regexp_parser (2.1.1)
     rspec-core (3.10.1)
       rspec-support (~> 3.10.0)
@@ -239,6 +240,7 @@ DEPENDENCIES
   puma (~> 3.11)
   rails (~> 5.2.5)
   react-rails
+  redis (~> 4.0)
   rspec-rails (>= 3.9.0)
   sass-rails (~> 5.0)
   selenium-webdriver

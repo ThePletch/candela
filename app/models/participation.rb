@@ -150,7 +150,7 @@ class Participation < ApplicationRecord
 			# add a hope die if the player has lived their moment successfully
 			lived_moment = resolutions.successful.created_before(as_of).where(type: 'MomentResolution').count
 			# also count a moment resolution if it succeeded after a reroll
-			overridden_moments = resolutions.rolled.where(type: 'MomentResolution')
+			overridden_moments = resolutions.joins(:override).rolled.where(type: 'MomentResolution')
 			succeeded_on_override = overridden_moments.select{|m| m.override.succeeded }.length
 			bequeathals.count + lived_moment + succeeded_on_override
 		end

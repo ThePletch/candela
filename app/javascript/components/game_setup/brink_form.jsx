@@ -22,7 +22,7 @@ function placeholder (props) {
   	}
 
 	if (props.participant.left_participant.role == 'gm') {
-		return "You've seen them...'"
+		return "You've seen them..."
 	}
 
 	return "I've seen you..."
@@ -37,9 +37,10 @@ export default function BrinkForm(props) {
     <form onSubmit={handleSubmit(onSubmit)}>
 
       <em>{promptText(props)}</em>
+      <div className="text-muted">{placeholder(props)}</div>
       <textarea
       	className="form-control"
-      	placeholder={placeholder(props)}
+        placeholder="...doing something unspeakable."
       	name="participation[written_brink]"
       	ref={register({required: true})} />
 

@@ -8,7 +8,7 @@ function request(url, method, additionalOptions) {
     };
 
     return fetch(url, {...defaultOptions, ...additionalOptions})
-        .then(response => {
+        .catch(response => {
             if (!response.ok) {
                 response.json().then(json => {
                     let text = "Request failed."

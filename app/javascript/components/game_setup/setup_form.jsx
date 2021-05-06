@@ -18,8 +18,7 @@ export default class SetupForm extends React.Component {
 
     render() {
     	return (
-    		<div className="fixed-bottom border-top">
-                <h3>Game Setup</h3>
+    		<div className="game-setup">
     			<div className="row">
     				<div className="col">
     					<h3>Actions</h3>

@@ -39,7 +39,7 @@ export default class CardOrderForm extends React.Component {
 	  return (
 	    <form onSubmit={this.submitCardOrder.bind(this)}>
 	  		<em>Order your cards.</em>
-	    	<ul className="list-group" ref={this.sortableContainersDecorator.bind(this)}>
+	    	<ul className="card-order-group list-group" ref={this.sortableContainersDecorator.bind(this)}>
 				{this.sortableCards.map((name, i) => this.cardListItem(name, i, true))}
 				{this.cardListItem('brink', 3, false)}
 	    	</ul>

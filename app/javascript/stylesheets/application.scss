@@ -17,12 +17,13 @@
 }
 
 .participations-button {
-	@extend .btn, .btn-primary;
+	@extend .btn, .btn-secondary, .btn-block;
 }
 
 .info-panel {
 	display: flex;
 	flex-direction: row;
+	align-items: flex-end;
 
 	.participations-list-wrapper {
 		flex-grow: 1;
@@ -87,27 +88,37 @@ body {
 
 	&.inactive {
 		filter: brightness(70%);
+	}
 
-		// .participant-type {
-		// 	display: none;
-		// }
+	.hope-dice-pretext {
+		@extend .text-muted;
+		margin-right: 0.5em;
+	}
 
-		// .character-concept {
-		// 	text-overflow: ellipsis;
-		// 	white-space: nowrap;
-		// 	overflow: hidden;
-		// }
+	&.collapsed {
+		.trait-list, .hope-dice-indicator {
+			display: none;
+		}
 
+		.character-concept {
+			text-overflow: ellipsis;
+			white-space: nowrap;
+			overflow: hidden;
+		}
 
-		// .trait-pretext {
-		// 	display: none;
-		// }
+		.alive-footer {
+			display: none;
+		}
 
-		// .trait-value {
-		// 	overflow: hidden;
-		// 	text-overflow: ellipsis;
-		// 	white-space: nowrap;
-		// }
+		.expand-prompt {
+			display: block;
+			text-align: center;
+			@extend .text-muted;
+		}
+	}
+
+	.expand-prompt {
+		display: none;
 	}
 
 	.participation-info {
@@ -149,7 +160,7 @@ body {
 	}
 
 	.trait-list {
-		@extend .list-group, .list-group-flush, .d-block;
+		@extend .list-group, .list-group-flush;
 
 		.trait-card {
 			@extend .list-group-item, .bg-dark;

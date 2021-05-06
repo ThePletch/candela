@@ -8,6 +8,7 @@ import PropTypes from 'prop-types'
 
 import _ from 'lodash'
 import Candle from './candle'
+import CandleIndicator from './candle_indicator'
 import ParticipationsList from './participations_list'
 import StartGamePrompt from './game_setup/start_game_prompt'
 import TraitsPrompt from './game_setup/traits_prompt'
@@ -73,12 +74,12 @@ class Game extends Component {
         }
     }
 
-    dicePoolIndicator() {
+    dicePoolCount() {
         if (this.state.game.active_scene) {
-            return (<div>{_.times(this.state.game.active_scene.base_player_dice_pool, n => { return (<span key={`pool-${n}`} className="badge badge-pill badge-info">&nbsp;</span>)})}</div>);
+            return this.state.game.active_scene.base_player_dice_pool;
         }
 
-        return (null);
+        return 0;
     }
 
     currentSetupStatePrompt() {
@@ -121,18 +122,27 @@ class Game extends Component {
     render() {
         if (!this.state.game) { return (<p>Loading Game...</p>); }
         return (
-            <div className="container-fluid">
+            <div className="container-fluid game-interface">
                 <h1>{this.state.game.name}</h1>
-                <div className="row">
-                    <div className="col">
-                        <h6>Candles Lit</h6>
-                        <div>{_.times(10, n => { return (<Candle key={n} lit={n < this.state.game.candles_lit} />) })}</div>
-                        <h6>Dice In Pool</h6>
-                        {this.dicePoolIndicator()}
-                        <div>{this.currentSetupStatePrompt()}</div>
-                    </div>
-                    <div className="col" style={{flexGrow: "2"}}>
-                        <ParticipationsList participations={this.state.participations} activeParticipant={this.props.participantId} game={this.state.game} />
+                <CandleIndicator lit={this.state.game.candles_lit} dicePool={this.dicePoolCount()} />
+                <div className="game-main">
+                    <div>{this.currentSetupStatePrompt()}</div>
+                </div>
+                <div className="info-panel">
+                    <ParticipationsList participations={this.state.participations} activeParticipant={this.props.participantId} game={this.state.game} />
+                    <div className="game-stats">
+                        <div className="stat-button">
+                            Candles lit:
+                            <span className="stat-number">
+                                {this.state.game.candles_lit}
+                            </span>
+                        </div>
+                        <div className="stat-button">
+                            Player dice pool:
+                            <span className="stat-number">
+                                {this.dicePoolCount()}
+                            </span>
+                        </div>
                     </div>
                 </div>
             </div>);

@@ -74,8 +74,8 @@ class ConflictHandler extends React.Component {
                     return (
                         <div>
                             <h3>Click one of the below buttons to begin a conflict.</h3>
-                            <button className="btn btn-primary"onClick={this.createUndireConflict.bind(this)}>CONFLICT</button>
-                            <button className="btn btn-danger"onClick={this.createDireConflict.bind(this)}>DIRE CONFLICT</button>
+                            <button className="btn btn-primary" onClick={this.createUndireConflict.bind(this)}>CONFLICT</button>
+                            <button className="btn btn-danger" onClick={this.createDireConflict.bind(this)}>DIRE CONFLICT</button>
                         </div>
                     );
                 } else {

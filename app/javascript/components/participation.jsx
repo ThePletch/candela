@@ -1,9 +1,10 @@
 import React from 'react'
+import classNames from 'classnames'
 
 function Bio(props) {
     if (props.role == 'player') {
         return (
-            <p className="card-text">{props.character_concept}</p>
+            <p className="character-concept">{props.character_concept}</p>
         );
     } else {
         return (null);
@@ -22,19 +23,6 @@ function AliveFooter(props) {
         return (null);
     }
 }
-
-function cardColorClass(props) {
-    if (props.role == 'gm') {
-        return 'bg-info';
-    }
-
-    if (props.controlledByUser) {
-        return 'bg-white';
-    }
-
-    return 'bg-light';
-}
-
 
 
 class TraitCard extends React.Component {
@@ -59,20 +47,19 @@ class TraitCard extends React.Component {
         }
     }
 
-    pretextColorClass() {
-        return this.props.burned ? 'text-white' : 'text-muted';
-    }
-
-    mainTextColorClass() {
-        return this.props.burned ? 'text-white' : 'text-body';
-    }
-
     render() {
+        const classes = classNames({
+            'trait-card': true,
+            burned: this.props.burned,
+            'active-trait': this.props.isTopTrait,
+            'inactive-trait': !this.props.isTopTrait,
+        });
+
         return (
-            <li key={this.props.traitType} className={`list-group-item ${this.props.burned ? "bg-secondary" : "bg-light" }`}>
-                <h6 className={`float-right ${this.mainTextColorClass()}`}>{this.props.traitType}</h6>
-                <div className={this.pretextColorClass()}><em>{this.pretext()}</em></div>
-                <span className={this.mainTextColorClass()}>{this.props.traitValue}</span>
+            <li key={this.props.traitType} className={classes}>
+                <h6 className="trait-type">{this.props.traitType}</h6>
+                <div className="trait-pretext"><em>{this.pretext()}</em></div>
+                <span className="trait-value">{this.props.traitValue}</span>
             </li>
         );
     }
@@ -119,6 +106,7 @@ function traitCardForTraitId(id, props) {
             key={id}
             burned={props.burned_traits.includes(id)}
             holderRole={props.role}
+            isTopTrait={id == props.top_trait_id}
             traitType={traitType}
             traitValue={traitValue}
             traitGiver={traitGiver}
@@ -172,18 +160,16 @@ function TraitCardList(props) {
     }
 
     return (
-        <ul className={"list-group list-group-flush d-block " + cardColorClass(props)}>
+        <ul className="trait-list">
             {cardsToRender(props).map(cardId => traitCardForTraitId(cardId, props))}
         </ul>
     );
 }
 
 function HopeDieIndicator(props) {
-    console.log(props)
     if (props.role == 'player' && props.hope_die_count > 0) {
-        return (<div>
-            Hope dice:&nbsp;
-            {_.times(props.hope_die_count, n => { return(<span className="badge badge-pill badge-primary">&nbsp;</span>) })}
+        return (<div className="hope-dice-indicator">
+            {_.times(props.hope_die_count, n => { return(<span key={`hope-${props.id}-${n}`} className="hope-die-badge">&nbsp;</span>) })}
         </div>);
     }
 
@@ -191,17 +177,25 @@ function HopeDieIndicator(props) {
 }
 
 export default function Participation(props) {
-	return (
-        <div className={`card ${cardColorClass(props)}`} style={{width: '18rem'}}>
-            <div className="card-body">
-                <h6 className="float-right">
-                    <div className="text-right"><small>{props.role}</small></div>
-                    {
-                        props.controlledByUser &&
-                        <div><small className="text-muted">Your character</small></div>
-                    }
-                </h6>
-                <h4 className="card-title">{props.name}</h4>
+    const participationClasses = classNames({
+        participation: true,
+        active: props.controlledByUser,
+        inactive: !props.controlledByUser,
+        [props.role]: true,
+    })
+    return (
+        <div className={participationClasses}>
+            <div className="participation-info">
+                <div className="participation-main-block">
+                    <h4 className="participation-name">{props.name}</h4>
+                    <h6 className="participation-type">
+                        <div className="participation-role">{props.role}</div>
+                        {
+                            props.controlledByUser &&
+                            <div><small className="is-character">Your character</small></div>
+                        }
+                    </h6>
+                </div>
                 <Bio {...props} />
                 <TraitCardList {...props} />
                 <HopeDieIndicator {...props} />

@@ -15,7 +15,7 @@ function AliveFooter(props) {
 
     if (props.role == 'player') {
         return (
-            <div className={`card-footer ${props.is_alive ? 'bg-success' : 'bg-secondary'}`}>
+            <div className={`alive-footer card-footer ${props.is_alive ? 'bg-success' : 'bg-secondary'}`}>
                 <small>{props.is_alive ? "Fighting for survival." : "Passed on."}</small>
             </div>
         );
@@ -169,6 +169,7 @@ function TraitCardList(props) {
 function HopeDieIndicator(props) {
     if (props.role == 'player' && props.hope_die_count > 0) {
         return (<div className="hope-dice-indicator">
+            <span class="hope-dice-pretext">Found hope.</span>
             {_.times(props.hope_die_count, n => { return(<span key={`hope-${props.id}-${n}`} className="hope-die-badge">&nbsp;</span>) })}
         </div>);
     }
@@ -176,32 +177,49 @@ function HopeDieIndicator(props) {
     return (null);
 }
 
-export default function Participation(props) {
-    const participationClasses = classNames({
-        participation: true,
-        active: props.controlledByUser,
-        inactive: !props.controlledByUser,
-        [props.role]: true,
-    })
-    return (
-        <div className={participationClasses}>
-            <div className="participation-info">
-                <div className="participation-main-block">
-                    <h4 className="participation-name">{props.name}</h4>
-                    <h6 className="participation-type">
-                        <div className="participation-role">{props.role}</div>
-                        {
-                            props.controlledByUser &&
-                            <div><small className="is-character">Your character</small></div>
-                        }
-                    </h6>
+export default class Participation extends React.Component {
+
+    constructor(props) {
+        super(props);
+        this.state = {
+            collapsed: true,
+        };
+    }
+
+    toggleExpanded() {
+        this.setState({collapsed: !this.state.collapsed})
+    }
+
+    render() {
+        const participationClasses = classNames({
+            participation: true,
+            active: this.props.controlledByUser,
+            inactive: !this.props.controlledByUser,
+            collapsed: this.state.collapsed,
+            [this.props.role]: true,
+        });
+
+        return (
+            <div className={participationClasses}>
+                <div className="participation-info" onClick={this.toggleExpanded.bind(this)}>
+                    <div className="participation-main-block">
+                        <h4 className="participation-name">{this.props.name}</h4>
+                        <h6 className="participation-type">
+                            <div className="participation-role">{this.props.role}</div>
+                            {
+                                this.props.controlledByUser &&
+                                <div><small className="is-character">Your character</small></div>
+                            }
+                        </h6>
+                    </div>
+                    <Bio {...this.props} />
+                    <TraitCardList {...this.props} />
+                    <HopeDieIndicator {...this.props} />
+                    <div className="expand-prompt">Click to expand</div>
                 </div>
-                <Bio {...props} />
-                <TraitCardList {...props} />
-                <HopeDieIndicator {...props} />
+                <AliveFooter {...this.props} />
             </div>
-            <AliveFooter {...props} />
-        </div>
-    )
+        );
+    }
 
 }

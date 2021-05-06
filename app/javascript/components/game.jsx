@@ -48,7 +48,12 @@ class Game extends Component {
             game_id: this.props.gameId,
             guid: this.props.participantGuid,
         }, receivedData => {
-            this.setState({participations: listStateReducer(this.state.participations, receivedData)});
+            this.setState({
+                participations: listStateReducer(
+                    this.state.participations,
+                    receivedData,
+                    record => record.position,
+                )});
         });
     }
 

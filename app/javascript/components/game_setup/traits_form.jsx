@@ -6,32 +6,49 @@ import { makePatchRequest } from 'util/requests';
 export default function TraitsForm(props) {
   const { register, handleSubmit, errors } = useForm();
   const onSubmit = data => {
-  	console.log(data);
-  	console.log(props);
-  	makePatchRequest(`/api/participations/${props.participant.id}/`, props.participant.guid, data)
+    console.log(data);
+    console.log(props);
+    makePatchRequest(`/api/participations/${props.participant.id}/`, props.participant.guid, data)
   };
   const virtueText = `Virtue for ${props.participant.left_player.name}`
   const viceText = `Vice for ${props.participant.right_player.name}`
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <em>What virtues and vices do your companions have?</em>
-      <div className="form-group">
-	    <input
-	    	className="form-control"
-	    	type="text"
-	    	placeholder={virtueText}
-	    	name="participation[written_virtue]"
-	    	ref={register({required: true})} />
-	    <input
-	    	className="form-control"
-	    	type="text"
-	    	placeholder={viceText}
-	    	name="participation[written_vice]"
-	    	ref={register({required: true})} />
+      <div>
+        <em>
+          What virtues and vices do your companions have?
+        </em>
+      </div>
+      <div className="text-muted">
+        <ul>
+          <li>
+            A virtue is a single word describing a positive trait a character possesses.
+            It should solve more problems than it creates.
+          </li>
+          <li>
+            A vice is a single word describing a weakness a character possesses.
+            It should create more problems than it solves.
+          </li>
+        </ul>
+      </div>
 
-	    <input type="submit" />
-	  </div>
+      <div className="form-group">
+      <input
+        className="form-control"
+        type="text"
+        placeholder={virtueText}
+        name="participation[written_virtue]"
+        ref={register({required: true})} />
+      <input
+        className="form-control"
+        type="text"
+        placeholder={viceText}
+        name="participation[written_vice]"
+        ref={register({required: true})} />
+
+      <input type="submit" className="btn btn-secondary btn-block" />
+    </div>
     </form>
   );
 }

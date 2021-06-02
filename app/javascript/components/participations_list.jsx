@@ -10,6 +10,7 @@ function renderSingleParticipant(participant, game, activeParticipant, activePos
             key={participant.id}
             game={game}
             controlledByUser={participant.id == activeParticipant}
+            activeParticipantId={activeParticipant}
             positionDelta={activePositionDelta}
             stackIndex={stackIndex}
             {...participant}

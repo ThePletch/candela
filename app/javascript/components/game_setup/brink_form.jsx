@@ -37,6 +37,12 @@ export default function BrinkForm(props) {
     <form onSubmit={handleSubmit(onSubmit)}>
 
       <em>{promptText(props)}</em>
+      <div className="text-muted">
+        A Brink should finish the below sentence, and should represent something dangerous
+        that calls the character's humanity into question. If you're writing a brink for the GM,
+        you get to decide something about Them. The only rule is that you cannot give Them
+        a weakness.
+      </div>
       <div className="text-muted">{placeholder(props)}</div>
       <textarea
       	className="form-control"

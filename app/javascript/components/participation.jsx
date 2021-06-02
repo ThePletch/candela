@@ -39,9 +39,9 @@ class TraitCard extends React.Component {
 
                 return "I've seen you...";
             case 'virtue':
-                return "My virtue:"
+                return "I am proudly:"
             case 'vice':
-                return 'My vice:';
+                return 'I am shamefully:';
             case 'moment':
                 return 'I will find hope...';
         }
@@ -66,7 +66,7 @@ class TraitCard extends React.Component {
 }
 
 function brinkValueToDisplay(props) {
-    if (props.controlledByUser || props.brink_embraced) {
+    if (props.controlledByUser || props.brink_embraced || props.right_participant.id === props.activeParticipantId) {
         return props.brink;
     }
 
@@ -113,55 +113,88 @@ function traitCardForTraitId(id, props) {
         />);
 }
 
-function cardsToRender(props) {
+function cardsThatAreFilledIn(props) {
     if (!props.game || ['nascent', 'traits'].includes(props.game.setup_state)) {
         return [];
     }
-    if (props.controlledByUser) {
-        if (props.role == 'player') {
-            if (['module_intro', 'character_concept', 'moments'].includes(props.game.setup_state)) {
-                return ['0', '1'];
-            }
 
-            if (props.game.setup_state == 'brinks') {
-                return ['0', '1', '2'];
-            }
+    if (props.role === 'player') {
+        if (['module_intro', 'character_concept', 'moments'].includes(props.game.setup_state)) {
+            return ['0', '1'];
+        }
 
-            if (props.game.setup_state == 'order_cards') {
-                if (props.card_order) {
-                    return props.card_order.split("").concat(["3"]);
-                }
-
-                return ['0', '1', '2', '3'];
-            }
-
-            if (props.game.setup_state == 'ready') {
-                return props.card_order.split("").concat(["3"]);
-            }
+        if (props.game.setup_state === 'brinks') {
+            return ['0', '1', '2'];
         }
 
         if (['order_cards', 'ready'].includes(props.game.setup_state)) {
-            return ['3'];
+            return ['0', '1', '2', '3'];
         }
-
-        return [];
-    } else {
-        if (props.game.setup_state == 'ready' && props.role == 'player') {
-            return [props.top_trait_id]
-        }
-
-        return [];
     }
+
+    if (['order_cards', 'ready'].includes(props.game.setup_state)) {
+        return ['3'];
+    }
+
+    return [];
+}
+
+function cardsActiveUserCanSee(props) {
+    let traitsToRender = [];
+
+    if (props.controlledByUser) {
+        traitsToRender = ['0', '1', '2', '3']
+    }
+
+    if (props.game.setup_state == 'ready') {
+        traitsToRender.push(props.top_trait_id)
+    }
+
+    if (props.left_player.id === props.activeParticipantId) {
+        // you gave this player their virtue, so you can always see what it is
+        traitsToRender.push('0')
+    }
+
+    if (props.right_player.id === props.activeParticipantId) {
+        // you gave this player their vice, so you can always see what it is
+        traitsToRender.push('1')
+    }
+
+    if (props.right_participant.id === props.activeParticipantId) {
+        // you gave this character their brink, so you can always see what it is
+        traitsToRender.push('3')
+    }
+
+    return traitsToRender;
 }
 
 function TraitCardList(props) {
     if (!props.game || ['nascent', 'traits'].includes(props.game.setup_state)) {
         return (null);
     }
+    const filledIn = cardsThatAreFilledIn(props)
+    const visible = cardsActiveUserCanSee(props)
+
+    let userCardOrder;
+    if (props.card_order) {
+        userCardOrder = props.card_order.split("").concat(["3"]);
+    } else {
+        userCardOrder = ["0", "1", "2", "3"];
+    }
+
+    let cardsToRender = [];
+
+    for (let element of filledIn) {
+        if (visible.includes(element)) {
+            cardsToRender.push(element)
+        }
+    }
+
+    cardsToRender.sort((a, b) => userCardOrder.indexOf(a) - userCardOrder.indexOf(b))
 
     return (
         <ul className="trait-list">
-            {cardsToRender(props).map(cardId => traitCardForTraitId(cardId, props))}
+            {cardsToRender.map(cardId => traitCardForTraitId(cardId, props))}
         </ul>
     );
 }

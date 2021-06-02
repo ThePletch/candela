@@ -1,19 +1,19 @@
 json.extract! participation, :id, :name, :role, :position, :burned_traits, :brink
 
 json.left_player do
-	json.extract! participation.left_player(skip_gm: true), :name, :role
+	json.extract! participation.left_player(skip_gm: true), :id, :name, :role
 end
 
 json.right_player do
-	json.extract! participation.right_player(skip_gm: true), :name, :role
+	json.extract! participation.right_player(skip_gm: true), :id, :name, :role
 end
 
 json.left_participant do
-	json.extract! participation.left_player(skip_gm: false), :name, :role
+	json.extract! participation.left_player(skip_gm: false), :id, :name, :role
 end
 
 json.right_participant do
-	json.extract! participation.right_player(skip_gm: false), :name, :role
+	json.extract! participation.right_player(skip_gm: false), :id, :name, :role
 end
 
 if not participation.game.ready?

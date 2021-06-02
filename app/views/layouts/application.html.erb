@@ -13,6 +13,10 @@
   </head>
 
   <body>
-    <%= yield %>
+    <div class="container-fluid">
+      <p id="notice"><%= notice %></p>
+      <%= content_for?(:heading) ? yield(:heading) : '' %>
+      <%= yield %>
+    </div>
   </body>
 </html>

@@ -1,3 +1,4 @@
+
 <%= form_with(model: game, local: true) do |form| %>
   <% if game.errors.any? %>
     <div id="error_explanation">
@@ -11,14 +12,17 @@
     </div>
   <% end %>
 
+  <div class="form-group">
+    <%= form.label :name %>
+    <%= form.text_field :name, class: "form-control" %>
+  </div>
 
-  <%= form.label :name %>
-  <%= form.text_field :name %>
-
-  <%= label_tag :gm_name %>
-  <%= text_field_tag :gm_name %>
+  <div class="form-group">
+    <%= label_tag :gm_name %>
+    <%= text_field_tag :gm_name, nil, class: "form-control" %>
+  </div>
 
   <div class="actions">
-    <%= form.submit %>
+    <%= form.submit(class: 'btn btn-primary') %>
   </div>
 <% end %>

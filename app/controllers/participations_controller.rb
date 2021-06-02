@@ -1,4 +1,5 @@
 class ParticipationsController < ApplicationController
+  layout 'games'
   before_action :set_game, only: [:new, :create]
   before_action :set_participation, only: [:update]
 

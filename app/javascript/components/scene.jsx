@@ -34,6 +34,7 @@ class TruthsPrompt extends React.Component {
                 return (<form onSubmit={this.createTruth.bind(this)}>
                     <textarea className="form-control" name="description" onChange={this.setDesiredTruth.bind(this)} />
                     <input className="btn btn-primary" type="submit" value="State Truth" />
+                    <br />
                     <em>{this.props.scene.truths_remaining} truths remain to be stated.</em>
                 </form>)
             } else {

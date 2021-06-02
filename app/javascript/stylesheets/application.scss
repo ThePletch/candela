@@ -104,6 +104,7 @@ body {
 			text-overflow: ellipsis;
 			white-space: nowrap;
 			overflow: hidden;
+			max-width: calc(80vw - 60px);
 		}
 
 		.alive-footer {

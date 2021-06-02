@@ -1,4 +1,6 @@
 class GamesController < ApplicationController
+  layout 'application', only: :play
+
   before_action :set_game, only: [:show, :advance_setup_state]
 
   # should happen after any actions that alter game state

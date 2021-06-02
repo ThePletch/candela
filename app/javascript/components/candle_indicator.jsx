@@ -8,11 +8,18 @@ class Candle extends React.Component {
         return this.props.lit ? "#DDAA00" : this.dark;
     }
 
+    outerRiseColor() {
+        return this.props.lit ? this.outerColor() : "#000000";
+    }
+
     innerColor() {
         return this.props.lit ? "#FFEE00" : this.dark;
     }
 
     coreColor() {
+        return this.props.lit ? "#FFFFFF" : "#333333";
+    }
+    subcoreColor() {
         if (this.props.lit) {
             return this.props.dicePool ? "#BBBBFF" : "#FFFFFF"
         }
@@ -23,25 +30,54 @@ class Candle extends React.Component {
         return (
             <svg>
                 <circle
+                    key="outer-highest"
+                    cx={this.props.x}
+                    cy={this.props.y - 4}
+                    r="2"
+                    style={{fill: this.outerRiseColor()}}
+                />
+                <circle
+                    key="outer-high"
+                    cx={this.props.x}
+                    cy={this.props.y - 1.5}
+                    r="4"
+                    style={{fill: this.outerRiseColor()}}
+                />
+                <circle
                     key="outer"
                     cx={this.props.x}
                     cy={this.props.y}
                     r="5"
                     style={{fill: this.outerColor()}}
                 />
+
+                <circle
+                    key="inner-high"
+                    cx={this.props.x}
+                    cy={this.props.y - 2}
+                    r="2"
+                    style={{fill: this.innerColor()}}
+                />
                 <circle
                     key="inner"
                     cx={this.props.x}
-                    cy={this.props.y}
-                    r="4"
+                    cy={this.props.y + 0.5}
+                    r="3.5"
                     style={{fill: this.innerColor()}}
                 />
                 <circle
                     key="core"
                     cx={this.props.x}
-                    cy={this.props.y}
-                    r="1.5"
+                    cy={this.props.y + 2}
+                    r="3"
                     style={{fill: this.coreColor()}}
+                />
+                <circle
+                    key="subcore"
+                    cx={this.props.x}
+                    cy={this.props.y + 3.5}
+                    r="1.5"
+                    style={{fill: this.subcoreColor()}}
                 />
             </svg>
         );

@@ -1,23 +1,20 @@
-<p id="notice"><%= notice %></p>
-
-<h1>Games</h1>
+<h1>Available Games</h1>
+<% if @games.any? %>
+<span>These games are recruiting players to begin playing.</span>
 
 <table>
-  <thead>
-    <tr>
-      <th colspan="3"></th>
-    </tr>
-  </thead>
-
   <tbody>
     <% @games.each do |game| %>
       <tr>
-        <td><%= link_to "Join #{game.name}", join_game_path(game) %></td>
+        <td><%= link_to "#{game.name}", join_game_path(game) %> (currently <strong><%= game.participations.players.count %></strong> player(s)) </td>
       </tr>
     <% end %>
   </tbody>
 </table>
 
+<% else %>
+<span>There are no games currently recruiting players.</span>
+<% end %>
 <br>
 
-<%= link_to 'New Game', new_game_path %>
+<%= link_to 'Run your own game', new_game_path %>

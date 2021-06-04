@@ -39,9 +39,9 @@ class TraitCard extends React.Component {
 
                 return "I've seen you...";
             case 'virtue':
-                return "I am proudly:"
+                return ""
             case 'vice':
-                return 'I am shamefully:';
+                return "";
             case 'moment':
                 return 'I will find hope...';
         }

@@ -38,7 +38,7 @@ export default class CardOrderForm extends React.Component {
   render() {
     return (
       <form onSubmit={this.submitCardOrder.bind(this)}>
-        <em>Click and drag to order your cards. The top of your pile is the first card in the list.</em>
+        <em>Click and drag to order your cards from top to bottom.</em>
         <div className="text-muted">
           You can only use the card on top of your pile, and can't use the cards below it
           until all the cards above them have been burned.

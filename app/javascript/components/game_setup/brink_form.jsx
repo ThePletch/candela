@@ -22,7 +22,7 @@ function placeholder (props) {
     }
 
   if (props.participant.left_participant.role == 'gm') {
-    return "You've seen them..."
+    return "You've seen Them..."
   }
 
   return "I've seen you..."
@@ -38,17 +38,26 @@ export default function BrinkForm(props) {
 
       <em>{promptText(props)}</em>
       <div className="text-muted">
-        A Brink should finish the below sentence, and should represent something secret and dangerous
-        that calls the character's human dignity into question. If you're writing a brink for the GM,
-        you get to decide something about Them. The only rule is that you cannot give Them
-        a weakness.
-
-        You can embrace your brink to reroll your entire dice pool, but acting according to your brink reveals
-        it to the entire group, and can create a host of problems of its own.
-
-        Your character will always know about the brink of the character you're writing for, including if it's Them.
+        <p>
+          A Brink should represent something secret and dangerous
+          that calls the character's humanity, mental health, or reliability into question.
+        </p>
+        <p>
+          Unlike the other cards you've filled out, you must keep your own brink a secret until it is used.
+        </p>
+        <p>
+          Your character will always know about the brink of the character you're writing for, including if it's Them.
+        </p>
+        <p>
+          If you're writing a brink for the GM, you get to decide something about Them. The only rule
+          is that <strong>you cannot give Them a weakness.</strong>
+        </p>
+        <p>
+          You can embrace your brink to reroll your entire dice pool, but acting according to your brink reveals
+          it to the entire group, and can create a host of problems of its own.
+        </p>
       </div>
-      <div className="text-muted">{placeholder(props)}</div>
+      <em className="text-muted">{placeholder(props)}</em>
       <textarea
         className="form-control"
         placeholder="...doing something unspeakable."

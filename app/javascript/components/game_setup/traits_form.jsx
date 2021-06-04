@@ -8,8 +8,8 @@ export default function TraitsForm(props) {
   const onSubmit = data => {
     makePatchRequest(`/api/participations/${props.participant.id}/`, props.participant.guid, data)
   };
-  const virtueText = `Virtue for ${props.participant.left_player.name}`
-  const viceText = `Vice for ${props.participant.right_player.name}`
+  const virtueText = `Virtue for ${props.participant.right_player.name}`
+  const viceText = `Vice for ${props.participant.left_player.name}`
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>

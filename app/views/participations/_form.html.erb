@@ -14,8 +14,5 @@
     <%= form.label(:name, 'Your name') %>
     <%= form.text_field(:name, class: 'form-control col-lg-9', placeholder: 'This is your screen name. You can choose your character name later.') %>
   </div>
-
-  <div class="actions">
-    <%= form.submit("Join") %>
-  </div>
+  <%= form.submit("Join", class: 'btn btn-secondary') %>
 <% end %>

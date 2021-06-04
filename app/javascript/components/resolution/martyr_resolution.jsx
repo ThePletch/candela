@@ -3,15 +3,15 @@ import React from 'react';
 import OverrideResolution from './override_resolution';
 
 export default class MartyrResolution extends OverrideResolution {
-	activePlayerInfo() {
+  activePlayerInfo() {
         return this.parentResolution().activePlayerInfo();
     }
 
     narrativeControlInfo() {
-    	let originalPlayer = this.props.resolution.parent_resolution.active_player;
+      let originalPlayer = this.props.resolution.parent_resolution.active_player;
         return (<span>
-        	{this.props.resolution.narrative_control} sacrificed themselves to save {originalPlayer}.
-        	They have narrative control.
+          {this.props.resolution.narrative_control} sacrificed themselves to save {originalPlayer}.
+          They have narrative control.
         </span>);
     }
 

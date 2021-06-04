@@ -10,7 +10,10 @@ export default function CharacterConceptForm(props) {
 
   return (
     <form onSubmit={handleSubmit(onSubmit)}>
-      <em>Briefly describe your character concept.</em>
+      <em>Describe your character concept in a sentence or three.</em>
+      <div className="text-muted">
+        This should include their name, general appearance, and overall personality.
+      </div>
       <textarea className="form-control" name="participation[character_concept]" ref={register({required: true})} />
 
       <input className="btn btn-primary" type="submit" />

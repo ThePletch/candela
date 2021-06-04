@@ -17,30 +17,30 @@ export default class SetupForm extends React.Component {
     }
 
     render() {
-    	return (
-    		<div className="game-setup">
-    			<div className="row">
-    				<div className="col">
-    					<h3>Actions</h3>
-    					{this.actions()}
-    				</div>
-    				<div className="col">
-    					<h3>Status</h3>
-    					{this.status()}
-    				</div>
-    			</div>
-    		</div>
-    	)
-    	if (this.props.participations.length >= 3) {
+      return (
+        <div className="game-setup">
+          <div className="row">
+            <div className="col">
+              <h3>Actions</h3>
+              {this.actions()}
+            </div>
+            <div className="col">
+              <h3>Status</h3>
+              {this.status()}
+            </div>
+          </div>
+        </div>
+      )
+      if (this.props.participations.length >= 3) {
             if (this.props.activeParticipant.role == 'gm') {
-    		  return <button className='btn btn-primary' onClick={this.advanceStage.bind(this)}>Start the Game</button>
+          return <button className='btn btn-primary' onClick={this.advanceStage.bind(this)}>Start the Game</button>
             } else {
               return <em>Waiting for GM to start game...</em>;
             }
-    	} else {
-    		const additionalNeededPlayers = 3 - this.props.participations.length;
-    		const persons = additionalNeededPlayers == 1 ? 'person' : 'people';
-    		return (<em>Waiting for {additionalNeededPlayers} more {persons}...</em>)
-    	}
+      } else {
+        const additionalNeededPlayers = 3 - this.props.participations.length;
+        const persons = additionalNeededPlayers == 1 ? 'person' : 'people';
+        return (<em>Waiting for at least {additionalNeededPlayers} more {persons}...</em>)
+      }
     }
 };

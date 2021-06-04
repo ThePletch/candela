@@ -101,63 +101,63 @@ export default class CandleIndicator extends React.Component {
     candleLightDelayMs = 500;
 
     setUpCandleUpdater() {
-    	clearInterval(this.candleUpdater);
-		this.candleUpdater = setInterval(this.incrementCandleLitness.bind(this), this.candleLightDelayMs);
+      clearInterval(this.candleUpdater);
+    this.candleUpdater = setInterval(this.incrementCandleLitness.bind(this), this.candleLightDelayMs);
     }
 
     setUpDicePoolUpdater() {
-    	clearInterval(this.dicePoolDelay);
-    	clearInterval(this.dicePoolUpdater);
-    	this.dicePoolUpdater = setInterval(this.incrementDicePool.bind(this), this.candleLightDelayMs);
+      clearInterval(this.dicePoolDelay);
+      clearInterval(this.dicePoolUpdater);
+      this.dicePoolUpdater = setInterval(this.incrementDicePool.bind(this), this.candleLightDelayMs);
     }
 
     componentDidMount() {
-    	this.setUpCandleUpdater();
-    	this.dicePoolDelay = setTimeout(this.setUpDicePoolUpdater.bind(this), this.candleLightDelayMs / 2);
+      this.setUpCandleUpdater();
+      this.dicePoolDelay = setTimeout(this.setUpDicePoolUpdater.bind(this), this.candleLightDelayMs / 2);
     }
 
     componentDidUpdate(prevProps) {
-    	if (prevProps.lit != this.props.lit) {
-    		this.setUpCandleUpdater();
-    	}
+      if (prevProps.lit != this.props.lit) {
+        this.setUpCandleUpdater();
+      }
 
-    	if (prevProps.dicePool != this.props.dicePool) {
-    		this.setUpDicePoolUpdater();
-    	}
+      if (prevProps.dicePool != this.props.dicePool) {
+        this.setUpDicePoolUpdater();
+      }
     }
 
     componentWillUnmount() {
-    	clearInterval(this.candleUpdater);
-    	clearInterval(this.dicePoolUpdater);
-    	clearInterval(this.dicePoolDelay);
+      clearInterval(this.candleUpdater);
+      clearInterval(this.dicePoolUpdater);
+      clearInterval(this.dicePoolDelay);
     }
 
     incrementCandleLitness() {
-    	if (this.state.lit > this.props.lit) {
-    		this.setState({
-    			lit: this.state.lit - 1,
-    		})
-    	} else if (this.state.lit < this.props.lit) {
-    		this.setState({
-    			lit: this.state.lit + 1,
-    		})
-    	} else if (this.state.lit == this.props.lit) {
-    		clearInterval(this.candleUpdater);
-    	}
+      if (this.state.lit > this.props.lit) {
+        this.setState({
+          lit: this.state.lit - 1,
+        })
+      } else if (this.state.lit < this.props.lit) {
+        this.setState({
+          lit: this.state.lit + 1,
+        })
+      } else if (this.state.lit == this.props.lit) {
+        clearInterval(this.candleUpdater);
+      }
     }
 
     incrementDicePool() {
-    	if (this.state.dicePool > this.props.dicePool) {
-    		this.setState({
-    			dicePool: this.state.dicePool - 1,
-    		})
-    	} else if (this.state.dicePool < this.props.dicePool) {
-    		this.setState({
-    			dicePool: this.state.dicePool + 1,
-    		})
-    	} else if (this.state.dicePool == this.props.dicePool) {
-    		clearInterval(this.dicePoolUpdater);
-    	}
+      if (this.state.dicePool > this.props.dicePool) {
+        this.setState({
+          dicePool: this.state.dicePool - 1,
+        })
+      } else if (this.state.dicePool < this.props.dicePool) {
+        this.setState({
+          dicePool: this.state.dicePool + 1,
+        })
+      } else if (this.state.dicePool == this.props.dicePool) {
+        clearInterval(this.dicePoolUpdater);
+      }
     }
 
     candleAngleRadians(index) {

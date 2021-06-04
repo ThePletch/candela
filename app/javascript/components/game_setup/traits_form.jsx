@@ -6,8 +6,6 @@ import { makePatchRequest } from 'util/requests';
 export default function TraitsForm(props) {
   const { register, handleSubmit, errors } = useForm();
   const onSubmit = data => {
-    console.log(data);
-    console.log(props);
     makePatchRequest(`/api/participations/${props.participant.id}/`, props.participant.guid, data)
   };
   const virtueText = `Virtue for ${props.participant.left_player.name}`
@@ -27,10 +25,14 @@ export default function TraitsForm(props) {
             It should solve more problems than it creates.
           </li>
           <li>
-            A vice is a single word describing a weakness a character possesses.
+            A vice is a single word describing a weakness or flaw a character possesses.
             It should create more problems than it solves.
           </li>
         </ul>
+        <span>
+          You can burn your virtue or vice to reroll all the ones rolled in a conflict,
+          but only by acting in accordance with the trait.
+        </span>
       </div>
 
       <div className="form-group">

@@ -12,8 +12,9 @@
 
   height: 100%;
   width: 100%;
-
-  filter: blur(1vw) brightness(50%);
+  // SASS gets upset by comparing vw/vh, but this is valid raw CSS, so we can just
+  // pass it through literally.
+  filter: blur(unquote("min(1vw, 1vh)")) brightness(50%);
 }
 
 .participations-button {

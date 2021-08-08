@@ -9,10 +9,10 @@ function promptText (props) {
     return `${props.participant.left_participant.name} has been seen by Them. What dark secret do They know?`
   } else {
     if (props.participant.left_participant.role == 'gm') {
-      return "You know a secret about the nature of Them. What have you uncovered?"
+      return "You have uncovered something about the nature of Them. What have you found?"
     }
 
-    return `You know a secret about ${props.participant.left_participant.name}. What are they hiding?`
+    return `You have seen ${props.participant.left_participant.name} at their lowest point. What are they hiding?`
   }
 }
 
@@ -37,19 +37,22 @@ export default function BrinkForm(props) {
     <form onSubmit={handleSubmit(onSubmit)}>
 
       <em>{promptText(props)}</em>
-      <div className="text-muted">
+      <div>
         <p>
           A Brink should represent something secret and dangerous
-          that calls the character's humanity, mental health, or reliability into question.
+          that calls the character's humanity, stability, or reliability into question.
         </p>
         <p>
-          Unlike the other cards you've filled out, you must keep your own brink a secret until it is used.
+          Unlike the other cards you've filled out, you should keep your own brink
+          a secret from the party until it is used.
         </p>
         <p>
-          Your character will always know about the brink of the character you're writing for, including if it's Them.
+          Your character will begin the game knowing about the brink of the character you're passing this brink to,
+          including if it's Them. It's up to you how your character came upon this knowledge, and whether your
+          character shares this knowledge or keeps it to themselves.
         </p>
         <p>
-          If you're writing a brink for the GM, you get to decide something about Them. The only rule
+          If you're writing a brink for the GM, you get to describe something about Them. The only rule
           is that <strong>you cannot give Them a weakness.</strong>
         </p>
         <p>

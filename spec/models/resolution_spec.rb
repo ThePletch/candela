@@ -16,7 +16,7 @@ RSpec.describe Resolution, type: :model do
 
     # start with 8 dice in the pool in scene three
     another_new_resolution = FactoryBot.create(:resolution, :succeeded, :confirmed, game: failed_resolution.scene.game)
-    another_new_resolution.update_attributes(player_roll_result: '11666666')
+    another_new_resolution.update(player_roll_result: '11666666')
 
     # now there's only 6 dice in the pool for this scene since we rolled two ones
     a_second_resolution = FactoryBot.create(:resolution, scene: another_new_resolution.scene)
@@ -26,7 +26,7 @@ RSpec.describe Resolution, type: :model do
 
   it "marks any rolled ones as lost dice" do
     resolution = FactoryBot.create(:resolution)
-    resolution.update_attributes(player_roll_result: '1234561234')
+    resolution.update(player_roll_result: '1234561234')
     expect(resolution.dice_lost).to eq 2
   end
 
@@ -53,13 +53,13 @@ RSpec.describe Resolution, type: :model do
     new_conflict = FactoryBot.create(:conflict, scene: new_scene)
     moment_resolution = FactoryBot.create(:moment_resolution, :succeeded, :confirmed, conflict: new_conflict, active_player: surviving_player)
     # make sure there aren't any ones in this roll to avoid losing dice from the pool in the next conflict
-    moment_resolution.update_attributes(player_roll_result: '6' * 9)
+    moment_resolution.update(player_roll_result: '6' * 9)
 
     conflict_with_hope_dice = FactoryBot.create(:conflict, scene: new_scene)
     # this player has had a hope die given to them by a dying player and gotten one from living their moment, so they
     # have two dice they can't lose
     new_resolution = FactoryBot.create(:resolution, conflict: conflict_with_hope_dice, active_player: surviving_player)
-    new_resolution.update_attributes(player_roll_result: '111654323')
+    new_resolution.update(player_roll_result: '111654323')
     expect(new_resolution.dice_lost).to eq 1
   end
 

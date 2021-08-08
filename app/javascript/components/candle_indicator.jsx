@@ -2,29 +2,40 @@ import React from 'react'
 import PropTypes from 'prop-types'
 
 class Candle extends React.Component {
+    static propTypes = {
+        x: PropTypes.number.isRequired,
+        y: PropTypes.number.isRequired,
+        lit: PropTypes.bool.isRequired,
+    }
+
     dark = "#222222";
+    orange = "#DDAA00";
+    yellow = "#FFEE00";
+    white = "#FFFFFF";
+    brightBlue = "#BBBBFF";
+    black = "#000000";
 
     outerColor() {
-        return this.props.lit ? "#DDAA00" : this.dark;
+        return this.props.lit ? this.orange : this.dark;
     }
 
     outerRiseColor() {
-        return this.props.lit ? this.outerColor() : "#000000";
+        return this.props.lit ? this.outerColor() : this.black;
     }
 
     innerColor() {
-        return this.props.lit ? "#FFEE00" : this.dark;
+        return this.props.lit ? this.yellow : this.dark;
     }
 
     coreColor() {
-        return this.props.lit ? "#FFFFFF" : "#333333";
+        return this.props.lit ? this.white : this.dark;
     }
     subcoreColor() {
         if (this.props.lit) {
-            return this.props.dicePool ? "#BBBBFF" : "#FFFFFF"
+            return this.props.dicePool ? this.brightBlue : this.white
         }
 
-        return "#333333";
+        return this.dark;
     }
     render() {
         return (

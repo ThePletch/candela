@@ -34,9 +34,9 @@ RSpec.describe Game, type: :model do
 
     game.participations.players.each do |player|
       expect(game.may_transition_to_next_stage?).to be false
-      player.update_attributes(written_virtue: player.name + ' virtue')
+      player.update(written_virtue: player.name + ' virtue')
       expect(game.may_transition_to_next_stage?).to be false
-      player.update_attributes(written_vice: player.name + ' vice')
+      player.update(written_vice: player.name + ' vice')
     end
 
     expect(game.may_transition_to_next_stage?).to be true
@@ -85,7 +85,7 @@ RSpec.describe Game, type: :model do
 
     game.participations.players.each do |player|
       expect(game.may_transition_to_next_stage?).to be false
-      player.update_attributes(character_concept: player.name + ' concept')
+      player.update(character_concept: player.name + ' concept')
     end
 
     expect(game.may_transition_to_next_stage?).to be true
@@ -103,7 +103,7 @@ RSpec.describe Game, type: :model do
 
     game.participations.players.each do |player|
       expect(game.may_transition_to_next_stage?).to be false
-      player.update_attributes(moment: player.name + ' moment')
+      player.update(moment: player.name + ' moment')
     end
 
     expect(game.may_transition_to_next_stage?).to be true
@@ -121,7 +121,7 @@ RSpec.describe Game, type: :model do
 
     game.participations.each do |player|
       expect(game.may_transition_to_next_stage?).to be false
-      player.update_attributes(written_brink: player.name + ' brink')
+      player.update(written_brink: player.name + ' brink')
     end
 
     expect(game.may_transition_to_next_stage?).to be true
@@ -132,7 +132,7 @@ RSpec.describe Game, type: :model do
     game = FactoryBot.create(:game_in_brinks_stage)
 
     game.participations.each do |player|
-      player.update_attributes(written_brink: player.name + ' brink')
+      player.update(written_brink: player.name + ' brink')
     end
 
     game.transition_to_next_stage!
@@ -157,7 +157,7 @@ RSpec.describe Game, type: :model do
 
     game.participations.players.each do |player|
       expect(game.may_transition_to_next_stage?).to be false
-      player.update_attributes(card_order: '012')
+      player.update(card_order: '012')
     end
 
     expect(game.may_transition_to_next_stage?).to be true

@@ -76,12 +76,12 @@ RSpec.describe Scene, type: :model do
     expect(scene.base_player_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict, scene: scene)
     resolution_one = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_one)
-    resolution_one.update_attributes(player_roll_result: '1166666666')
+    resolution_one.update(player_roll_result: '1166666666')
     expect(scene.dice_lost).to eq 2
     expect(scene.base_player_dice_pool).to eq 8
     conflict_two = FactoryBot.create(:conflict, scene: scene)
     resolution_two = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_two)
-    resolution_two.update_attributes(player_roll_result: '11166666')
+    resolution_two.update(player_roll_result: '11166666')
     expect(scene.dice_lost).to eq 5
     expect(scene.base_player_dice_pool).to eq 5
   end
@@ -92,7 +92,7 @@ RSpec.describe Scene, type: :model do
     expect(scene.base_player_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict, scene: scene)
     resolution_one = FactoryBot.create(:resolution, conflict: conflict_one)
-    resolution_one.update_attributes(player_roll_result: '1166666666')
+    resolution_one.update(player_roll_result: '1166666666')
     expect(scene.dice_lost).to eq 0
     expect(scene.base_player_dice_pool).to eq 10
   end
@@ -103,7 +103,7 @@ RSpec.describe Scene, type: :model do
     expect(scene.base_player_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict)
     resolution_one = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_one)
-    resolution_one.update_attributes(player_roll_result: '1166666666')
+    resolution_one.update(player_roll_result: '1166666666')
     expect(scene.dice_lost).to eq 0
     expect(scene.base_player_dice_pool).to eq 10
   end
@@ -113,7 +113,7 @@ RSpec.describe Scene, type: :model do
     expect(scene.gm_dice_pool).to eq 10
     conflict_one = FactoryBot.create(:conflict, scene: scene)
     resolution_one = FactoryBot.create(:resolution, :succeeded, :confirmed, conflict: conflict_one)
-    resolution_one.update_attributes(player_roll_result: '1166666666', gm_roll_result: '1116666666')
+    resolution_one.update(player_roll_result: '1166666666', gm_roll_result: '1116666666')
     expect(scene.gm_dice_pool).to eq 10
   end
 end

@@ -5,7 +5,7 @@ RSpec.describe TraitResolution, type: :model do
   # coming up all ones again. i'm satisfied with those odds.
   it "rerolls ones for the player" do
     parent_resolution = FactoryBot.create(:resolution)
-    parent_resolution.update_attributes(player_roll_result: '1111111321')
+    parent_resolution.update(player_roll_result: '1111111321')
     child_resolution = FactoryBot.create(:trait_resolution,
       parent_resolution: parent_resolution,
       active_player: parent_resolution.active_player,
@@ -19,7 +19,7 @@ RSpec.describe TraitResolution, type: :model do
 
   it "requires a parent resolution made by the same player" do
     parent_resolution = FactoryBot.create(:resolution, :at_least_one_one_rolled)
-    parent_resolution.active_player.update_attributes(card_order: '102')
+    parent_resolution.active_player.update(card_order: '102')
     different_player_resolution = FactoryBot.build(:trait_resolution,
       parent_resolution: parent_resolution,
       conflict: parent_resolution.conflict,
@@ -35,8 +35,8 @@ RSpec.describe TraitResolution, type: :model do
 
   it "cannot be created for a parent resolution that didn't roll any ones" do
     parent_resolution = FactoryBot.create(:resolution)
-    parent_resolution.update_attributes(player_roll_result: '2222222222')
-    parent_resolution.active_player.update_attributes(card_order: '012')
+    parent_resolution.update(player_roll_result: '2222222222')
+    parent_resolution.active_player.update(card_order: '012')
     same_player_resolution = FactoryBot.build(:trait_resolution,
       parent_resolution: parent_resolution,
       conflict: parent_resolution.conflict,
@@ -48,7 +48,7 @@ RSpec.describe TraitResolution, type: :model do
   it "can only be created by a player with the specified trait available" do
     game_with_ready_players = FactoryBot.create(:game_ready)
     player = game_with_ready_players.participations.players.take
-    player.update_attributes(card_order: '012')
+    player.update(card_order: '012')
     prior_trait_burn = FactoryBot.create(:trait_resolution,
       :succeeded,
       :confirmed,

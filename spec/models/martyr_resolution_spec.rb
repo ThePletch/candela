@@ -32,7 +32,7 @@ RSpec.describe MartyrResolution, type: :model do
 
   it "always gives the player narrative control" do
     martyr_resolution = FactoryBot.create(:martyr_resolution)
-    martyr_resolution.parent_resolution.update_attributes(
+    martyr_resolution.parent_resolution.update(
       player_roll_result: '1' * 10,
       gm_roll_result: '6' * 10)
     expect(martyr_resolution.narrative_control).to eq martyr_resolution.active_player

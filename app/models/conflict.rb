@@ -29,7 +29,7 @@ class Conflict < ApplicationRecord
 
   def no_other_active_conflicts_in_scene
     if self.active? and self.scene.conflicts.active.where.not(id: self.id).exists?
-      errors[:base] << "There is already another active conflict for this scene"
+      errors[:base].add("There is already another active conflict for this scene")
     end
   end
 end

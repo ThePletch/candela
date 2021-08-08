@@ -39,7 +39,7 @@ export default class CardOrderForm extends React.Component {
     return (
       <form onSubmit={this.submitCardOrder.bind(this)}>
         <em>Click and drag to order your cards from top to bottom.</em>
-        <div className="text-muted">
+        <div>
           You can only use the card on top of your pile, and can't use the cards below it
           until all the cards above them have been burned.
           Your brink must always be on the bottom.

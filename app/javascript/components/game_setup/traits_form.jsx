@@ -18,7 +18,7 @@ export default function TraitsForm(props) {
           What virtues and vices do your companions have?
         </em>
       </div>
-      <div className="text-muted">
+      <div>
         <ul>
           <li>
             A virtue is a single word describing a positive trait a character possesses.

@@ -10,6 +10,10 @@ class Truth < ApplicationRecord
     end
   end
 
+  def game
+    scene.game
+  end
+
   def scene_has_unstated_truths
     unless scene.truths.where.not(id: self.id).count < scene.expected_truth_count
       errors[:base].add("All truths have been stated for the parent scene.")

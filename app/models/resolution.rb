@@ -42,6 +42,10 @@ class Resolution < ApplicationRecord
 
 	before_create :record_rolls
 
+	def game
+		conflict.scene.game
+	end
+
 	# default logic implementations that can have new logic added in subclasses
 
 	def successful?

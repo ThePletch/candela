@@ -39,10 +39,8 @@ class GamesController < ApplicationController
   end
 
   # json only
-  # todo consider how to wrap this in a transaction to avoid double-advancement race conditions
   def advance_setup_state
     if @game.setup_state != params[:current_setup_state]
-      # todo what does an error look like
       render json: {}, status: :unprocessable_entity
       return
     end

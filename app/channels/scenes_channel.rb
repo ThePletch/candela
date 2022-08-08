@@ -1,7 +1,7 @@
 class ScenesChannel < ApplicationCable::Channel
-  # todo determine how to reject subscriptions for participants not linked to a specific game
   def subscribed
     stream_for game
+    reject unless game.participations.includes(current_user)
   end
 
   def self.broadcast_update(scene)

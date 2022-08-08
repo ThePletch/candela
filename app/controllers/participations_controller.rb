@@ -26,6 +26,7 @@ class ParticipationsController < ApplicationController
     end
   end
 
+  # todo graphqlify
   def update
     if @participation.update(participation_params)
       render json: {}, status: :ok

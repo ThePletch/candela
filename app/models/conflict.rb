@@ -7,6 +7,10 @@ class Conflict < ApplicationRecord
 	scope :succeeded, -> { joins(:resolutions).where(resolutions: {succeeded: true, state: :confirmed}) }
   scope :active, -> { where.not(Resolution.confirmed.where("resolutions.conflict_id = conflicts.id").arel.exists) }
 
+  def game
+    scene.game
+  end
+
 	def dire?
 		dire
 	end

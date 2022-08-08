@@ -1,0 +1,9 @@
+docs/*
+# logs
+*.log
+
+# typescript output
+dist/
+
+# dependency directories
+node_modules

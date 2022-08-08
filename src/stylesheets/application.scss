@@ -1,0 +1,219 @@
+@import "~bootstrap/scss/bootstrap";
+@import "~bootstrap/scss/mixins";
+
+.candle-indicator {
+  position: fixed;
+  top: 0;
+  left: 0;
+  bottom: 0;
+  right: 0;
+  z-index: -100;
+
+  height: 100%;
+  width: 100%;
+  // SASS gets upset by comparing vw/vh, but this is valid raw CSS, so we can just
+  // pass it through literally.
+  filter: blur(unquote("min(1vw, 1vh)")) brightness(50%);
+}
+
+.participations-button {
+  @extend .btn, .btn-secondary, .btn-block;
+}
+
+.info-panel {
+  display: flex;
+  flex-direction: row;
+  align-items: flex-end;
+
+  .participations-list-wrapper {
+    flex-grow: 1;
+  }
+}
+
+.game-stats {
+  text-align: right;
+}
+
+.stat-button {
+  margin: 1em;
+  font-weight: bold;
+
+  .stat-number {
+    @extend .badge, .badge-dark, .badge-pill;
+    margin: 0.5em;
+  }
+}
+
+.participations-list {
+  display: flex;
+  flex-direction: column;
+
+  align-items: stretch;
+
+  .participation {
+    flex-grow: 0;
+    min-width: 15em;
+  }
+}
+
+html {
+  background: $black;
+  height: 100%;
+}
+
+body {
+  @extend .text-white;
+  background: none;
+  height: 100%;
+
+  & > div {
+    height: 100%;
+  }
+}
+
+.game-interface {
+  display: flex;
+  height: 100%;
+  flex-direction: column;
+  padding-bottom: 1em;
+}
+
+.game-main {
+  flex-grow: 1;
+}
+
+.participation {
+  @extend .card;
+  filter: opacity(90%);
+
+  &.inactive {
+    filter: brightness(70%);
+  }
+
+  .hope-dice-pretext {
+    @extend .text-muted;
+    margin-right: 0.5em;
+  }
+
+  &.collapsed {
+    .trait-list,
+    .hope-dice-indicator {
+      display: none;
+    }
+
+    .character-concept {
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      overflow: hidden;
+      max-width: calc(80vw - 60px);
+    }
+
+    .alive-footer {
+      display: none;
+    }
+
+    .expand-prompt {
+      display: block;
+      text-align: center;
+      @extend .text-muted;
+    }
+  }
+
+  .expand-prompt {
+    display: none;
+  }
+
+  .participation-info {
+    @extend .card-body;
+
+    display: flex;
+    flex-direction: column;
+  }
+
+  .participation-main-block {
+    display: flex;
+    flex-direction: row;
+
+    .participation-name {
+      flex-grow: 1;
+    }
+
+    .participation-type {
+      flex-grow: 0;
+      align-self: flex-end;
+      text-align: right;
+    }
+  }
+
+  &.gm {
+    @extend .bg-info;
+    filter: opacity(90%);
+  }
+
+  &.player {
+    @extend .bg-dark;
+    filter: opacity(90%);
+  }
+
+  .character-concept {
+    @extend .card-text;
+
+    flex-grow: 1;
+  }
+
+  .trait-list {
+    @extend .list-group, .list-group-flush;
+
+    .trait-card {
+      @extend .list-group-item, .bg-dark;
+
+      .trait-type {
+        @extend .float-right;
+      }
+
+      .trait-pretext {
+        @extend .text-muted;
+
+        &.burned {
+          @extend .text-light;
+        }
+      }
+
+      &.burned {
+        filter: sepia(50%) brightness(50%);
+      }
+
+      // &.inactive-trait {
+      //   .trait-pretext {
+      //     display: none;
+      //   }
+
+      //   .trait-value {
+      //     overflow: hidden;
+      //     text-overflow: ellipsis;
+      //     white-space: nowrap;
+      //   }
+      // }
+
+      &.active-trait {
+        filter: brightness(1.5);
+      }
+    }
+  }
+
+  .hope-dice-indicator {
+    align-self: flex-end;
+  }
+}
+
+.hope-die-badge {
+  @extend .badge, .badge-pill, .badge-primary;
+}
+
+.trait-card {
+  @extend .list-group-item;
+}
+
+.list-group-item {
+  @extend .bg-dark;
+}

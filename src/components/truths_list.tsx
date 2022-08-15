@@ -1,7 +1,7 @@
-import Truth from "./truth";
+import Truth from "@candela/components/truth";
 
-import type { Truth as TruthObject } from "types/truth";
-import { withModelListSubscription } from "util/state";
+import type { Truth as TruthObject } from "@candela/types/truth";
+import { withModelListSubscription } from "@candela/util/state";
 
 function AreWeAlive(props: { truthsAllStated: boolean }) {
   if (props.truthsAllStated) {

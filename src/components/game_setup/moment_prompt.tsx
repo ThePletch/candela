@@ -1,6 +1,5 @@
-import MomentForm from "./moment_form";
-
-import SetupForm from "./setup_form";
+import MomentForm from "@candela/components/game_setup/moment_form";
+import SetupForm from "@candela/components/game_setup/setup_form";
 import type { Participation, SelfParticipation } from "types/participation";
 import type { GameProps } from "types/props";
 import { activeParticipation } from "util/participations";

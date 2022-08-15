@@ -1,7 +1,7 @@
 import type { ReactElement } from "react";
 import { useForm } from "react-hook-form";
 
-import { useHttpState } from "util/state";
+import { useHttpState } from "@candela/util/state";
 
 export default function MomentForm(props: {
   participation: { id: number };

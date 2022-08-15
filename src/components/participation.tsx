@@ -4,7 +4,7 @@ import { useState } from "react";
 import type {
   Participation as ParticipationType,
   TraitType,
-} from "types/participation";
+} from "@candela/types/participation";
 
 type ParticipationProps = {
   participation: ParticipationType;

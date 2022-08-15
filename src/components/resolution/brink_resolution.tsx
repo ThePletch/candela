@@ -5,7 +5,7 @@ import {
   ConflictResult,
   PlayerRollResult,
   type ResolutionProps,
-} from "./base";
+} from "@candela/components/resolution/base";
 
 export default function BrinkResolution(
   props: ResolutionProps & { resolution: { type: "BrinkResolution" } }

@@ -1,4 +1,4 @@
-import type { Truth as TruthObject } from "types/truth";
+import type { Truth as TruthObject } from "@candela/types/truth";
 
 export default function Truth(props: TruthObject) {
   return (

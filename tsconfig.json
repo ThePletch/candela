@@ -24,5 +24,8 @@
     "esModuleInterop": true,
     "jsx": "react-jsx",
     "baseUrl": "./src",
+    "paths": {
+      "@candela/*": ["*"]
+    }
   }
 }

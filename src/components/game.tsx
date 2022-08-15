@@ -1,24 +1,20 @@
-// Run this example by adding <%= javascript_pack_tag 'hello_react' %> to the head of your layout file,
-// like app/views/layouts/application.html.erb. All it does is render <div>Hello React</div> at the bottom
-// of the page.
-
 import _ from "lodash";
 
-import CandleIndicator from "./candle_indicator";
-import ParticipationsList from "./participations_list";
-import StartGamePrompt from "./game_setup/start_game_prompt";
-import TraitsPrompt from "./game_setup/traits_prompt";
-import ModuleIntroPrompt from "./game_setup/module_intro_prompt";
-import CharacterConceptPrompt from "./game_setup/character_concept_prompt";
-import MomentPrompt from "./game_setup/moment_prompt";
-import BrinkPrompt from "./game_setup/brink_prompt";
-import CardOrderPrompt from "./game_setup/card_order_prompt";
-import Scene from "./scene";
-import type { Scene as SceneType } from "types/scene";
+import CandleIndicator from "@candela/components/candle_indicator";
+import ParticipationsList from "@candela/components/participations_list";
+import StartGamePrompt from "@candela/components/game_setup/start_game_prompt";
+import TraitsPrompt from "@candela/components/game_setup/traits_prompt";
+import ModuleIntroPrompt from "@candela/components/game_setup/module_intro_prompt";
+import CharacterConceptPrompt from "@candela/components/game_setup/character_concept_prompt";
+import MomentPrompt from "@candela/components/game_setup/moment_prompt";
+import BrinkPrompt from "@candela/components/game_setup/brink_prompt";
+import CardOrderPrompt from "@candela/components/game_setup/card_order_prompt";
+import Scene from "@candela/components/scene";
+import type { Scene as SceneType } from "@candela/types/scene";
 import {
   withModelListSubscription,
   withSingletonSubscription,
-} from "util/state";
+} from "@candela/util/state";
 
 type GameProps = {
   participationId: number;
@@ -33,7 +29,7 @@ type Game = {
   setupState: string;
 };
 
-function Game(props: GameProps) {
+export default function Game(props: GameProps) {
   return withSingletonSubscription(
     "GameChannel",
     { id: props.gameId },
@@ -159,5 +155,3 @@ function Game(props: GameProps) {
     }
   );
 }
-
-export default Game;

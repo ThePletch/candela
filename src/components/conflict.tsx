@@ -1,13 +1,13 @@
-import { Resolution } from "./resolution/resolution";
-import type { Conflict as ConflictType } from "types/conflict";
-import type { SelfParticipation } from "types/participation";
-import type { Resolution as ResolutionType } from "types/resolution";
-import { getTopTrait } from "util/participations";
+import { Resolution } from "@candela/components/resolution/resolution";
+import type { Conflict as ConflictType } from "@candela/types/conflict";
+import type { SelfParticipation } from "@candela/types/participation";
+import type { Resolution as ResolutionType } from "@candela/types/resolution";
+import { getTopTrait } from "@candela/util/participations";
 import {
   useHttpState,
   withModelListSubscription,
   withSingletonSubscription,
-} from "util/state";
+} from "@candela/util/state";
 
 function PlayerConflictOptions(props: {
   activeParticipation: SelfParticipation;

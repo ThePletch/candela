@@ -1,6 +1,6 @@
-import CardOrderForm from "./card_order_form";
+import CardOrderForm from "@candela/components/game_setup/card_order_form";
 
-import SetupForm from "./setup_form";
+import SetupForm from "@candela/components/game_setup/setup_form";
 
 import type { Participation, SelfParticipation } from "types/participation";
 import type { GameProps } from "types/props";

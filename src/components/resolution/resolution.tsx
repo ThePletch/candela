@@ -1,10 +1,9 @@
-import type { ResolutionProps } from "./base";
-
-import BrinkResolution from "./brink_resolution";
-import MartyrResolution from "./martyr_resolution";
-import MomentResolution from "./moment_resolution";
-import RollResolution from "./roll_resolution";
-import TraitResolution from "./trait_resolution";
+import type { ResolutionProps } from "@candela/components/resolution/base";
+import BrinkResolution from "@candela/components/resolution/brink_resolution";
+import MartyrResolution from "@candela/components/resolution/martyr_resolution";
+import MomentResolution from "@candela/components/resolution/moment_resolution";
+import RollResolution from "@candela/components/resolution/roll_resolution";
+import TraitResolution from "@candela/components/resolution/trait_resolution";
 
 export function renderResolutionByType(props: ResolutionProps) {
   switch (props.resolution.type) {

@@ -3,7 +3,7 @@ import {
   ConflictResult,
   PlayerRollResult,
   type ResolutionProps,
-} from "./base";
+} from "@candela/components/resolution/base";
 
 export default function TraitResolution(
   props: ResolutionProps & { resolution: { type: "TraitResolution" } }

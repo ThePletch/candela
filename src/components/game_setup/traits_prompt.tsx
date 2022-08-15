@@ -1,11 +1,11 @@
 import { type ReactElement, type ReactNode } from "react";
 
-import SetupForm from "./setup_form";
-import TraitsForm from "./traits_form";
-import { activeParticipation } from "util/participations";
-import type { Participation } from "types/participation";
-import type { GameProps } from "types/props";
-import { useHttpState, withModelListSubscription } from "util/state";
+import SetupForm from "@candela/components/game_setup/setup_form";
+import TraitsForm from "@candela/components/game_setup/traits_form";
+import { activeParticipation } from "@candela/util/participations";
+import type { Participation } from "@candela/types/participation";
+import type { GameProps } from "@candela/types/props";
+import { useHttpState, withModelListSubscription } from "@candela/util/state";
 
 export default function TraitsPrompt(props: GameProps): ReactElement {
   const {

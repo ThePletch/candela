@@ -1,9 +1,9 @@
 import { useForm } from "react-hook-form";
 
-import type { Participation, SelfParticipation } from "types/participation";
-import { activeParticipation } from "util/participations";
-import { useHttpState, withModelListSubscription } from "util/state";
-import type { GameProps } from "types/props";
+import type { Participation, SelfParticipation } from "@candela/types/participation";
+import { activeParticipation } from "@candela/util/participations";
+import { useHttpState, withModelListSubscription } from "@candela/util/state";
+import type { GameProps } from "@candela/types/props";
 
 export default function TraitsForm(props: GameProps) {
   const { register, handleSubmit } = useForm();

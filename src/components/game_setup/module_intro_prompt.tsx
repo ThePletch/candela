@@ -1,7 +1,7 @@
-import SetupForm from "./setup_form";
-import type { SelfParticipation } from "types/participation";
-import type { GameProps } from "types/props";
-import { useHttpState, withSingletonSubscription } from "util/state";
+import SetupForm from "@candela/components/game_setup/setup_form";
+import type { SelfParticipation } from "@candela/types/participation";
+import type { GameProps } from "@candela/types/props";
+import { useHttpState, withSingletonSubscription } from "@candela/util/state";
 
 export default function ModuleIntroPrompt(props: GameProps) {
   const { loading, makeRequest: advanceStage } = useHttpState(

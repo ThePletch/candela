@@ -1,10 +1,9 @@
-import BrinkForm from "./brink_form";
-
-import SetupForm from "./setup_form";
-import type { Participation, SelfParticipation } from "types/participation";
-import type { GameProps } from "types/props";
-import { activeParticipation } from "util/participations";
-import { useHttpState, withModelListSubscription } from "util/state";
+import BrinkForm from "@candela/components/game_setup/brink_form";
+import SetupForm from "@candela/components/game_setup/setup_form";
+import type { Participation, SelfParticipation } from "@candela/types/participation";
+import type { GameProps } from "@candela/types/props";
+import { activeParticipation } from "@candela/util/participations";
+import { useHttpState, withModelListSubscription } from "@candela/util/state";
 
 export default function BrinkPrompt(props: GameProps) {
   const { loading, makeRequest: advanceStage } = useHttpState(

@@ -1,15 +1,15 @@
 import { useState } from "react";
 
-import Conflict from "./conflict";
-import TruthsList from "./truths_list";
-import type { Conflict as ConflictType } from "types/conflict";
-import type { SelfParticipation } from "types/participation";
-import type { Scene } from "types/scene";
+import Conflict from "@candela/components/conflict";
+import TruthsList from "@candela/components/truths_list";
+import type { Conflict as ConflictType } from "@candela/types/conflict";
+import type { SelfParticipation } from "@candela/types/participation";
+import type { Scene } from "@candela/types/scene";
 import {
   useHttpState,
   withModelListSubscription,
   withSingletonSubscription,
-} from "util/state";
+} from "@candela/util/state";
 
 type TruthsPromptProps = {
   participationId: number;

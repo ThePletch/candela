@@ -1,7 +1,7 @@
 import { useForm } from "react-hook-form";
 
-import type { SelfParticipation } from "types/participation";
-import { useHttpState } from "util/state";
+import type { SelfParticipation } from "@candela/types/participation";
+import { useHttpState } from "@candela/util/state";
 
 export default function CharacterConceptForm(props: {
   participation: SelfParticipation;

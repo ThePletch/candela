@@ -1,9 +1,9 @@
 import { type ReactElement, type ReactNode } from "react";
 
-import SetupForm from "./setup_form";
-import type { Participation } from "types/participation";
-import { useHttpState, withModelListSubscription } from "util/state";
-import type { GameProps } from "types/props";
+import SetupForm from "@candela/components/game_setup/setup_form";
+import type { Participation } from "@candela/types/participation";
+import { useHttpState, withModelListSubscription } from "@candela/util/state";
+import type { GameProps } from "@candela/types/props";
 
 export default function StartGamePrompt(props: GameProps): ReactElement {
   function StartGameButton(startGameButtonProps: {

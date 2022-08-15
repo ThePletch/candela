@@ -1,9 +1,9 @@
 import { type ChangeEvent, type ReactNode, useState } from "react";
 
-import type { Participation } from "types/participation";
-import type { Resolution } from "types/resolution";
-import { activeParticipation, getTopTrait } from "util/participations";
-import { useHttpState, withModelListSubscription } from "util/state";
+import type { Participation } from "@candela/types/participation";
+import type { Resolution } from "@candela/types/resolution";
+import { activeParticipation, getTopTrait } from "@candela/util/participations";
+import { useHttpState, withModelListSubscription } from "@candela/util/state";
 
 import DiceRoll from "./dice_roll";
 

@@ -2,8 +2,8 @@ import { type FormEvent, useEffect, useRef } from "react";
 
 import Sortable from "sortablejs";
 
-import type { SelfParticipation } from "types/participation";
-import { useHttpState } from "util/state";
+import type { SelfParticipation } from "@candela/types/participation";
+import { useHttpState } from "@candela/util/state";
 
 export default function CardOrderForm(props: {
   participation: SelfParticipation;

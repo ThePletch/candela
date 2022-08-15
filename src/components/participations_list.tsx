@@ -1,11 +1,11 @@
 import { useState } from "react";
-import Participation from "./participation";
+import Participation from "@candela/components/participation";
 
 import type {
   Participation as ParticipationType,
   SelfParticipation,
-} from "types/participation";
-import { withModelListSubscription } from "util/state";
+} from "@candela/types/participation";
+import { withModelListSubscription } from "@candela/util/state";
 
 type ParticipationsListProps = { participationId: number; gameId: number };
 

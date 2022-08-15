@@ -1,7 +1,7 @@
-import type { SelfParticipation } from "types/participation";
-import { useHttpState } from "util/state";
-
 import { useForm } from "react-hook-form";
+
+import type { SelfParticipation } from "@candela/types/participation";
+import { useHttpState } from "@candela/util/state";
 
 type FormProps = { participation: SelfParticipation };
 

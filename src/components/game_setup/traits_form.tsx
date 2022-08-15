@@ -53,16 +53,12 @@ export default function TraitsForm(props: GameProps) {
               className="form-control"
               type="text"
               placeholder={virtueText}
-              name="participation[written_virtue]"
-              ref={register({ required: true })}
-            />
+              {...register('participation[written_virtue]', { required: true })} />
             <input
               className="form-control"
               type="text"
               placeholder={viceText}
-              name="participation[written_vice]"
-              ref={register({ required: true })}
-            />
+              {...register('participation[written_vice]', { required: true })} />
 
             <input
               type="submit"

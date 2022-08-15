@@ -21,9 +21,7 @@ export default function CharacterConceptForm(props: {
       </div>
       <textarea
         className="form-control"
-        name="participation[character_concept]"
-        ref={register({ required: true })}
-      />
+        {...register('participation[character_concept]', { required: true })} />
 
       <input className="btn btn-primary" disabled={loading} type="submit" />
     </form>

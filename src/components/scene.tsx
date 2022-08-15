@@ -4,7 +4,7 @@ import Conflict from "@candela/components/conflict";
 import TruthsList from "@candela/components/truths_list";
 import type { Conflict as ConflictType } from "@candela/types/conflict";
 import type { SelfParticipation } from "@candela/types/participation";
-import type { Scene } from "@candela/types/scene";
+import type { Scene as SceneType } from "@candela/types/scene";
 import {
   useHttpState,
   withModelListSubscription,
@@ -62,7 +62,7 @@ function TruthsPrompt(props: TruthsPromptProps) {
   );
 }
 
-function ConflictManager(props: { scene: Scene; participationId: number }) {
+function ConflictManager(props: { scene: SceneType; participationId: number }) {
   const { loading, makeRequest: createConflict } = useHttpState(
     `/api/scenes/${props.scene.id}/conflicts`,
     "POST"
@@ -113,7 +113,7 @@ function ConflictManager(props: { scene: Scene; participationId: number }) {
 }
 
 type SceneProps = {
-  scene: Scene;
+  scene: SceneType;
   participationId: number;
 };
 

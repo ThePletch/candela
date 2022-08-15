@@ -35,10 +35,8 @@ export default function MomentForm(props: {
       <em>I will find hope...</em>
       <textarea
         className="form-control"
-        name="participation[moment]"
-        placeholder="...when [event]/...in [situation]"
-        ref={register({ required: true })}
-      />
+        {...register('participation[moment]', { required: true })}
+        placeholder="...when [event]/...in [situation]" />
       <input className="btn btn-primary" disabled={loading} type="submit" />
     </form>
   );

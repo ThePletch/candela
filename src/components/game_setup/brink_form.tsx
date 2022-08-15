@@ -70,9 +70,7 @@ export default function BrinkForm(props: FormProps) {
       <textarea
         className="form-control"
         placeholder="...doing something unspeakable."
-        name="participation[written_brink]"
-        ref={register({ required: true })}
-      />
+        {...register('participation[written_brink]', { required: true })} />
 
       <input className="btn btn-primary" disabled={loading} type="submit" />
     </form>

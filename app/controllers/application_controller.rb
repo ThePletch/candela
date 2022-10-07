@@ -1,6 +1,5 @@
 class ApplicationController < ActionController::Base
-	protect_from_forgery unless: -> { Rails.env.development? or request.format.json? }
-
+  skip_forgery_protection
   before_action :set_participation_by_guid
 
   protected
@@ -39,7 +38,7 @@ class ApplicationController < ActionController::Base
   private
 
   def set_participation_by_guid
-    if guid = request.headers['X-Participation-Guid'] || session['participation_guid']
+    if guid = request.headers['X-Participation-Guid'] || cookies['participation_guid']
       @active_participation = Participation.find_by(guid: guid)
     end
   end

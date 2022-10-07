@@ -1,10 +1,6 @@
+# TODO require gm for advance setup state
 class GamesController < ApplicationController
-  layout 'application', only: :play
-
   before_action :set_game, only: [:show, :advance_setup_state]
-
-  # should happen after any actions that alter game state
-  after_action :broadcast_game_state, only: [:advance_setup_state]
 
   # GET /games/1
   # GET /games/1.json
@@ -30,7 +26,7 @@ class GamesController < ApplicationController
       if @game.save
         flash[:notice] = "Anyone who goes to this URL can play as the GM, so treat the URL like a password."
         format.html { redirect_to play_game_url(participation_guid: @participation.guid, notice: 'Game was successfully created.') }
-        format.json { render :show, status: :created, location: play_game_url(participation_guid: @participation.guid) }
+        format.json { render :created, status: :created, location: play_game_url(participation_guid: @participation.guid) }
       else
         format.html { render :new }
         format.json { render json: @game.errors, status: :unprocessable_entity }
@@ -57,10 +53,6 @@ class GamesController < ApplicationController
   end
 
   private
-    def broadcast_game_state
-      GameChannel.broadcast_update(@game)
-    end
-
     # Use callbacks to share common setup or constraints between actions.
     def set_game
       @game = Game.find(params[:id])

@@ -5,7 +5,9 @@ class Game < ApplicationRecord
 
 	has_many :scenes
 	has_many :truths, through: :scenes
-	has_many :participations
+	has_many :participations, dependent: :destroy
+
+	after_commit BroadcastChange.new([GameChannel, GamesChannel])
 
 	validates :name, presence: true
 

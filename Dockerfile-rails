@@ -1,0 +1,20 @@
+FROM public.ecr.aws/docker/library/ruby:3.1-alpine as baseline
+RUN apk update && apk upgrade && apk add bash openssh alpine-sdk libpq-dev tzdata
+WORKDIR /usr/src/app
+RUN bundle config set --local path 'vendor/bundle'
+RUN gem update bundler
+
+COPY Gemfile Gemfile.lock .
+RUN bundle install
+RUN bundle update --bundler
+RUN gem cleanup bundler
+
+FROM baseline as api
+
+COPY . .
+ENTRYPOINT ["./monitor.sh", "Gemfile", "monitors/Gemfile"]
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
+FROM baseline as gemfile-watcher
+
+CMD ["bundle", "exec", "guard", "-i"]

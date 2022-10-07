@@ -1,9 +1,6 @@
 class ScenesController < ApplicationController
   before_action :set_game, only: [:create]
 
-  # should happen after any actions that alter game state
-  after_action :broadcast_state, only: [:create]
-
   def show
   end
 
@@ -26,9 +23,5 @@ class ScenesController < ApplicationController
     # Only allow a list of trusted parameters through.
     def scene_params
       params.require(:scene).permit(:name)
-    end
-
-    def broadcast_state
-      GamesChannel.broadcast_update(@game)
     end
 end

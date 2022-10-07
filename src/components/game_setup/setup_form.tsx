@@ -1,4 +1,6 @@
 import type { ReactElement, ReactNode } from "react";
+import Col from 'react-bootstrap/Col';
+import Row from 'react-bootstrap/Row';
 
 export default function SetupForm(
   actions: ReactNode,
@@ -6,16 +8,16 @@ export default function SetupForm(
 ): ReactElement {
   return (
     <div className="game-setup">
-      <div className="row">
-        <div className="col">
+      <Row>
+        <Col>
           <h3>Actions</h3>
           {actions}
-        </div>
-        <div className="col">
+        </Col>
+        <Col>
           <h3>Status</h3>
           {status}
-        </div>
-      </div>
+        </Col>
+      </Row>
     </div>
   );
 }

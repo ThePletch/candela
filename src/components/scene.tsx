@@ -2,17 +2,22 @@ import { useState } from "react";
 
 import Conflict from "@candela/components/conflict";
 import TruthsList from "@candela/components/truths_list";
-import type { Conflict as ConflictType } from "@candela/types/conflict";
 import type { SelfParticipation } from "@candela/types/participation";
 import type { Scene as SceneType } from "@candela/types/scene";
+import { SceneConflictsContext, SceneTruthsContext } from '@candela/util/contexts';
 import {
+  ModelListSubscription,
   useHttpState,
-  withModelListSubscription,
-  withSingletonSubscription,
+  useSubscriptionContext,
 } from "@candela/util/state";
 
+type SceneProps = {
+  scene: SceneType;
+  me: SelfParticipation;
+};
+
 type TruthsPromptProps = {
-  participationId: number;
+  meId: number;
   truthsRemaining: number;
   nextTruthStater: {
     id: number;
@@ -26,12 +31,13 @@ function TruthsPrompt(props: TruthsPromptProps) {
     loading,
     error,
     makeRequest: createTruth,
-  } = useHttpState(`/api/scenes/${props.sceneId}/truths`, "POST");
+  } = useHttpState(`api/scenes/${props.sceneId}/truths`, "POST");
 
   const [truth, setTruth] = useState<string>("");
 
+  // TODO hook form
   function FormOrWaiting() {
-    if (props.participationId === props.nextTruthStater.id) {
+    if (props.meId === props.nextTruthStater.id) {
       return (
         <form onSubmit={() => createTruth({ description: truth })}>
           <textarea
@@ -39,7 +45,7 @@ function TruthsPrompt(props: TruthsPromptProps) {
             name="description"
             onChange={(e) => setTruth(e.target.value)}
           />
-          {error && <span>{error}</span>}
+          {error && <span>{error.message}</span>}
           <input
             className="btn btn-primary"
             type="submit"
@@ -62,9 +68,9 @@ function TruthsPrompt(props: TruthsPromptProps) {
   );
 }
 
-function ConflictManager(props: { scene: SceneType; participationId: number }) {
-  const { loading, makeRequest: createConflict } = useHttpState(
-    `/api/scenes/${props.scene.id}/conflicts`,
+function ConflictManager(props: SceneProps) {
+  const { loading: createLoading, makeRequest: createConflict } = useHttpState(
+    `api/scenes/${props.scene.id}/conflicts`,
     "POST"
   );
 
@@ -76,108 +82,98 @@ function ConflictManager(props: { scene: SceneType; participationId: number }) {
     createConflict({ dire: true });
   }
 
-  return withSingletonSubscription(
-    "ParticipationChannel",
-    { id: props.participationId },
-    (participation: SelfParticipation) => {
-      if (participation.role === "gm") {
-        return (
-          <div>
-            <h3>Click one of the below buttons to begin a conflict.</h3>
-            <button
-              className="btn btn-primary"
-              disabled={loading}
-              onClick={createUndireConflict}
-            >
-              CONFLICT
-            </button>
-            <button
-              className="btn btn-danger"
-              disabled={loading}
-              onClick={createDireConflict}
-            >
-              DIRE CONFLICT
-            </button>
-          </div>
-        );
-      }
+  if (props.me.role === "gm") {
+    return (
+      <div>
+        <h3>Click one of the below buttons to begin a conflict.</h3>
+        <button
+          className="btn btn-primary"
+          disabled={createLoading}
+          onClick={createUndireConflict}
+        >
+          CONFLICT
+        </button>
+        <button
+          className="btn btn-danger"
+          disabled={createLoading}
+          onClick={createDireConflict}
+        >
+          DIRE CONFLICT
+        </button>
+      </div>
+    );
+  }
 
-      return (
-        <div>
-          <h3>The scene is underway.</h3>
-          <em>When a conflict occurs, you will see it here.</em>
-        </div>
-      );
-    }
+  return (
+    <div>
+      <h3>The scene is underway.</h3>
+      <em>When a conflict occurs, you will see it here.</em>
+    </div>
   );
 }
 
-type SceneProps = {
-  scene: SceneType;
-  participationId: number;
-};
-
-export default function Scene(props: SceneProps) {
-  return withModelListSubscription(
-    "ConflictsChannel",
-    { scene_id: props.scene.id },
-    (conflicts: ConflictType[]) => {
-      function OptionalConflictManager() {
-        if (
-          props.scene.state === "truths_stated" &&
-          conflicts.every((c) => c.resolved || !c.narrated)
-        ) {
-          return (
-            <ConflictManager
-              scene={props.scene}
-              participationId={props.participationId}
-            />
-          );
-        }
-
-        return null;
-      }
-
-      function OptionalTruthsPrompt() {
-        const scene = props.scene;
-        if (scene.state !== "transitioning") {
-          return null;
-        }
-
+function Scene(props: { scene: SceneType, me: SelfParticipation }) {
+  return useSubscriptionContext(SceneConflictsContext(props.scene.id), "Loading conflicts...", (conflicts) => {
+    function OptionalConflictManager() {
+      if (
+        props.scene.state === "truths_stated" &&
+        conflicts.every((c) => c.resolved || !c.narrated)
+      ) {
         return (
-          <TruthsPrompt
-            participationId={props.participationId}
-            nextTruthStater={scene.nextTruthStater}
-            sceneId={scene.id}
-            truthsRemaining={scene.truthsRemaining}
+          <ConflictManager
+            {...props}
           />
         );
       }
 
-      function LastActiveConflict() {
-        const lastActiveConflict = conflicts.filter((c) => !c.resolved)[-1];
-        if (lastActiveConflict) {
-          return (
-            <Conflict
-              conflict={lastActiveConflict}
-              participationId={props.participationId}
-            />
-          );
-        }
+      return null;
+    }
+
+    function OptionalTruthsPrompt() {
+      if (props.scene.state !== "transitioning") {
         return null;
       }
 
       return (
-        <div>
-          <TruthsList
-            sceneId={props.scene.id}
-            truthsRemaining={props.scene.truthsRemaining}
-          />
-          <OptionalTruthsPrompt />
-          <OptionalConflictManager />
-          <LastActiveConflict />
-        </div>
+        <TruthsPrompt
+          meId={props.me.id}
+          nextTruthStater={props.scene.nextTruthStater}
+          sceneId={props.scene.id}
+          truthsRemaining={props.scene.truthsRemaining}
+        />
       );
     }
-  );
+
+    function LastActiveConflict() {
+      const lastActiveConflict = conflicts.filter((c) => !c.resolved)[-1];
+      if (lastActiveConflict) {
+        return (
+          <Conflict
+            conflict={lastActiveConflict}
+          />
+        );
+      }
+      return null;
+    }
+
+    return (
+      <div>
+        <TruthsList
+          sceneId={props.scene.id}
+          truthsRemaining={props.scene.truthsRemaining}
+        />
+        <OptionalTruthsPrompt />
+        <OptionalConflictManager />
+        <LastActiveConflict />
+      </div>
+    );
+  });
+}
+
+export default function(props: SceneProps) {
+  return <ModelListSubscription channel="ConflictsChannel" params={{ scene_id: props.scene.id }} context={SceneConflictsContext(props.scene.id)}>
+    <ModelListSubscription channel="TruthsChannel" params={{ scene_id: props.scene.id }} context={SceneTruthsContext(props.scene.id)}>
+      <Scene {...props} />
+    </ModelListSubscription>
+  </ModelListSubscription>
 }

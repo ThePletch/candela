@@ -1,7 +1,7 @@
 @import "~bootstrap/scss/bootstrap";
 @import "~bootstrap/scss/mixins";
 
-.candle-indicator {
+.background-svg {
   position: fixed;
   top: 0;
   left: 0;
@@ -11,9 +11,19 @@
 
   height: 100%;
   width: 100%;
+}
+
+.candle-indicator {
+  @extend .background-svg;
+
   // SASS gets upset by comparing vw/vh, but this is valid raw CSS, so we can just
   // pass it through literally.
   filter: blur(unquote("min(1vw, 1vh)")) brightness(50%);
+}
+
+.minimap {
+  @extend .background-svg;
+  z-index: 0;
 }
 
 .participations-button {
@@ -62,13 +72,9 @@ html {
 }
 
 body {
-  @extend .text-white;
   background: none;
   height: 100%;
-
-  & > div {
-    height: 100%;
-  }
+  color: $white;
 }
 
 .game-interface {
@@ -183,18 +189,6 @@ body {
         filter: sepia(50%) brightness(50%);
       }
 
-      // &.inactive-trait {
-      //   .trait-pretext {
-      //     display: none;
-      //   }
-
-      //   .trait-value {
-      //     overflow: hidden;
-      //     text-overflow: ellipsis;
-      //     white-space: nowrap;
-      //   }
-      // }
-
       &.active-trait {
         filter: brightness(1.5);
       }
@@ -212,8 +206,4 @@ body {
 
 .trait-card {
   @extend .list-group-item;
-}
-
-.list-group-item {
-  @extend .bg-dark;
 }

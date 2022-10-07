@@ -39,4 +39,6 @@ yarn-debug.log*
 .DS_Store
 
 # Compiled JS
-dist
+.next
+target/*
+vendor/bundle

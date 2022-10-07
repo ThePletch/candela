@@ -13,6 +13,8 @@ class Participation < ApplicationRecord
 							.arel.exists) }
 	scope :dead, -> { players.joins(resolutions: :conflict).where(conflicts: {dire: true}, resolutions: {succeeded: false}) }
 
+  after_commit BroadcastChange.new([ParticipationChannel, ParticipationsChannel])
+
 	before_create do |record|
 		record.guid = SecureRandom.uuid
 		record.position = game.participations.count
@@ -43,7 +45,46 @@ class Participation < ApplicationRecord
 	end
 
 	def card_ids
-		(card_order or '').split('')
+		case game.setup_state
+		when 'nascent', 'traits'
+			[]
+		when 'module_intro', 'character_concept', 'moments'
+			['0', '1']
+		when 'brinks'
+			['0', '1', '2']
+		when 'order_cards'
+			['0', '1', '2', '3']
+		else
+			(card_order or '').split('') + ['3']
+		end
+	end
+
+	def card_ids_visible_to(participation, as_of: nil)
+		# you can always see all of your own cards
+		return card_ids if participation == self
+
+		as_of ||= Time.current
+		if card_order
+			burned_down_to = card_ids.slice_after(top_trait_id(as_of: as_of)).first
+		else
+			# don't show the top card until they've explicitly chosen one
+			burned_down_to = []
+		end
+
+		gave_it_to_them = []
+		if participation.present?
+			# GM doesn't have traits
+			if role != 'gm'
+				# player on the left passes you your virtue
+				gave_it_to_them << '0' if participation == left_player(skip_gm: true)
+				# player on the right passes you your vice
+				gave_it_to_them << '1' if participation == right_player(skip_gm: true)
+			end
+			# participation on the right passes you your brink
+			gave_it_to_them << '3' if participation == right_player(skip_gm: false)
+	  end
+
+		card_ids.select{|id| burned_down_to.include?(id) or gave_it_to_them.include?(id) }
 	end
 
 	def left_player(skip_gm: false)
@@ -51,8 +92,11 @@ class Participation < ApplicationRecord
 		left_position = (self.position - 1) % total_player_count
 		player = Participation.find_by(game: self.game, position: left_position)
 
-		if skip_gm and player.role == 'gm'
-			player.left_player
+		# corner case to avoid an infinite loop when the GM first starts the game
+		if player == self
+			nil
+		elsif skip_gm and player.role == 'gm'
+			player.left_player(skip_gm: skip_gm)
 		else
 			player
 		end
@@ -63,8 +107,11 @@ class Participation < ApplicationRecord
 		left_position = (self.position + 1) % total_player_count
 		player = Participation.find_by(game: self.game, position: left_position)
 
-		if skip_gm and player.role == 'gm'
-			player.right_player
+		# corner case to avoid an infinite loop when the GM first starts the game
+		if player == self
+			nil
+		elsif skip_gm and player.role == 'gm'
+			player.right_player(skip_gm: skip_gm)
 		else
 			player
 		end
@@ -110,10 +157,10 @@ class Participation < ApplicationRecord
 		card_ids.find{|card_id| already_burned.exclude?(card_id) } or '3'
 	end
 
-	def top_trait_value(show_hidden: false, as_of: nil)
+	def trait_value(trait_id, viewer: nil, as_of: nil)
 		as_of ||= Time.current
 
-		case top_trait(as_of: as_of)
+		case CARD_MAPPING[trait_id]
 		when 'virtue'
 			virtue
 		when 'vice'
@@ -121,7 +168,7 @@ class Participation < ApplicationRecord
 		when 'moment'
 			moment
 		when 'brink'
-			(show_hidden or brink_embraced) ? brink : '(hidden)'
+			([self, self.right_player(skip_gm: false)].include?(viewer) or brink_embraced) ? brink : '(hidden)'
 		end
 	end
 

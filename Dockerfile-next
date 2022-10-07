@@ -1,0 +1,21 @@
+FROM public.ecr.aws/docker/library/node:gallium-alpine as baseline
+ARG NPM_VER=next-8
+
+ENV NODE_ENV=development
+
+RUN npm install -g npm@${NPM_VER}
+RUN apk update && apk upgrade && apk add bash openssh python3 alpine-sdk
+WORKDIR /usr/src/app
+
+FROM baseline as nextjs
+
+COPY . .
+ENTRYPOINT ["./monitor.sh", "package.json", "monitors/package.json"]
+CMD ["npx", "next", "dev"]
+
+FROM baseline as npm-watcher
+
+RUN npm install -g onchange
+
+ENTRYPOINT ["npx", "onchange", "-i", "package.json", "--"]
+CMD ["bash", "-c", "npm install && ./md5 package.json > monitors/package.json"]

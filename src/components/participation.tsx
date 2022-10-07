@@ -8,11 +8,11 @@ import type {
 
 type ParticipationProps = {
   participation: ParticipationType;
-  activeParticipationId: number;
+  isActiveParticipation: boolean;
 };
 
 function Bio(props: Pick<ParticipationType, "role" | "characterConcept">) {
-  if (props.role == "player") {
+  if (props.role === "player") {
     return <p className="character-concept">{props.characterConcept}</p>;
   } else {
     return null;
@@ -132,13 +132,10 @@ export default function Participation(props: ParticipationProps) {
     setCollapsed(!collapsed);
   }
 
-  const controlledByUser =
-    props.participation.id === props.activeParticipationId;
-
   const participationClasses = classNames({
     participation: true,
-    active: controlledByUser,
-    inactive: !controlledByUser,
+    active: props.isActiveParticipation,
+    inactive: !props.isActiveParticipation,
     collapsed,
     [props.participation.role]: true,
   });
@@ -150,7 +147,7 @@ export default function Participation(props: ParticipationProps) {
           <h4 className="participation-name">{props.participation.name}</h4>
           <h6 className="participation-type">
             <div className="participation-role">{props.participation.role}</div>
-            {controlledByUser && (
+            {props.isActiveParticipation && (
               <div>
                 <small className="is-character">Your character</small>
               </div>

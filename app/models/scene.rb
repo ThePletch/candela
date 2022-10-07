@@ -2,11 +2,13 @@ class Scene < ApplicationRecord
   include AASM
 
   belongs_to :game
-  has_many :conflicts
+  has_many :conflicts, dependent: :destroy
   has_many :resolutions, through: :conflicts
-  has_many :truths
+  has_many :truths, dependent: :destroy
 
   validate :game_must_be_ready
+
+  after_commit BroadcastChange.new([ScenesChannel])
 
   # todo validate only one active scene per game
 

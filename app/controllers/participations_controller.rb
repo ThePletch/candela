@@ -3,14 +3,12 @@ class ParticipationsController < ApplicationController
   before_action :set_game, only: [:new, :create]
   before_action :set_participation, only: [:update]
 
-  # should happen after any actions that alter game state
-  after_action :broadcast_participant_state, only: [:create, :update]
-
   # GET /participations/new
   def new
     @participation = @game.participations.build(role: 'player')
   end
 
+  # TODO block this from happening after game setup
   def create
     @participation = @game.participations.build(participation_params.merge(role: 'player'))
 
@@ -18,7 +16,7 @@ class ParticipationsController < ApplicationController
       if @participation.save
         flash[:notice] = "Anyone who goes to this URL can play as your character, so treat the URL like a password."
         format.html { redirect_to play_game_path(participation_guid: @participation.guid) }
-        format.json { render :show, status: :created, location: @participation }
+        format.json { render :created, status: :created }
       else
         format.html { render :new }
         format.json { render json: @participation.errors, status: :unprocessable_entity }
@@ -26,7 +24,6 @@ class ParticipationsController < ApplicationController
     end
   end
 
-  # todo graphqlify
   def update
     if @participation.update(participation_params)
       render json: {}, status: :ok
@@ -76,9 +73,5 @@ class ParticipationsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def participation_params
       params.require(:participation).permit(:name, *permitted_params_by_setup_state)
-    end
-
-    def broadcast_participant_state
-      ParticipantsChannel.broadcast_update(@participation)
     end
 end

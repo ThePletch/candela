@@ -1,3 +1,6 @@
 import { createConsumer } from "@rails/actioncable";
+import getConfig from 'next/config';
 
-export default createConsumer();
+const { publicRuntimeConfig } = getConfig();
+
+export default createConsumer(publicRuntimeConfig.apiWebsocketUrl);

@@ -11,6 +11,7 @@ export function request(
       "Content-Type": "application/json",
       Accept: "application/json",
     },
+    credentials: 'include',
     method,
   };
 

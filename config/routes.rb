@@ -7,7 +7,7 @@ Rails.application.routes.draw do
         patch 'advance_setup_state'
       end
 
-      resources :participations, only: [:update, :index]
+      resources :participations, only: [:update, :index, :create]
 
       resources :scenes, only: [:create, :index] do
         resources :truths, only: [:create, :index]

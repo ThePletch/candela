@@ -1,3 +1,5 @@
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
 import { useForm } from "react-hook-form";
 
 import type { SelfParticipation } from "@candela/types/participation";
@@ -8,22 +10,21 @@ export default function CharacterConceptForm(props: {
 }) {
   const { register, handleSubmit } = useForm();
   const { loading, makeRequest } = useHttpState(
-    `/api/participations/${props.participation.id}/`,
+    `api/participations/${props.participation.id}`,
     "PATCH"
   );
 
   return (
-    <form onSubmit={handleSubmit(makeRequest)}>
+    <Form onSubmit={handleSubmit(makeRequest)}>
       <em>Describe your character concept in a sentence or three.</em>
       <div>
         This should include their name, general appearance, and overall
         personality.
       </div>
-      <textarea
-        className="form-control"
+      <Form.Control as="textarea"
         {...register('participation[character_concept]', { required: true })} />
 
-      <input className="btn btn-primary" disabled={loading} type="submit" />
-    </form>
+      <Button variant="primary" disabled={loading} type="submit">Submit</Button>
+    </Form>
   );
 }

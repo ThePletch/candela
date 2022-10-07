@@ -7,17 +7,9 @@ import TraitResolution from "@candela/components/resolution/trait_resolution";
 
 export function renderResolutionByType(props: ResolutionProps) {
   switch (props.resolution.type) {
-    case "RollResolution":
+    case "BrinkResolution":
       return (
-        <RollResolution
-          gameId={props.gameId}
-          activeParticipation={props.activeParticipation}
-          resolution={props.resolution}
-        />
-      );
-    case "MomentResolution":
-      return (
-        <MomentResolution
+        <BrinkResolution
           gameId={props.gameId}
           activeParticipation={props.activeParticipation}
           resolution={props.resolution}
@@ -31,9 +23,17 @@ export function renderResolutionByType(props: ResolutionProps) {
           resolution={props.resolution}
         />
       );
-    case "BrinkResolution":
+    case "MomentResolution":
       return (
-        <BrinkResolution
+        <MomentResolution
+          gameId={props.gameId}
+          activeParticipation={props.activeParticipation}
+          resolution={props.resolution}
+        />
+      );
+    case "RollResolution":
+      return (
+        <RollResolution
           gameId={props.gameId}
           activeParticipation={props.activeParticipation}
           resolution={props.resolution}

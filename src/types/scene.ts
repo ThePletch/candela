@@ -7,7 +7,7 @@ type BaseScene = {
 
 type NonTransitioningScene = BaseScene & {
   state: "truths_stated";
-  nextTruthStater: undefined;
+  nextTruthStater: null;
 };
 
 type SceneInTransition = BaseScene & {

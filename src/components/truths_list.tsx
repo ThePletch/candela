@@ -1,7 +1,7 @@
 import Truth from "@candela/components/truth";
 
-import type { Truth as TruthObject } from "@candela/types/truth";
-import { withModelListSubscription } from "@candela/util/state";
+import { SceneTruthsContext } from '@candela/util/contexts';
+import { useSubscriptionContext } from "@candela/util/state";
 
 function AreWeAlive(props: { truthsAllStated: boolean }) {
   if (props.truthsAllStated) {
@@ -17,13 +17,10 @@ type TruthsListProps = {
 };
 
 export default function TruthsList(props: TruthsListProps) {
-  return withModelListSubscription(
-    "TruthsChannel",
-    { scene_id: props.sceneId },
-    (truths: TruthObject[]) => {
+  return useSubscriptionContext(SceneTruthsContext(props.sceneId), "Loading truths...", (truths) => {
       // we don't want to display this for the first scene.
       if (truths.length === 0 && props.truthsRemaining === 0) {
-        return <div></div>;
+        return <div />;
       }
 
       return (

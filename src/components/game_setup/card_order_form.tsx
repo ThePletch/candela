@@ -1,5 +1,7 @@
 import { type FormEvent, useEffect, useRef } from "react";
-
+import Button from 'react-bootstrap/Button';
+import Form from 'react-bootstrap/Form';
+import ListGroup from 'react-bootstrap/ListGroup';
 import Sortable from "sortablejs";
 
 import type { SelfParticipation } from "@candela/types/participation";
@@ -11,7 +13,7 @@ export default function CardOrderForm(props: {
   const sortableCards = ["virtue", "vice", "moment"];
 
   const { loading, makeRequest } = useHttpState(
-    `/api/participations/${props.participation.id}/`,
+    `api/participations/${props.participation.id}`,
     "PATCH"
   );
 
@@ -34,13 +36,13 @@ export default function CardOrderForm(props: {
   }) {
     // todo add a hamburger icon here to indicate draggability
     return (
-      <li
-        className={`list-group-item ${cardProps.sortable ? "" : "disabled"}`}
+      <ListGroup.Item
+        className={cardProps.sortable ? "" : "disabled"}
         key={cardProps.index}
         data-id={cardProps.index}
       >
         <span>{cardProps.name}</span>
-      </li>
+      </ListGroup.Item>
     );
   }
 
@@ -60,21 +62,21 @@ export default function CardOrderForm(props: {
   }
 
   return (
-    <form onSubmit={submitCardOrder}>
+    <Form onSubmit={submitCardOrder}>
       <em>Click and drag to order your cards from top to bottom.</em>
       <div>
         You can only use the card on top of your pile, and can't use the cards
         below it until all the cards above them have been burned. Your brink
         must always be on the bottom.
       </div>
-      <ul className="card-order-group list-group" ref={cardList}>
+      <ListGroup className="card-order-group" ref={cardList as any}>
         {sortableCards.map((name, i) => (
-          <CardListItem name={name} index={i} sortable={true} />
+          <CardListItem key={i} name={name} index={i} sortable={true} />
         ))}
         <CardListItem name="brink" index={3} sortable={false} />
-      </ul>
+      </ListGroup>
 
-      <input disabled={loading} type="submit" />
-    </form>
+      <Button variant="primary" disabled={loading} type="submit" />
+    </Form>
   );
 }

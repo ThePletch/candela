@@ -1,15 +1,4 @@
-import type { Participation, SelfParticipation } from "types/participation";
-
-export function activeParticipation(
-  participations: Participation[],
-  id: number
-): SelfParticipation {
-  const participation = participations.find((p) => p.id === id);
-  if (!participation) {
-    throw new Error(`Active participant ID ${id} not in list.`);
-  }
-  return participation as SelfParticipation;
-}
+import type { Participation } from "types/participation";
 
 export function getTopTrait(
   participation: Participation

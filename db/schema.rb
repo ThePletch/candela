@@ -2,11 +2,11 @@
 # of editing this file, please use the migrations feature of Active Record to
 # incrementally modify your database, and then regenerate this schema definition.
 #
-# Note that this schema.rb definition is the authoritative source for your
-# database schema. If you need to create the application database on another
-# system, you should be using db:schema:load, not running all the migrations
-# from scratch. The latter is a flawed and unsustainable approach (the more migrations
-# you'll amass, the slower it'll run and the greater likelihood for issues).
+# This file is the source Rails uses to define your schema when running `bin/rails
+# db:schema:load`. When creating a new database, `bin/rails db:schema:load` tends to
+# be faster and is potentially less error prone than running all of your
+# migrations from scratch. Old migrations may fail to apply correctly if those
+# migrations use external dependencies or application code.
 #
 # It's strongly recommended that you check this file into your version control system.
 
@@ -16,7 +16,7 @@ ActiveRecord::Schema.define(version: 2020_10_03_232122) do
   enable_extension "plpgsql"
 
   create_table "conflicts", force: :cascade do |t|
-    t.integer "scene_id"
+    t.bigint "scene_id"
     t.boolean "dire"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
@@ -33,7 +33,7 @@ ActiveRecord::Schema.define(version: 2020_10_03_232122) do
 
   create_table "participations", force: :cascade do |t|
     t.string "name"
-    t.integer "game_id"
+    t.bigint "game_id"
     t.string "guid"
     t.string "role"
     t.integer "position"
@@ -52,8 +52,8 @@ ActiveRecord::Schema.define(version: 2020_10_03_232122) do
   end
 
   create_table "resolutions", force: :cascade do |t|
-    t.integer "conflict_id"
-    t.integer "resolution_id"
+    t.bigint "conflict_id"
+    t.bigint "resolution_id"
     t.integer "player_id"
     t.integer "beneficiary_player_id"
     t.string "burned_trait_type"
@@ -69,7 +69,7 @@ ActiveRecord::Schema.define(version: 2020_10_03_232122) do
   end
 
   create_table "scenes", force: :cascade do |t|
-    t.integer "game_id"
+    t.bigint "game_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.string "state"
@@ -77,11 +77,17 @@ ActiveRecord::Schema.define(version: 2020_10_03_232122) do
   end
 
   create_table "truths", force: :cascade do |t|
-    t.integer "participation_id"
+    t.bigint "participation_id"
     t.string "description"
-    t.integer "scene_id"
+    t.bigint "scene_id"
     t.index ["participation_id"], name: "index_truths_on_participation_id"
     t.index ["scene_id"], name: "index_truths_on_scene_id"
   end
 
+  add_foreign_key "conflicts", "scenes"
+  add_foreign_key "participations", "games"
+  add_foreign_key "resolutions", "conflicts"
+  add_foreign_key "resolutions", "resolutions"
+  add_foreign_key "scenes", "games"
+  add_foreign_key "truths", "participations"
 end

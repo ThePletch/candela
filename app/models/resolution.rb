@@ -12,6 +12,8 @@ class Resolution < ApplicationRecord
 
 	validate :cannot_override_an_override
 
+  after_commit BroadcastChange.new([ResolutionsChannel])
+
 	scope :successful, -> { confirmed.where(succeeded: true) }
 	scope :failed, -> { confirmed.where(succeeded: false) }
 	scope :deadly, -> { joins(:conflict).where(conflicts: {dire: true}) }

@@ -110,7 +110,7 @@ export default function CandleIndicator(props: {
   let [lit, setLit] = useState(0);
   let [dicePool, setDicePool] = useState(props.dicePool);
 
-  const candleDistance = 40;
+  const candleDistance = 25;
   const candleLightDelayMs = 500;
 
   function setUpCandleUpdater() {
@@ -199,7 +199,7 @@ export default function CandleIndicator(props: {
       viewBox="0 0 90 90"
       className="candle-indicator"
     >
-      {_.times(10, (index: number) => {
+      {_.times(10, (index) => {
         return renderCandle(index);
       })}
     </svg>

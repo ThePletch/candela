@@ -4,6 +4,8 @@ class Truth < ApplicationRecord
 
   validate :scene_has_unstated_truths
 
+  after_commit BroadcastChange.new([TruthsChannel])
+
   after_create do
     if scene.all_truths_stated
       scene.finish_stating_truths!

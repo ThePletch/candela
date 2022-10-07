@@ -1,25 +1,27 @@
+import Badge from 'react-bootstrap/Badge';
+
 type Roll = "1" | "2" | "3" | "4" | "5" | "6";
 
 function getHopeDieColor(valueRolled: Roll) {
   switch (valueRolled) {
     case "5":
     case "6":
-      return "badge-info";
+      return "info";
     case "1":
-      return "badge-warning";
+      return "warning";
     default:
-      return "badge-primary";
+      return "primary";
   }
 }
 
 function getRegularDieColor(valueRolled: Roll) {
   switch (valueRolled) {
     case "6":
-      return "badge-success";
+      return "success";
     case "1":
-      return "badge-danger";
+      return "danger";
     default:
-      return "badge-secondary";
+      return "secondary";
   }
 }
 
@@ -36,7 +38,7 @@ function Die(props: DieProps) {
     color = getRegularDieColor(props.roll);
   }
 
-  return <span className={`badge ${color}`}>{props.roll}</span>;
+  return <Badge bg={color}>{props.roll}</Badge>;
 }
 
 type DiceRollProps = {

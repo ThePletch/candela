@@ -1,85 +1,79 @@
+import Button from 'react-bootstrap/Button';
+
 import CharacterConceptForm from "@candela/components/game_setup/character_concept_form";
 import SetupForm from "@candela/components/game_setup/setup_form";
-import type { Participation, SelfParticipation } from "types/participation";
-import type { GameProps } from "types/props";
-import { activeParticipation } from "util/participations";
-import { useHttpState, withModelListSubscription } from "util/state";
+import type { Participation } from "@candela/types/participation";
+import type { GameProps } from "@candela/types/props";
+import { GameParticipationsContext, MeContext } from '@candela/util/contexts';
+import { useHttpState, useSubscriptionContext } from "@candela/util/state";
 
 export default function CharacterConceptPrompt(props: GameProps) {
   const { loading, makeRequest: advanceStage } = useHttpState(
-    `/api/games/${props.gameId}/advance_setup_state`,
+    `api/games/${props.game.id}/advance_setup_state`,
     "PATCH",
     { current_setup_state: "character_concept" }
   );
 
-  function playersWithUnfilledConcept(participations: Participation[]) {
-    return participations.filter(playerWithConceptUnfilled);
-  }
+  return useSubscriptionContext(GameParticipationsContext, "Loading players...", (participations) => {
+    return useSubscriptionContext(MeContext, "Loading your information...", (me) => {
+      function playersWithUnfilledConcept(participations: Participation[]) {
+        return participations.filter(playerWithConceptUnfilled);
+      }
 
-  function playerWithConceptUnfilled(participation: Participation) {
-    return (
-      participation.role === "player" && participation.characterConcept == null
-    );
-  }
-
-  function actions(
-    participations: Participation[],
-    activeParticipation: SelfParticipation
-  ) {
-    const unfilledConceptPlayers = playersWithUnfilledConcept(participations);
-
-    if (activeParticipation.role === "gm") {
-      if (unfilledConceptPlayers.length === 0) {
+      function playerWithConceptUnfilled(participation: Participation) {
         return (
-          <button
-            className="btn btn-primary"
-            disabled={loading}
-            onClick={() => advanceStage()}
-          >
-            Proceed to Moments
-          </button>
+          participation.role === "player" && participation.characterConcept == null
         );
       }
-      return null;
-    }
 
-    return <CharacterConceptForm participation={activeParticipation} />;
-  }
+      function actions(participations: Participation[]) {
+        const unfilledConceptPlayers = playersWithUnfilledConcept(participations);
 
-  function status(
-    participations: Participation[],
-    activeParticipation: SelfParticipation
-  ) {
-    const unfilledConceptPlayers = playersWithUnfilledConcept(participations);
+        if (me.role === "gm") {
+          if (unfilledConceptPlayers.length === 0) {
+            return (
+              <Button variant="primary"
+                disabled={loading}
+                onClick={() => advanceStage()}
+              >
+                Proceed to Moments
+              </Button>
+            );
+          }
+          return null;
+        }
 
-    if (unfilledConceptPlayers.length === 0) {
-      if (activeParticipation.role === "player") {
+        return <CharacterConceptForm participation={me} />;
+      }
+
+      function status(
+        participations: Participation[]
+      ) {
+        const unfilledConceptPlayers = playersWithUnfilledConcept(participations);
+
+        if (unfilledConceptPlayers.length === 0) {
+          if (me.role === "player") {
+            return (
+              <em>
+                All character concepts submitted. Waiting for GM to continue...
+              </em>
+            );
+          }
+          return null;
+        }
+
         return (
-          <em>
-            All character concepts submitted. Waiting for GM to continue...
-          </em>
+          <ul>
+            {unfilledConceptPlayers.map((player) => (
+              <li key={player.id}>
+                {player.name} is writing their character concept...
+              </li>
+            ))}
+          </ul>
         );
       }
-      return null;
-    }
 
-    return (
-      <ul>
-        {unfilledConceptPlayers.map((player) => (
-          <li key={player.id}>
-            {player.name} is writing their character concept...
-          </li>
-        ))}
-      </ul>
-    );
-  }
-
-  return withModelListSubscription(
-    "ParticipationsChannel",
-    { game_id: props.gameId },
-    (participations: Participation[]) => {
-      const me = activeParticipation(participations, props.participationId);
-      return SetupForm(actions(participations, me), status(participations, me));
-    }
-  );
+      return SetupForm(actions(participations), status(participations));
+    });
+  });
 }

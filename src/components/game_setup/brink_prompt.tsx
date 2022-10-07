@@ -1,76 +1,72 @@
+import Button from 'react-bootstrap/Button';
+
 import BrinkForm from "@candela/components/game_setup/brink_form";
 import SetupForm from "@candela/components/game_setup/setup_form";
-import type { Participation, SelfParticipation } from "@candela/types/participation";
+import type { Participation } from "@candela/types/participation";
 import type { GameProps } from "@candela/types/props";
-import { activeParticipation } from "@candela/util/participations";
-import { useHttpState, withModelListSubscription } from "@candela/util/state";
+import { GameParticipationsContext } from '@candela/util/contexts';
+import { useHttpState, useSubscriptionContext } from "@candela/util/state";
 
 export default function BrinkPrompt(props: GameProps) {
   const { loading, makeRequest: advanceStage } = useHttpState(
-    `/api/games/${props.gameId}/advance_setup_state`,
+    `api/games/${props.game.id}/advance_setup_state`,
     "PATCH",
     { current_setup_state: "brinks" }
   );
 
-  function playersWithUnfilledBrink(participations: Participation[]) {
-    return participations.filter(playerWithBrinkUnfilled);
-  }
+  return useSubscriptionContext(GameParticipationsContext, "Loading players...", (participations) => {
+    function playersWithUnfilledBrink(participations: Participation[]) {
+      return participations.filter(playerWithBrinkUnfilled);
+    }
 
-  function playerWithBrinkUnfilled(participation: Participation) {
-    return !participation.hasBrink;
-  }
+    function playerWithBrinkUnfilled(participation: Participation) {
+      return !participation.hasWrittenBrink;
+    }
 
-  function actions(
-    participations: Participation[],
-    activeParticipation: SelfParticipation
-  ) {
-    const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
+    function actions(
+      participations: Participation[]
+    ) {
+      const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
 
-    if (activeParticipation.role === "gm") {
+      if (props.me.role === "gm") {
+        if (unfilledBrinkPlayers.length === 0) {
+          return (
+            <>
+              <Button variant="primary"
+                disabled={loading}
+                onClick={() => advanceStage()}
+              >
+                Proceed to Card Order
+              </Button>
+              <BrinkForm participation={props.me} />
+            </>
+          );
+        }
+      }
+      return <BrinkForm participation={props.me} />;
+    }
+
+    function status(
+      participations: Participation[]
+    ) {
+      const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
+
       if (unfilledBrinkPlayers.length === 0) {
+        if (props.me.role == "player") {
+          return <em>All brinks submitted. Waiting for GM to continue...</em>;
+        }
+        return null;
+      } else {
         return (
-          <button
-            className="btn btn-primary"
-            disabled={loading}
-            onClick={() => advanceStage()}
-          >
-            Proceed to Card Order
-          </button>
+          <ul>
+            {unfilledBrinkPlayers.map((player) => (
+              <li key={player.id}>{player.name} is writing their brink...</li>
+            ))}
+          </ul>
         );
       }
-      return null;
     }
-    return <BrinkForm participation={activeParticipation} />;
-  }
 
-  function status(
-    participations: Participation[],
-    activeParticipation: SelfParticipation
-  ) {
-    const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
-
-    if (unfilledBrinkPlayers.length == 0) {
-      if (activeParticipation.role == "player") {
-        return <em>All brinks submitted. Waiting for GM to continue...</em>;
-      }
-      return null;
-    } else {
-      return (
-        <ul>
-          {unfilledBrinkPlayers.map((player) => (
-            <li key={player.id}>{player.name} is writing their brink...</li>
-          ))}
-        </ul>
-      );
-    }
-  }
-
-  return withModelListSubscription(
-    "ParticipationsChannel",
-    { game_id: props.gameId },
-    (participations: Participation[]) => {
-      const me = activeParticipation(participations, props.participationId);
-      return SetupForm(actions(participations, me), status(participations, me));
-    }
-  );
+    return SetupForm(actions(participations), status(participations));
+  });
 }

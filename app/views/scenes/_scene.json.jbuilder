@@ -1,13 +1,13 @@
+json.key_format! camelize: :lower
+
 json.extract! scene, :id, :state, :truths_remaining, :base_player_dice_pool
-json.truths do
-  json.array! scene.truths, partial:'truths/truth', as: :truth
-end
-unless scene.all_truths_stated
-  json.next_truth_stater_id scene.next_truth_stater.id
-  json.next_truth_stater_name scene.next_truth_stater.name
-end
-json.active_conflict do
-  if scene.active_conflict
-    json.partial! 'conflicts/conflict', locals: {conflict: scene.active_conflict}
+json.failed scene.failed?
+
+if scene.all_truths_stated
+  json.next_truth_stater nil
+else
+  json.next_truth_stater do
+    json.id scene.next_truth_stater.id
+    json.name scene.next_truth_stater.name
   end
 end

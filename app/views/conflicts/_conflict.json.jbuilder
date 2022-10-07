@@ -1,4 +1,5 @@
-json.extract! conflict, :id, :narrated, :dire
-json.active_resolutions do
-  json.array! conflict.active_resolutions, partial:'resolutions/resolution', as: :resolution
-end
+json.key_format! camelize: :lower
+
+json.extract! conflict, :id, :narrated, :dire, :resolved
+
+json.game_id conflict.game.id

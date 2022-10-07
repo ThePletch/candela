@@ -1,7 +1,9 @@
 class Conflict < ApplicationRecord
 	belongs_to :scene
-	has_many :resolutions
+	has_many :resolutions, dependent: :destroy
   validate :no_other_active_conflicts_in_scene
+
+  after_commit BroadcastChange.new([ConflictsChannel])
 
 	scope :failed, -> { joins(:resolutions).where(resolutions: {succeeded: false, state: :confirmed}) }
 	scope :succeeded, -> { joins(:resolutions).where(resolutions: {succeeded: true, state: :confirmed}) }
@@ -33,7 +35,7 @@ class Conflict < ApplicationRecord
 
   def no_other_active_conflicts_in_scene
     if self.active? and self.scene.conflicts.active.where.not(id: self.id).exists?
-      errors[:base].add("There is already another active conflict for this scene")
+      errors.add(:base, "There is already another active conflict for this scene")
     end
   end
 end

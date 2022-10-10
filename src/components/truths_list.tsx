@@ -36,7 +36,11 @@ export default function TruthsList({
             <li key="0">The world is dark.</li>
             {truths.map((truth) => (
               <li key={truth.id}>
-                <Truth id={truth.id} description={truth.description} speaker={truth.speaker} />
+                <Truth
+                  id={truth.id}
+                  description={truth.description}
+                  speaker={truth.speaker}
+                />
               </li>
             ))}
           </ul>

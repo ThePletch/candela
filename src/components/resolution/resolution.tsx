@@ -5,51 +5,35 @@ import MomentResolution from '@candela/components/resolution/moment_resolution';
 import RollResolution from '@candela/components/resolution/roll_resolution';
 import TraitResolution from '@candela/components/resolution/trait_resolution';
 
-export function renderResolutionByType(props: ResolutionProps) {
-  switch (props.resolution.type) {
+// consistent-return can't detect exhaustive types :/
+// eslint-disable-next-line consistent-return
+export function renderResolutionByType({
+  me,
+  resolution,
+  gameId,
+}: ResolutionProps & { gameId: number }) {
+  switch (resolution.type) {
     case 'BrinkResolution':
       return (
-        <BrinkResolution
-          resolution={props.resolution}
-          me={props.me}
-          gameId={props.gameId}
-        />
+        <BrinkResolution resolution={resolution} me={me} gameId={gameId} />
       );
     case 'MartyrResolution':
       return (
-        <MartyrResolution
-          resolution={props.resolution}
-          me={props.me}
-          gameId={props.gameId}
-        />
+        <MartyrResolution resolution={resolution} me={me} gameId={gameId} />
       );
     case 'MomentResolution':
       return (
-        <MomentResolution
-          resolution={props.resolution}
-          me={props.me}
-          gameId={props.gameId}
-        />
+        <MomentResolution resolution={resolution} me={me} gameId={gameId} />
       );
     case 'RollResolution':
-      return (
-        <RollResolution
-          resolution={props.resolution}
-          me={props.me}
-          gameId={props.gameId}
-        />
-      );
+      return <RollResolution resolution={resolution} me={me} gameId={gameId} />;
     case 'TraitResolution':
       return (
-        <TraitResolution
-          resolution={props.resolution}
-          me={props.me}
-          gameId={props.gameId}
-        />
+        <TraitResolution resolution={resolution} me={me} gameId={gameId} />
       );
   }
 }
 
-export function Resolution(props: ResolutionProps) {
+export function Resolution(props: ResolutionProps & { gameId: number }) {
   return renderResolutionByType(props);
 }

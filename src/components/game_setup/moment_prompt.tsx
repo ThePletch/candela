@@ -6,6 +6,16 @@ import type { GameProps } from '@candela/types/props';
 import { GameParticipationsContext, MeContext } from '@candela/util/contexts';
 import { useHttpState, useSubscriptionContexts } from '@candela/util/state';
 
+function playerWithMomentUnfilled(participation: Participation) {
+  return participation.role === 'player' && !participation.hasMoment;
+}
+
+function playersWithUnfilledMoment(
+  participations: Participation[],
+): Participation[] {
+  return participations.filter(playerWithMomentUnfilled);
+}
+
 export default function MomentPrompt(props: GameProps) {
   const advanceToBrinks = useHttpState(
     `api/games/${props.game.id}/advance_setup_state`,
@@ -26,16 +36,6 @@ export default function MomentPrompt(props: GameProps) {
       },
     },
     ({ me, participations }) => {
-      function playersWithUnfilledMoment(
-        participations: Participation[],
-      ): Participation[] {
-        return participations.filter(playerWithMomentUnfilled);
-      }
-
-      function playerWithMomentUnfilled(participation: Participation) {
-        return participation.role == 'player' && !participation.hasMoment;
-      }
-
       const unfilledMomentPlayers = playersWithUnfilledMoment(participations);
 
       if (me.role === 'gm') {

@@ -7,7 +7,10 @@ import {
 } from '@candela/components/resolution/base';
 
 export default function MomentResolution(
-  props: ResolutionProps & { resolution: { type: 'MomentResolution' } },
+  props: ResolutionProps & {
+    resolution: { type: 'MomentResolution' };
+    gameId: number;
+  },
 ) {
   const { resolution } = props;
   function additionalInfo(): ReactNode {
@@ -16,8 +19,8 @@ export default function MomentResolution(
         <span>
           {resolution.resolver.name}
           {' '}
-          lived their moment and has earned a
-          hope die.
+          lived their moment and has earned a hope
+          die.
         </span>
       );
     }

@@ -3,7 +3,6 @@ import ListGroup from 'react-bootstrap/ListGroup';
 import type { Participation, TraitType } from '@candela/types/participation';
 
 type TraitCardProps = {
-  burned: boolean;
   giverRole: Participation['role'];
   holderRole: Participation['role'];
   isTop: boolean;
@@ -11,35 +10,47 @@ type TraitCardProps = {
   value: string;
 };
 
-export default function TraitCard(props: TraitCardProps) {
-  function pretext(): string {
-    switch (props.type) {
-      case 'brink':
-        if (props.giverRole == 'gm') {
-          return "They've seen you...";
-        }
+// consistent-return can't detect exhaustive types :/
+// eslint-disable-next-line consistent-return
+function pretext(
+  type: TraitType,
+  giverRole: Participation['role'],
+  holderRole: Participation['role'],
+): string {
+  switch (type) {
+    case 'brink':
+      if (giverRole === 'gm') {
+        return "They've seen you...";
+      }
 
-        if (props.holderRole == 'gm') {
-          return "I've seen Them...";
-        }
+      if (holderRole === 'gm') {
+        return "I've seen Them...";
+      }
 
-        return "I've seen you...";
-      case 'virtue':
-        return '';
-      case 'vice':
-        return '';
-      case 'moment':
-        return 'I will find hope...';
-    }
+      return "I've seen you...";
+    case 'virtue':
+      return '';
+    case 'vice':
+      return '';
+    case 'moment':
+      return 'I will find hope...';
   }
+}
 
+export default function TraitCard({
+  giverRole,
+  holderRole,
+  isTop,
+  type,
+  value,
+}: TraitCardProps) {
   return (
-    <ListGroup.Item key={props.type} active={props.isTop}>
-      <h6>{props.type}</h6>
+    <ListGroup.Item key={type} active={isTop}>
+      <h6>{type}</h6>
       <div>
-        <em>{pretext()}</em>
+        <em>{pretext(type, giverRole, holderRole)}</em>
       </div>
-      <span>{props.value}</span>
+      <span>{value}</span>
     </ListGroup.Item>
   );
 }

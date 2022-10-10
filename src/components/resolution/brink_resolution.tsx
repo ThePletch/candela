@@ -8,7 +8,10 @@ import {
 } from '@candela/components/resolution/base';
 
 export default function BrinkResolution(
-  props: ResolutionProps & { resolution: { type: 'BrinkResolution' } },
+  props: ResolutionProps & {
+    resolution: { type: 'BrinkResolution' };
+    gameId: number;
+  },
 ) {
   const { resolution } = props;
   const base = BaseResolutionComponents({
@@ -55,7 +58,6 @@ export default function BrinkResolution(
         {base.playerResult}
         <em>
           But
-          {' '}
           {resolution.resolver.name}
           {' '}
           chose to embrace their brink.

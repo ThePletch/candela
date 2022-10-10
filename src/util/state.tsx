@@ -63,7 +63,10 @@ export function useHttpState<T = void>(
   };
 
   return {
-    loading, error, makeRequest, response,
+    loading,
+    error,
+    makeRequest,
+    response,
   };
 }
 
@@ -81,7 +84,9 @@ export function listStateReducer<T>(
 
     if (Number.isNaN(sortResult)) {
       console.error('NaN-causing records:', a, b);
-      throw new Error('Got NaN while sorting records. Responsible records logged to console.');
+      throw new Error(
+        'Got NaN while sorting records. Responsible records logged to console.',
+      );
     }
 
     return sortResult;
@@ -182,11 +187,7 @@ export function Subscription<T, LoadingType, ParcelType = T>({
 
   const ContextProvider = context.Provider;
 
-  return (
-    <ContextProvider value={state}>
-      {children}
-    </ContextProvider>
-  );
+  return <ContextProvider value={state}>{children}</ContextProvider>;
 }
 
 export type SingletonState<T> = SubscriptionState<T, null>;
@@ -305,7 +306,9 @@ export function useSubscriptionContexts<T extends ContextList>(
   contexts: T,
   thunk: (records: RecordMapping<T>) => ReactElement | null,
 ): ReactElement | null {
-  const recordsAndLoading = Object.entries(contexts).reduce<RecordsAndLoading<T>>(
+  const recordsAndLoading = Object.entries(contexts).reduce<
+  RecordsAndLoading<T>
+  >(
     (acc, [key, contextInfo]) => {
       const context = useContext(contextInfo.context);
       if (context.loading) {

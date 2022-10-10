@@ -35,11 +35,7 @@ type TruthsPromptProps = {
 };
 
 // TODO hook form
-function FormOrWaiting({
-  me,
-  nextTruthStater,
-  sceneId,
-}: TruthsPromptProps) {
+function FormOrWaiting({ me, nextTruthStater, sceneId }: TruthsPromptProps) {
   const {
     loading,
     error,
@@ -190,9 +186,7 @@ function Scene(props: { scene: SceneType; me: SelfParticipation }) {
       function ActiveConflict() {
         const lastConflict = conflicts[conflicts.length - 1];
         if (lastConflict) {
-          return (
-            <Conflict me={me} conflict={lastConflict} />
-          );
+          return <Conflict me={me} conflict={lastConflict} />;
         }
         return null;
       }

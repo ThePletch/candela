@@ -9,17 +9,7 @@ type CenteredRectProps = {
 
 export default function CenteredRect(props: CenteredRectProps) {
   const {
-    cx,
-    cy,
-    width,
-    height,
-    ...remainingProps
+    cx, cy, width, height, ...remainingProps
   } = props;
-  return (
-    <rect
-      x={cx - width / 2}
-      y={cy - height / 2}
-      {...remainingProps}
-    />
-  );
+  return <rect x={cx - width / 2} y={cy - height / 2} {...remainingProps} />;
 }

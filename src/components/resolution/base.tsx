@@ -20,15 +20,11 @@ export type ResolutionProps = {
   resolution: Resolution;
 };
 
-
 function isValidRecipient(participation: Participation, me: SelfParticipation) {
   return participation.id !== me.id && participation.role !== 'gm';
 }
 
-function BurnTraitButton({
-  me,
-  resolution,
-}: ResolutionProps) {
+function BurnTraitButton({ me, resolution }: ResolutionProps) {
   const myTopTrait = getTopTrait(me);
   const { loading, makeRequest } = useHttpState(
     `api/conflicts/${resolution.conflict.id}/resolutions`,
@@ -84,10 +80,7 @@ function BurnTraitButton({
   return null;
 }
 
-function EmbraceBrinkButton({
-  resolution,
-  me,
-}: ResolutionProps) {
+function EmbraceBrinkButton({ resolution, me }: ResolutionProps) {
   const { loading, makeRequest } = useHttpState(
     `api/conflicts/${resolution.conflict.id}/resolutions`,
     'POST',
@@ -107,8 +100,7 @@ function EmbraceBrinkButton({
   function canEmbraceBrink(topTrait: TraitType) {
     return (
       topTrait === 'brink'
-      && (resolution.successful
-        || resolution.narrativeControl.id !== me.id)
+      && (resolution.successful || resolution.narrativeControl.id !== me.id)
     );
   }
 
@@ -121,11 +113,7 @@ function EmbraceBrinkButton({
       );
     }
     return (
-      <Button
-        variant="danger"
-        disabled={loading}
-        onClick={() => makeRequest()}
-      >
+      <Button variant="danger" disabled={loading} onClick={() => makeRequest()}>
         Embrace your brink
       </Button>
     );
@@ -188,11 +176,13 @@ function ConfirmResultButton({
               <option key="0" value={undefined}>
                 No one
               </option>
-              {participations.filter((p) => isValidRecipient(p, me)).map((participation) => (
-                <option key={participation.id} value={participation.id}>
-                  {participation.name}
-                </option>
-              ))}
+              {participations
+                .filter((p) => isValidRecipient(p, me))
+                .map((participation) => (
+                  <option key={participation.id} value={participation.id}>
+                    {participation.name}
+                  </option>
+                ))}
             </select>
             <Button
               variant="primary"
@@ -232,13 +222,18 @@ function ResolutionAcceptanceOptions({
     return (
       <div style={{ display: 'grid' }}>
         <ButtonGroup>
-          <ConfirmResultButton resolution={resolution} me={me} gameId={gameId} />
-          <BurnTraitButton resolution={resolution} me={me} gameId={gameId} />
-          <EmbraceBrinkButton resolution={resolution} me={me} gameId={gameId} />
+          <ConfirmResultButton
+            resolution={resolution}
+            me={me}
+            gameId={gameId}
+          />
+          <BurnTraitButton resolution={resolution} me={me} />
+          <EmbraceBrinkButton resolution={resolution} me={me} />
         </ButtonGroup>
       </div>
     );
-  } if (
+  }
+  if (
     resolution.conflict.dire
     && !resolution.successful
     && !resolution.parentResolution
@@ -261,7 +256,6 @@ function ResolutionAcceptanceOptions({
   return (
     <em>
       Waiting for
-      {' '}
       {resolution.resolver.name}
       {' '}
       to resolve this conflict.
@@ -284,11 +278,7 @@ export function PlayerRollResult({ resolution }: { resolution: Resolution }) {
 export function GmRollResult({ resolution }: { resolution: Resolution }) {
   return (
     <div>
-      <DiceRoll
-        roller="gm"
-        roll={resolution.gmRollResult}
-        hopeDieCount={0}
-      />
+      <DiceRoll roller="gm" roll={resolution.gmRollResult} hopeDieCount={0} />
     </div>
   );
 }
@@ -382,6 +372,12 @@ export function BaseResolutionComponents({
     additionalInfo: null,
     successMessage: successMessage(),
     narrativeControlInfo: narrativeControlInfo(),
-    acceptanceOptions: <ResolutionAcceptanceOptions resolution={resolution} me={me} gameId={gameId} />,
+    acceptanceOptions: (
+      <ResolutionAcceptanceOptions
+        resolution={resolution}
+        me={me}
+        gameId={gameId}
+      />
+    ),
   };
 }

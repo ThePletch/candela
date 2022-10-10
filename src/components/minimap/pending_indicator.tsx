@@ -29,17 +29,22 @@ function isPending(
   }
 }
 
-export default function PendingIndicator(props: {
+export default function PendingIndicator({
+  x,
+  y,
+  game,
+  participation,
+}: {
   x: number;
   y: number;
   game: Game;
   participation: Participation;
 }) {
-  if (isPending(props.participation, props.game.setupState)) {
+  if (isPending(participation, game.setupState)) {
     return (
       <text
-        x={props.x}
-        y={props.y}
+        x={x}
+        y={y}
         dy={2.5}
         dx={1}
         stroke="none"

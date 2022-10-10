@@ -31,7 +31,11 @@ type MinimapParticipationProps = {
   y: number;
 };
 
-function ParticipationDeathInfo({ participation }: { participation: Participation }) {
+function ParticipationDeathInfo({
+  participation,
+}: {
+  participation: Participation;
+}) {
   if (!participation.alive) {
     return (
       <>
@@ -55,99 +59,131 @@ function YouBadge({ isSelf }: { isSelf: boolean }) {
   return null;
 }
 
-const ParticipationIcon = forwardRef((forwardedProps: MinimapParticipationProps, ref) => {
-  if (forwardedProps.participation.role === 'gm') {
+const ParticipationIcon = forwardRef<SVGSVGElement, MinimapParticipationProps>(
+  (forwardedProps, ref) => {
+    const {
+      participation, x, y, isSelf, game,
+    } = forwardedProps;
+    if (participation.role === 'gm') {
+      return (
+        <svg {...forwardedProps} ref={ref}>
+          <CenteredRect
+            cx={x}
+            cy={y}
+            width={ICON_SIZE + ICON_BORDER_SIZE * 2}
+            height={ICON_SIZE + ICON_BORDER_SIZE * 2}
+            style={{ fill: aliveColor }}
+          />
+          <CenteredRect
+            cx={x}
+            cy={y}
+            width={ICON_SIZE}
+            height={ICON_SIZE}
+            style={{ fill: isSelf ? youColor : otherColor }}
+          />
+          <PendingIndicator
+            x={x}
+            y={y}
+            participation={participation}
+            game={game}
+          />
+        </svg>
+      );
+    }
+
     return (
-      <svg {...forwardedProps} ref={ref as any}>
-        <CenteredRect
-          cx={forwardedProps.x}
-          cy={forwardedProps.y}
-          width={ICON_SIZE + ICON_BORDER_SIZE * 2}
-          height={ICON_SIZE + ICON_BORDER_SIZE * 2}
-          style={{ fill: aliveColor }}
+      <svg {...forwardedProps} ref={ref}>
+        <circle
+          cx={x}
+          cy={y}
+          r={ICON_SIZE / 2 + ICON_BORDER_SIZE}
+          style={{ fill: participation.alive ? aliveColor : deadColor }}
         />
-        <CenteredRect
-          cx={forwardedProps.x}
-          cy={forwardedProps.y}
-          width={ICON_SIZE}
-          height={ICON_SIZE}
-          style={{ fill: forwardedProps.isSelf ? youColor : otherColor }}
+        <circle
+          cx={x}
+          cy={y}
+          r={ICON_SIZE / 2}
+          style={{ fill: isSelf ? youColor : otherColor }}
         />
         <PendingIndicator
-          x={forwardedProps.x}
-          y={forwardedProps.y}
-          participation={forwardedProps.participation}
-          game={forwardedProps.game}
+          x={x}
+          y={y}
+          participation={participation}
+          game={game}
         />
       </svg>
     );
-  }
+  },
+);
 
+function ParticipationInfo({
+  participation,
+  allParticipations,
+  isSelf,
+  ...subprops
+}: {
+  participation: Participation;
+  allParticipations: Participation[];
+  isSelf: boolean;
+}) {
   return (
-    <svg {...forwardedProps} ref={ref as any}>
-      <circle
-        cx={forwardedProps.x}
-        cy={forwardedProps.y}
-        r={ICON_SIZE / 2 + ICON_BORDER_SIZE}
-        style={{ fill: forwardedProps.participation.alive ? aliveColor : deadColor }}
-      />
-      <circle
-        cx={forwardedProps.x}
-        cy={forwardedProps.y}
-        r={ICON_SIZE / 2}
-        style={{ fill: forwardedProps.isSelf ? youColor : otherColor }}
-      />
-      <PendingIndicator
-        x={forwardedProps.x}
-        y={forwardedProps.y}
-        participation={forwardedProps.participation}
-        game={forwardedProps.game}
-      />
-    </svg>
+    <Popover className="text-body" id={participation.name} {...subprops}>
+      <Popover.Header>
+        {participation.name}
+        <YouBadge isSelf={isSelf} />
+        <Badge bg="info" className="float-right">
+          {participation.role}
+        </Badge>
+        <ParticipationDeathInfo participation={participation} />
+      </Popover.Header>
+      <Popover.Body>
+        {participation.characterConcept}
+        <HopeDieIndicator participation={participation} />
+        <TraitCardList
+          participation={participation}
+          allParticipations={allParticipations}
+        />
+      </Popover.Body>
+    </Popover>
   );
-});
+}
 
 function MinimapParticipation(props: MinimapParticipationProps) {
-  function renderParticipationInfo(subprops: any) {
-    return (
-      <Popover
-        className="text-body"
-        id={props.participation.name}
-        {...subprops}
-      >
-        <Popover.Header>
-          {props.participation.name}
-          <YouBadge {...props} />
-          <Badge bg="info" className="float-right">
-            {props.participation.role}
-          </Badge>
-          <ParticipationDeathInfo {...props} />
-        </Popover.Header>
-        <Popover.Body>
-          {props.participation.characterConcept}
-          <HopeDieIndicator participation={props.participation} />
-          <TraitCardList
-            participation={props.participation}
-            allParticipations={props.allParticipations}
-            isActiveParticipation
-          />
-        </Popover.Body>
-      </Popover>
-    );
-  }
+  const {
+    participation, allParticipations, isSelf, x, y, game,
+  } = props;
+
+  // we have to extend unknown here so React doesn't parse the angle brackets
+  // as JSX
+  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
+  const renderParticipationInfo = <K extends unknown>(additionalProps: K) => (
+    <ParticipationInfo
+      participation={participation}
+      allParticipations={allParticipations}
+      isSelf={isSelf}
+      {...additionalProps}
+    />
+  );
 
   return (
     <OverlayTrigger placement="auto" overlay={renderParticipationInfo}>
-      <ParticipationIcon />
+      <ParticipationIcon
+        game={game}
+        isSelf={isSelf}
+        x={x}
+        y={y}
+        participation={participation}
+        allParticipations={allParticipations}
+      />
     </OverlayTrigger>
   );
 }
 
-export default function Minimap(props: GameProps) {
+export default function Minimap({ game, me }: GameProps) {
   const participationDistance = 40;
 
   return useSubscriptionContext(
-    GameParticipationsContext(props.game.id),
+    GameParticipationsContext(game.id),
     'Loading players...',
     (participations) => (
       <svg
@@ -158,10 +194,10 @@ export default function Minimap(props: GameProps) {
         {participations.map((p, i) => (
           <MinimapParticipation
             key={p.id}
-            game={props.game}
+            game={game}
             participation={p}
             allParticipations={participations}
-            isSelf={p.id === props.me.id}
+            isSelf={p.id === me.id}
             x={distributedPointX(
               participationDistance,
               i,
@@ -174,7 +210,7 @@ export default function Minimap(props: GameProps) {
             )}
           />
         ))}
-        <TransferArrows {...props} participations={participations} />
+        <TransferArrows game={game} me={me} participations={participations} />
       </svg>
     ),
   );

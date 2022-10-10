@@ -23,7 +23,7 @@ export default function GameForm() {
       <h3>
         Start a New Game
         <br />
-        <small className="text-muted">You'll be the GM.</small>
+        <small className="text-muted">You&apos;ll be the GM.</small>
       </h3>
 
       <Form.Group>

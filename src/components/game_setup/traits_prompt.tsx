@@ -6,6 +6,17 @@ import type { GameProps } from '@candela/types/props';
 import { GameParticipationsContext, MeContext } from '@candela/util/contexts';
 import { useHttpState, useSubscriptionContexts } from '@candela/util/state';
 
+function playerWithTraitsUnfilled(participation: Participation) {
+  return (
+    participation.role === 'player'
+    && !(participation.hasWrittenVirtue && participation.hasWrittenVice)
+  );
+}
+
+function playersWithUnfilledTraits(participations: Participation[]) {
+  return participations.filter(playerWithTraitsUnfilled);
+}
+
 export default function TraitsPrompt(props: GameProps) {
   const advanceToTraits = useHttpState(
     `api/games/${props.game.id}/advance_setup_state`,
@@ -28,17 +39,6 @@ export default function TraitsPrompt(props: GameProps) {
       },
     },
     ({ me, participations }) => {
-      function playersWithUnfilledTraits(participations: Participation[]) {
-        return participations.filter(playerWithTraitsUnfilled);
-      }
-
-      function playerWithTraitsUnfilled(participation: Participation) {
-        return (
-          participation.role === 'player'
-          && !(participation.hasWrittenVirtue && participation.hasWrittenVice)
-        );
-      }
-
       const unfilledTraitPlayers = playersWithUnfilledTraits(participations);
       if (me.role === 'gm') {
         return (

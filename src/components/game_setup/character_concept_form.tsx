@@ -5,12 +5,16 @@ import { useForm } from 'react-hook-form';
 import type { SelfParticipation } from '@candela/types/participation';
 import { useHttpState } from '@candela/util/state';
 
-export default function CharacterConceptForm(props: { me: SelfParticipation }) {
+export default function CharacterConceptForm({
+  me,
+}: {
+  me: SelfParticipation;
+}) {
   const { register, handleSubmit } = useForm();
   const { loading, makeRequest } = useHttpState(
-    `api/participations/${props.me.id}`,
+    `api/participations/${me.id}`,
     'PATCH',
-    props.me.guid,
+    me.guid,
   );
 
   return (

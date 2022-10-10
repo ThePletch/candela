@@ -1,38 +1,58 @@
 import _ from 'lodash';
 import { useEffect, useState } from 'react';
 
-function Candle(props: {
+const candleDistance = 25;
+const candleLightDelayMs = 500;
+
+const dark = '#222222';
+const ember = '#661100';
+const orange = '#DDAA00';
+const yellow = '#FFEE00';
+const white = '#FFFFFF';
+const brightBlue = '#BBBBFF';
+const black = '#000000';
+
+function candleAngleRadians(index: number): number {
+  return index * ((Math.PI * 2) / 10) - Math.PI / 2;
+}
+
+function candleX(index: number): number {
+  return candleDistance * Math.cos(candleAngleRadians(index)) + 45;
+}
+
+function candleY(index: number): number {
+  return candleDistance * Math.sin(candleAngleRadians(index)) + 45;
+}
+
+function Candle({
+  lit,
+  dicePool,
+  x,
+  y,
+}: {
   lit: boolean;
   dicePool: boolean;
   x: number;
   y: number;
 }) {
-  const dark = '#222222';
-  const ember = '#661100';
-  const orange = '#DDAA00';
-  const yellow = '#FFEE00';
-  const white = '#FFFFFF';
-  const brightBlue = '#BBBBFF';
-  const black = '#000000';
-
   function outerColor() {
-    return props.lit ? orange : dark;
+    return lit ? orange : dark;
   }
 
   function outerRiseColor() {
-    return props.lit ? outerColor() : black;
+    return lit ? outerColor() : black;
   }
 
   function innerColor() {
-    return props.lit ? yellow : dark;
+    return lit ? yellow : dark;
   }
 
   function coreColor() {
-    return props.lit ? white : dark;
+    return lit ? white : dark;
   }
   function subcoreColor() {
-    if (props.lit) {
-      return props.dicePool ? brightBlue : white;
+    if (lit) {
+      return dicePool ? brightBlue : white;
     }
 
     return ember;
@@ -42,51 +62,45 @@ function Candle(props: {
     <svg>
       <circle
         key="outer-highest"
-        cx={props.x}
-        cy={props.y - 4}
+        cx={x}
+        cy={y - 4}
         r="2"
         style={{ fill: outerRiseColor() }}
       />
       <circle
         key="outer-high"
-        cx={props.x}
-        cy={props.y - 1.5}
+        cx={x}
+        cy={y - 1.5}
         r="4"
         style={{ fill: outerRiseColor() }}
       />
-      <circle
-        key="outer"
-        cx={props.x}
-        cy={props.y}
-        r="5"
-        style={{ fill: outerColor() }}
-      />
+      <circle key="outer" cx={x} cy={y} r="5" style={{ fill: outerColor() }} />
 
       <circle
         key="inner-high"
-        cx={props.x}
-        cy={props.y - 2}
+        cx={x}
+        cy={y - 2}
         r="2"
         style={{ fill: innerColor() }}
       />
       <circle
         key="inner"
-        cx={props.x}
-        cy={props.y + 0.5}
+        cx={x}
+        cy={y + 0.5}
         r="3.5"
         style={{ fill: innerColor() }}
       />
       <circle
         key="core"
-        cx={props.x}
-        cy={props.y + 2}
+        cx={x}
+        cy={y + 2}
         r="3"
         style={{ fill: coreColor() }}
       />
       <circle
         key="subcore"
-        cx={props.x}
-        cy={props.y + 3.5}
+        cx={x}
+        cy={y + 3.5}
         r="1.5"
         style={{ fill: subcoreColor() }}
       />
@@ -100,7 +114,10 @@ function Candle(props: {
  * light/extinguish candles one-by-one over time rather than immediately syncing
  * to the props value.
  */
-export default function CandleIndicator(props: {
+export default function CandleIndicator({
+  lit,
+  dicePool,
+}: {
   lit: number;
   dicePool: number;
 }) {
@@ -108,11 +125,34 @@ export default function CandleIndicator(props: {
   let dicePoolDelay: NodeJS.Timer;
   let dicePoolUpdater: NodeJS.Timer;
 
-  const [lit, setLit] = useState(0);
-  const [dicePool, setDicePool] = useState(props.dicePool);
+  const [litState, setLit] = useState(0);
+  const [dicePoolState, setDicePool] = useState(dicePool);
 
-  const candleDistance = 25;
-  const candleLightDelayMs = 500;
+  function cleanup() {
+    clearInterval(candleUpdater);
+    clearInterval(dicePoolUpdater);
+    clearInterval(dicePoolDelay);
+  }
+
+  function incrementCandleLitness() {
+    if (litState > lit) {
+      setLit(litState - 1);
+    } else if (litState < lit) {
+      setLit(litState + 1);
+    } else if (litState === lit) {
+      clearInterval(candleUpdater);
+    }
+  }
+
+  function incrementDicePool() {
+    if (dicePoolState > dicePool) {
+      setDicePool(dicePoolState - 1);
+    } else if (dicePoolState < dicePool) {
+      setDicePool(dicePoolState + 1);
+    } else if (dicePoolState === dicePool) {
+      clearInterval(dicePoolUpdater);
+    }
+  }
 
   function setUpCandleUpdater() {
     clearInterval(candleUpdater);
@@ -133,54 +173,16 @@ export default function CandleIndicator(props: {
   }, []);
 
   useEffect(() => {
-    if (lit != props.lit) {
+    if (litState !== lit) {
       setUpCandleUpdater();
     }
 
-    if (dicePool != props.dicePool) {
+    if (dicePoolState !== dicePool) {
       setUpDicePoolUpdater();
     }
 
     return cleanup;
-  }, [lit, dicePool]);
-
-  function cleanup() {
-    clearInterval(candleUpdater);
-    clearInterval(dicePoolUpdater);
-    clearInterval(dicePoolDelay);
-  }
-
-  function incrementCandleLitness() {
-    if (lit > props.lit) {
-      setLit(lit - 1);
-    } else if (lit < props.lit) {
-      setLit(lit + 1);
-    } else if (lit == props.lit) {
-      clearInterval(candleUpdater);
-    }
-  }
-
-  function incrementDicePool() {
-    if (dicePool > props.dicePool) {
-      setDicePool(dicePool - 1);
-    } else if (dicePool < props.dicePool) {
-      setDicePool(dicePool + 1);
-    } else if (dicePool == props.dicePool) {
-      clearInterval(dicePoolUpdater);
-    }
-  }
-
-  function candleAngleRadians(index: number): number {
-    return index * ((Math.PI * 2) / 10) - Math.PI / 2;
-  }
-
-  function candleX(index: number): number {
-    return candleDistance * Math.cos(candleAngleRadians(index)) + 45;
-  }
-
-  function candleY(index: number): number {
-    return candleDistance * Math.sin(candleAngleRadians(index)) + 45;
-  }
+  }, [litState, dicePoolState]);
 
   function renderCandle(index: number) {
     return (
@@ -188,8 +190,8 @@ export default function CandleIndicator(props: {
         key={index}
         x={candleX(index)}
         y={candleY(index)}
-        lit={index < lit}
-        dicePool={index < dicePool}
+        lit={index < litState}
+        dicePool={index < dicePoolState}
       />
     );
   }

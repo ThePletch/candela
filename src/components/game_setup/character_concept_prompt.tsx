@@ -6,6 +6,16 @@ import type { GameProps } from '@candela/types/props';
 import { GameParticipationsContext, MeContext } from '@candela/util/contexts';
 import { useHttpState, useSubscriptionContexts } from '@candela/util/state';
 
+function playerWithConceptUnfilled(participation: Participation) {
+  return (
+    participation.role === 'player' && participation.characterConcept == null
+  );
+}
+
+function playersWithUnfilledConcept(participations: Participation[]) {
+  return participations.filter(playerWithConceptUnfilled);
+}
+
 export default function CharacterConceptPrompt(props: GameProps) {
   const advanceToMoments = useHttpState(
     `api/games/${props.game.id}/advance_setup_state`,
@@ -26,17 +36,6 @@ export default function CharacterConceptPrompt(props: GameProps) {
       },
     },
     ({ participations, me }) => {
-      function playersWithUnfilledConcept(participations: Participation[]) {
-        return participations.filter(playerWithConceptUnfilled);
-      }
-
-      function playerWithConceptUnfilled(participation: Participation) {
-        return (
-          participation.role === 'player'
-          && participation.characterConcept == null
-        );
-      }
-
       const unfilledConceptPlayers = playersWithUnfilledConcept(participations);
 
       if (me.role === 'gm') {

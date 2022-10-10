@@ -6,7 +6,10 @@ import {
 } from '@candela/components/resolution/base';
 
 export default function TraitResolution(
-  props: ResolutionProps & { resolution: { type: 'TraitResolution' } },
+  props: ResolutionProps & {
+    resolution: { type: 'TraitResolution' };
+    gameId: number;
+  },
 ) {
   const base = BaseResolutionComponents({
     ...props,

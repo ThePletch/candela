@@ -16,19 +16,23 @@ import {
   useSubscriptionContext,
 } from '@candela/util/state';
 
-function GameParticipation(props: { participation: Participation }) {
-  const background = props.participation.role === 'gm' ? 'success' : 'secondary';
+function GameParticipation({
+  participation,
+}: {
+  participation: Participation;
+}) {
+  const background = participation.role === 'gm' ? 'success' : 'secondary';
   return (
     <Badge className="m-1 p-2" bg={background}>
-      <span>{props.participation.name}</span>
+      <span>{participation.name}</span>
       <Badge bg="dark" className="ml-1">
-        {props.participation.role}
+        {participation.role}
       </Badge>
     </Badge>
   );
 }
 
-function GameListEntry(props: { game: Game }) {
+function GameListEntry({ game }: { game: Game }) {
   const {
     register,
     handleSubmit,
@@ -37,7 +41,7 @@ function GameListEntry(props: { game: Game }) {
   const router = useRouter();
 
   const { loading, makeRequest } = useHttpState<{ guid: string }>(
-    `api/games/${props.game.id}/participations`,
+    `api/games/${game.id}/participations`,
     'POST',
     '',
   );
@@ -48,9 +52,9 @@ function GameListEntry(props: { game: Game }) {
 
   return (
     <ListGroup.Item>
-      <h5>{props.game.name}</h5>
+      <h5>{game.name}</h5>
       <div className="m-2">
-        {props.game.participations.map((participation) => (
+        {game.participations.map((participation) => (
           <GameParticipation
             key={participation.id}
             participation={participation}

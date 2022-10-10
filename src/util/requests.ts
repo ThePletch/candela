@@ -26,7 +26,6 @@ export function request(
             text += `\n${json[key]}`;
           });
 
-          alert(text);
           throw new Error(text);
         });
       }

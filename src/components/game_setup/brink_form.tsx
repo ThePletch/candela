@@ -14,51 +14,60 @@ type FormProps = {
   allParticipations: Participation[];
 };
 
-function promptText(props: FormProps) {
+function promptText(
+  participation: Participation,
+  allParticipations: Participation[],
+) {
   const leftParticipation = getLeftParticipation(
-    props.participation,
-    props.allParticipations,
+    participation,
+    allParticipations,
     { skipGm: false },
   );
-  if (props.participation.role == 'gm') {
+  if (participation.role === 'gm') {
     return `${leftParticipation.name} has been seen by Them. What dark secret do They know?`;
   }
-  if (leftParticipation.role == 'gm') {
+  if (leftParticipation.role === 'gm') {
     return 'You have uncovered something about the nature of Them. What have you found?';
   }
 
   return `You have seen ${leftParticipation.name} at their lowest point. What are they hiding?`;
 }
 
-function placeholder(props: FormProps) {
+function placeholder(
+  participation: Participation,
+  allParticipations: Participation[],
+) {
   const leftParticipation = getLeftParticipation(
-    props.participation,
-    props.allParticipations,
+    participation,
+    allParticipations,
     { skipGm: false },
   );
-  if (props.participation.role == 'gm') {
+  if (participation.role === 'gm') {
     return "They've seen you...";
   }
 
-  if (leftParticipation.role == 'gm') {
+  if (leftParticipation.role === 'gm') {
     return "You've seen Them...";
   }
 
   return "I've seen you...";
 }
 
-export default function BrinkForm(props: FormProps) {
+export default function BrinkForm({
+  participation,
+  allParticipations,
+}: FormProps) {
   const { register, handleSubmit } = useForm({
     defaultValues: {
       participation: {
-        written_brink: props.participation.writtenBrink,
+        written_brink: participation.writtenBrink,
       },
     },
   });
   const { loading, makeRequest } = useHttpState(
-    `api/participations/${props.participation.id}`,
+    `api/participations/${participation.id}`,
     'PATCH',
-    props.participation.guid,
+    participation.guid,
   );
   const onSubmit = (data: Record<string, unknown>) => {
     makeRequest(data);
@@ -66,25 +75,26 @@ export default function BrinkForm(props: FormProps) {
 
   return (
     <Form onSubmit={handleSubmit(onSubmit)}>
-      <em>{promptText(props)}</em>
+      <em>{promptText(participation, allParticipations)}</em>
       <div>
         <p>
           A Brink should represent something secret and dangerous that calls the
-          character's humanity, stability, or reliability into question.
+          character&apos;s humanity, stability, or reliability into question.
         </p>
         <p>
-          Unlike the other cards you've filled out, you should keep your own
-          brink a secret from the party until it is used.
+          Unlike the other cards you&apos;ve filled out, you should keep your
+          own brink a secret from the party until it is used.
         </p>
         <p>
           Your character will begin the game knowing about the brink of the
-          character you're passing this brink to, including if it's Them. It's
-          up to you how your character came upon this knowledge, and whether
-          your character shares this knowledge or keeps it to themselves.
+          character you&apos;re passing this brink to, including if it&apos;s
+          Them. It&apos;s up to you how your character came upon this knowledge,
+          and whether your character shares this knowledge or keeps it to
+          themselves.
         </p>
         <p>
-          If you're writing a brink for the GM, you get to describe something
-          about Them. The only rule is that
+          If you&apos;re writing a brink for the GM, you get to describe
+          something about Them. The only rule is that
           {' '}
           <strong>you cannot give Them a weakness.</strong>
         </p>
@@ -94,7 +104,9 @@ export default function BrinkForm(props: FormProps) {
           a host of problems of its own.
         </p>
       </div>
-      <em className="text-muted">{placeholder(props)}</em>
+      <em className="text-muted">
+        {placeholder(participation, allParticipations)}
+      </em>
       <Form.Control
         as="textarea"
         placeholder="...doing something unspeakable."

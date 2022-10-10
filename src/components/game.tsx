@@ -1,4 +1,3 @@
-import _ from 'lodash';
 import { useEffect, useState } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import Container from 'react-bootstrap/Container';
@@ -28,8 +27,12 @@ import {
   useSubscriptionContext,
 } from '@candela/util/state';
 
-function CurrentSetupStatePrompt(props: GameProps & { scene?: SceneType }) {
-  if (props.game.isOver) {
+function CurrentSetupStatePrompt({
+  me,
+  game,
+  scene = undefined,
+}: GameProps & { scene?: SceneType }) {
+  if (game.isOver) {
     return (
       <div>
         <em>These things are true...</em>
@@ -42,33 +45,33 @@ function CurrentSetupStatePrompt(props: GameProps & { scene?: SceneType }) {
     );
   }
 
-  switch (props.game.setupState) {
+  switch (game.setupState) {
     case 'nascent':
-      return <StartGamePrompt {...props} />;
+      return <StartGamePrompt game={game} me={me} />;
     case 'traits':
-      return <TraitsPrompt {...props} />;
+      return <TraitsPrompt game={game} me={me} />;
     case 'module_intro':
-      return <ModuleIntroPrompt {...props} />;
+      return <ModuleIntroPrompt game={game} me={me} />;
     case 'character_concept':
-      return <CharacterConceptPrompt {...props} />;
+      return <CharacterConceptPrompt game={game} me={me} />;
     case 'moments':
-      return <MomentPrompt {...props} />;
+      return <MomentPrompt game={game} me={me} />;
     case 'brinks':
-      return <BrinkPrompt {...props} />;
+      return <BrinkPrompt game={game} me={me} />;
     case 'order_cards':
-      return <CardOrderPrompt {...props} />;
+      return <CardOrderPrompt game={game} me={me} />;
     case 'ready':
-      if (!props.scene) {
+      if (!scene) {
         return <em>No active scene yet. Error?</em>;
       }
 
-      return <Scene scene={props.scene} {...props} />;
+      return <Scene scene={scene} me={me} />;
     default:
-      throw new Error(`Unknown setup state ${props.game?.setupState}`);
+      throw new Error(`Unknown setup state ${game?.setupState}`);
   }
 }
 
-function Game(props: GameProps) {
+function Game({ game, me }: GameProps) {
   const [pageTitle, setPageTitle] = useState('Loading game...');
 
   useEffect(() => {
@@ -76,16 +79,16 @@ function Game(props: GameProps) {
   }, [pageTitle]);
 
   return useSubscriptionContext(
-    GameScenesContext(props.game.id),
+    GameScenesContext(game.id),
     'Loading scenes...',
     (scenes) => {
       const activeScene = scenes[scenes.length - 1];
 
-      function dicePoolCount(activeScene: SceneType | undefined) {
-        return activeScene?.basePlayerDicePool ?? 0;
+      function dicePoolCount(scene: SceneType | undefined) {
+        return scene?.basePlayerDicePool ?? 0;
       }
 
-      const title = `${props.game.name} [${props.me.name}] - Candela`;
+      const title = `${game.name} [${me.name}] - Candela`;
       if (pageTitle !== title) {
         setPageTitle(title);
       }
@@ -98,7 +101,7 @@ function Game(props: GameProps) {
           {' '}
           dice for conflicts.
           <br />
-          {props.game.candlesLit}
+          {game.candlesLit}
           {' '}
           candles remain lit.
         </Tooltip>
@@ -108,17 +111,17 @@ function Game(props: GameProps) {
         <Container fluid className="game-interface">
           <OverlayTrigger overlay={dicePoolInfo} placement="bottom">
             <Badge bg="info" className="game-actions">
-              {props.game.candlesLit}
+              {game.candlesLit}
               /
               {dicePoolCount(activeScene)}
             </Badge>
           </OverlayTrigger>
           <div className="game-actions">
-            <CurrentSetupStatePrompt scene={activeScene} {...props} />
+            <CurrentSetupStatePrompt scene={activeScene} game={game} me={me} />
           </div>
-          <Minimap {...props} />
+          <Minimap game={game} me={me} />
           <CandleIndicator
-            lit={props.game.candlesLit || 0}
+            lit={game.candlesLit || 0}
             dicePool={dicePoolCount(activeScene)}
           />
         </Container>
@@ -127,12 +130,16 @@ function Game(props: GameProps) {
   );
 }
 
-export default function (props: { me: SelfParticipation }) {
+export default function GameWithSubscriptions({
+  me,
+}: {
+  me: SelfParticipation;
+}) {
   return useSubscriptionContext(
-    GameContext(props.me.gameId),
+    GameContext(me.gameId),
     'Loading game...',
     (game) => {
-      const gameIdParams = { game_id: game.id, guid: props.me.guid };
+      const gameIdParams = { game_id: game.id, guid: me.guid };
 
       return (
         <ModelListSubscription
@@ -145,7 +152,7 @@ export default function (props: { me: SelfParticipation }) {
             params={gameIdParams}
             context={GameScenesContext(game.id)}
           >
-            <Game game={game} me={props.me} />
+            <Game game={game} me={me} />
           </ModelListSubscription>
         </ModelListSubscription>
       );

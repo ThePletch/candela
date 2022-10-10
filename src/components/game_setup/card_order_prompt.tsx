@@ -1,3 +1,4 @@
+import lodashIsEmpty from 'lodash/isEmpty';
 import CardOrderForm from '@candela/components/game_setup/card_order_form';
 import ProceedButton from '@candela/components/game_setup/proceed_button';
 import PopupForm from '@candela/components/popup_form';
@@ -6,29 +7,29 @@ import type { GameProps } from '@candela/types/props';
 import { GameParticipationsContext } from '@candela/util/contexts';
 import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
-export default function CardOrderPrompt(props: GameProps) {
+function playerWithCardOrderUnfilled(participation: Participation) {
+  return participation.role === 'player' && !participation.cardOrder;
+}
+
+function playersWithUnfilledCardOrder(participations: Participation[]) {
+  return participations.filter(playerWithCardOrderUnfilled);
+}
+
+export default function CardOrderPrompt({ game, me }: GameProps) {
   const beginTheGame = useHttpState(
-    `api/games/${props.game.id}/advance_setup_state`,
+    `api/games/${game.id}/advance_setup_state`,
     'PATCH',
-    props.me.guid,
+    me.guid,
     { current_setup_state: 'order_cards' },
   );
 
   return useSubscriptionContext(
-    GameParticipationsContext(props.game.id),
+    GameParticipationsContext(game.id),
     'Loading players...',
     (participations) => {
-      function playersWithUnfilledCardOrder(participations: Participation[]) {
-        return participations.filter(playerWithCardOrderUnfilled);
-      }
-
-      function playerWithCardOrderUnfilled(participation: Participation) {
-        return participation.role === 'player' && !participation.cardOrder;
-      }
-
       const unfilledCardOrderPlayers = playersWithUnfilledCardOrder(participations);
 
-      if (props.me.role === 'gm') {
+      if (me.role === 'gm') {
         return (
           <ProceedButton
             label="Begin the Game"
@@ -42,9 +43,9 @@ export default function CardOrderPrompt(props: GameProps) {
       return (
         <PopupForm
           label="Order your cards"
-          formComplete={props.me.cardOrder != undefined}
+          formComplete={!lodashIsEmpty(me.cardOrder)}
         >
-          <CardOrderForm participation={props.me} />
+          <CardOrderForm participation={me} />
         </PopupForm>
       );
     },

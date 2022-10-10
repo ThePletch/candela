@@ -63,5 +63,7 @@ export function getRightParticipation(
 export function getTopTrait(
   participation: Participation,
 ): TraitType | undefined {
-  return participation.cardOrder.find((trait) => participation.traits[trait]?.burned === false);
+  return participation.cardOrder.find(
+    (trait) => participation.traits[trait]?.burned === false,
+  );
 }

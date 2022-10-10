@@ -26,7 +26,7 @@ export type Participation = {
     [Key in TraitType]?: {
       burned: boolean;
       value: string;
-    }
+    };
   };
   cardOrder: TraitType[];
   position: number;

@@ -12,28 +12,31 @@ import type {
 } from '@candela/types/participation';
 import { useHttpState } from '@candela/util/state';
 
-export default function TraitsForm(props: {
+export default function TraitsForm({
+  me,
+  allParticipations,
+}: {
   me: SelfParticipation;
   allParticipations: Participation[];
 }) {
   const { register, handleSubmit } = useForm({
     defaultValues: {
       participation: {
-        written_virtue: props.me.writtenVirtue,
-        written_vice: props.me.writtenVice,
+        written_virtue: me.writtenVirtue,
+        written_vice: me.writtenVice,
       },
     },
   });
   const { loading, makeRequest } = useHttpState(
-    `api/participations/${props.me.id}`,
+    `api/participations/${me.id}`,
     'PATCH',
-    props.me.guid,
+    me.guid,
   );
   const onSubmit = (data: Record<string, unknown>) => makeRequest(data);
-  const leftPlayer = getLeftParticipation(props.me, props.allParticipations, {
+  const leftPlayer = getLeftParticipation(me, allParticipations, {
     skipGm: true,
   });
-  const rightPlayer = getRightParticipation(props.me, props.allParticipations, {
+  const rightPlayer = getRightParticipation(me, allParticipations, {
     skipGm: true,
   });
 

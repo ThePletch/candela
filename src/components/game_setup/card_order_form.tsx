@@ -7,47 +7,53 @@ import Sortable from 'sortablejs';
 import type { SelfParticipation } from '@candela/types/participation';
 import { useHttpState } from '@candela/util/state';
 
-export default function CardOrderForm(props: {
+function CardListItem({
+  name,
+  index,
+  sortable,
+}: {
+  name: string;
+  index: number;
+  sortable: boolean;
+}) {
+  // todo add a hamburger icon here to indicate draggability
+  return (
+    <ListGroup.Item
+      className={sortable ? '' : 'disabled'}
+      key={index}
+      data-id={index}
+    >
+      <span>{name}</span>
+    </ListGroup.Item>
+  );
+}
+
+export default function CardOrderForm({
+  participation,
+}: {
   participation: SelfParticipation;
 }) {
   const sortableCards = ['virtue', 'vice', 'moment'];
 
   const { loading, makeRequest } = useHttpState(
-    `api/participations/${props.participation.id}`,
+    `api/participations/${participation.id}`,
     'PATCH',
-    props.participation.guid,
+    participation.guid,
   );
 
   let sortManager: Sortable;
 
-  const cardList = useRef<HTMLUListElement>(null);
+  const cardList = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
-    if (cardList.current && !sortManager) {
+    if (cardList.current) {
       sortManager = Sortable.create(cardList.current, {
         filter: '.disabled',
       });
     }
-  });
+  }, [cardList.current]);
 
-  function CardListItem(cardProps: {
-    name: string;
-    index: number;
-    sortable: boolean;
-  }) {
-    // todo add a hamburger icon here to indicate draggability
-    return (
-      <ListGroup.Item
-        className={cardProps.sortable ? '' : 'disabled'}
-        key={cardProps.index}
-        data-id={cardProps.index}
-      >
-        <span>{cardProps.name}</span>
-      </ListGroup.Item>
-    );
-  }
-
-  function submitCardOrder(e: FormEvent) {
+  const submitCardOrder = (e: FormEvent) => {
     e.preventDefault();
     if (sortManager) {
       // slicing out the first three elements, since we aren't tracking brink's ordering
@@ -62,20 +68,20 @@ export default function CardOrderForm(props: {
         'Sort manager not initialized during sort submission, doing nothing.',
       );
     }
-  }
+  };
 
   // TODO persist card order in the form if it's already set
   return (
     <Form onSubmit={submitCardOrder}>
       <em>Click and drag to order your cards from top to bottom.</em>
       <div>
-        You can only use the card on top of your pile, and can't use the cards
-        below it until all the cards above them have been burned. Your brink
-        must always be on the bottom.
+        You can only use the card on top of your pile, and can&apos;t use the
+        cards below it until all the cards above them have been burned. Your
+        brink must always be on the bottom.
       </div>
-      <ListGroup className="card-order-group" ref={cardList as any}>
+      <ListGroup className="card-order-group" ref={cardList}>
         {sortableCards.map((name, i) => (
-          <CardListItem key={i} name={name} index={i} sortable />
+          <CardListItem key={name} name={name} index={i} sortable />
         ))}
         <CardListItem name="brink" index={3} sortable={false} />
       </ListGroup>

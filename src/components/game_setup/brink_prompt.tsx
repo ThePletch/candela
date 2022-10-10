@@ -6,39 +6,36 @@ import type { GameProps } from '@candela/types/props';
 import { GameParticipationsContext } from '@candela/util/contexts';
 import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
-export default function BrinkPrompt(props: GameProps) {
+function playerWithBrinkUnfilled(participation: Participation) {
+  return !participation.hasWrittenBrink;
+}
+
+function playersWithUnfilledBrink(participations: Participation[]) {
+  return participations.filter(playerWithBrinkUnfilled);
+}
+
+export default function BrinkPrompt({ game, me }: GameProps) {
   const advanceToCardOrder = useHttpState(
-    `api/games/${props.game.id}/advance_setup_state`,
+    `api/games/${game.id}/advance_setup_state`,
     'PATCH',
-    props.me.guid,
+    me.guid,
     { current_setup_state: 'brinks' },
   );
 
   return useSubscriptionContext(
-    GameParticipationsContext(props.game.id),
+    GameParticipationsContext(game.id),
     'Loading players...',
     (participations) => {
-      function playersWithUnfilledBrink(participations: Participation[]) {
-        return participations.filter(playerWithBrinkUnfilled);
-      }
-
-      function playerWithBrinkUnfilled(participation: Participation) {
-        return !participation.hasWrittenBrink;
-      }
-
       const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
       const brinkForm = (
         <PopupForm
           label="Write your brink"
-          formComplete={props.me.writtenBrink != undefined}
+          formComplete={me.writtenBrink !== undefined}
         >
-          <BrinkForm
-            participation={props.me}
-            allParticipations={participations}
-          />
+          <BrinkForm participation={me} allParticipations={participations} />
         </PopupForm>
       );
-      if (props.me.role === 'gm') {
+      if (me.role === 'gm') {
         return (
           <>
             <ProceedButton

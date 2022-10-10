@@ -7,7 +7,10 @@ import {
 } from '@candela/components/resolution/base';
 
 export default function MartyrResolution(
-  props: ResolutionProps & { resolution: { type: 'MartyrResolution' } },
+  props: ResolutionProps & {
+    resolution: { type: 'MartyrResolution' };
+    gameId: number;
+  },
 ) {
   const { resolution } = props;
   function narrativeControlInfo(): ReactNode {
@@ -36,8 +39,7 @@ export default function MartyrResolution(
       <span>
         {resolution.parentResolution.resolver.name}
         {' '}
-        failed, but has been
-        saved.
+        failed, but has been saved.
       </span>
     ),
     narrativeControlInfo: narrativeControlInfo(),

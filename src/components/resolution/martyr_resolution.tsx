@@ -1,27 +1,32 @@
-import type { ReactNode } from "react";
+import type { ReactNode } from 'react';
 
 import {
   BaseResolutionComponents,
   ConflictResult,
   type ResolutionProps,
-} from "@candela/components/resolution/base";
+} from '@candela/components/resolution/base';
 
 export default function MartyrResolution(
-  props: ResolutionProps & { resolution: { type: "MartyrResolution" } }
+  props: ResolutionProps & { resolution: { type: 'MartyrResolution' } },
 ) {
+  const { resolution } = props;
   function narrativeControlInfo(): ReactNode {
-    let originalPlayer = props.resolution.parentResolution.resolver;
+    const originalPlayer = resolution.parentResolution.resolver;
     return (
       <span>
-        {props.resolution.narrativeControl.name} sacrificed themselves to save{" "}
-        {originalPlayer.name}. They have narrative control.
+        {resolution.narrativeControl.name}
+        {' '}
+        sacrificed themselves to save
+        {' '}
+        {originalPlayer.name}
+        . They have narrative control.
       </span>
     );
   }
 
   const base = BaseResolutionComponents({
     ...props,
-    resolution: props.resolution.parentResolution,
+    resolution: resolution.parentResolution,
   });
 
   const components = {
@@ -29,7 +34,9 @@ export default function MartyrResolution(
     activePlayerInfo: base.activePlayerInfo,
     successMessage: (
       <span>
-        {props.resolution.parentResolution.resolver.name} failed, but has been
+        {resolution.parentResolution.resolver.name}
+        {' '}
+        failed, but has been
         saved.
       </span>
     ),

@@ -1,27 +1,27 @@
 import Badge from 'react-bootstrap/Badge';
 
-type Roll = "1" | "2" | "3" | "4" | "5" | "6";
+type Roll = '1' | '2' | '3' | '4' | '5' | '6';
 
 function getHopeDieColor(valueRolled: Roll) {
   switch (valueRolled) {
-    case "5":
-    case "6":
-      return "info";
-    case "1":
-      return "warning";
+    case '5':
+    case '6':
+      return 'info';
+    case '1':
+      return 'warning';
     default:
-      return "primary";
+      return 'primary';
   }
 }
 
 function getRegularDieColor(valueRolled: Roll) {
   switch (valueRolled) {
-    case "6":
-      return "success";
-    case "1":
-      return "danger";
+    case '6':
+      return 'success';
+    case '1':
+      return 'danger';
     default:
-      return "secondary";
+      return 'secondary';
   }
 }
 
@@ -30,15 +30,10 @@ type DieProps = {
   roll: Roll;
 };
 
-function Die(props: DieProps) {
-  let color;
-  if (props.hopeDie) {
-    color = getHopeDieColor(props.roll);
-  } else {
-    color = getRegularDieColor(props.roll);
-  }
+function Die({ hopeDie, roll }: DieProps) {
+  const color = hopeDie ? getHopeDieColor(roll) : getRegularDieColor(roll);
 
-  return <Badge bg={color}>{props.roll}</Badge>;
+  return <Badge bg={color}>{roll}</Badge>;
 }
 
 type DiceRollProps = {
@@ -46,14 +41,19 @@ type DiceRollProps = {
   roll: string;
   hopeDieCount: number;
 };
-export default function DiceRoll(props: DiceRollProps) {
+export default function DiceRoll({
+  roller,
+  roll,
+  hopeDieCount,
+}: DiceRollProps) {
   return (
     <div>
-      {props.roll.split("").map((roll, i) => (
+      {roll.split('').map((rollResult, i) => (
         <Die
-          key={`${props.roller}-` + i}
-          hopeDie={i < props.hopeDieCount}
-          roll={roll as Roll}
+          // eslint-disable-next-line react/no-array-index-key
+          key={`${roller}-${i}`}
+          hopeDie={i < hopeDieCount}
+          roll={rollResult as Roll}
         />
       ))}
     </div>

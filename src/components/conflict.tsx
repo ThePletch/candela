@@ -1,41 +1,49 @@
-import { Resolution } from "@candela/components/resolution/resolution";
-import type { Conflict as ConflictType } from "@candela/types/conflict";
+import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
+import Toast from 'react-bootstrap/Toast';
+
+import PopupForm from '@candela/components/popup_form';
+import { Resolution } from '@candela/components/resolution/resolution';
+import { getTopTrait } from '@candela/state-helpers/participations';
+import type { Conflict as ConflictType } from '@candela/types/conflict';
+import type { SelfParticipation } from '@candela/types/participation';
 import { ConflictResolutionsContext, MeContext } from '@candela/util/contexts';
-import { getTopTrait } from "@candela/util/participations";
+
 import {
   useHttpState,
   ModelListSubscription,
   useSubscriptionContext,
-} from "@candela/util/state";
+  useSubscriptionContexts,
+} from '@candela/util/state';
 
 function PlayerConflictOptions(props: {
   conflict: ConflictType;
+  me: SelfParticipation;
 }) {
   const { loading, makeRequest } = useHttpState(
     `api/conflicts/${props.conflict.id}/resolutions`,
-    "POST"
+    'POST',
+    props.me.guid,
   );
 
-  return useSubscriptionContext(MeContext, "Loading your information...", (me) => {
-    return useSubscriptionContext(ConflictResolutionsContext(props.conflict.id), "Loading resolutions...", (resolutions) => {
+  return useSubscriptionContext(
+    MeContext(props.me.guid),
+    'Loading your information...',
+    (me) => {
       function rollForConflict() {
-        makeRequest({ type: "RollResolution" });
+        makeRequest({ type: 'RollResolution' });
       }
 
       function liveMoment() {
-        makeRequest({ type: "MomentResolution" });
+        makeRequest({ type: 'MomentResolution' });
       }
 
       function LiveMomentButton() {
-        if (getTopTrait(me)?.type === "moment") {
+        if (getTopTrait(me) === 'moment') {
           return (
-            <button
-              className="btn btn-primary"
-              disabled={loading}
-              onClick={liveMoment}
-            >
+            <Button variant="info" disabled={loading} onClick={liveMoment}>
               Live Moment
-            </button>
+            </Button>
           );
         }
 
@@ -57,46 +65,65 @@ function PlayerConflictOptions(props: {
 
       if (me.alive) {
         return (
-          <div>
+          <>
             <h3>The GM has finished describing the conflict.</h3>
             <p>
               If your character will face this conflict, click the button below.
             </p>
             <DireConflictWarning />
-            <button
-              className="btn btn-primary"
-              disabled={loading}
-              onClick={rollForConflict}
-            >
-              Roll
-            </button>
-            <LiveMomentButton />
-          </div>
+            <div style={{ display: 'grid' }}>
+              <ButtonGroup>
+                <Button
+                  variant="primary"
+                  disabled={loading}
+                  onClick={rollForConflict}
+                >
+                  Roll
+                </Button>
+                <LiveMomentButton />
+              </ButtonGroup>
+            </div>
+          </>
         );
       }
 
       return <h4>You have passed on and cannot face this conflict.</h4>;
-    });
-  });
+    },
+  );
 }
-
 
 type ConflictProps = {
   conflict: ConflictType;
+  me: SelfParticipation;
 };
 
 function Conflict(props: ConflictProps) {
   const { loading, makeRequest: finishNarration } = useHttpState(
     `api/conflicts/${props.conflict.id}/finish_narration`,
-    "PATCH"
+    'PATCH',
+    props.me.guid,
   );
 
-  return useSubscriptionContext(MeContext, "Loading your information...", (me) => {
-    return useSubscriptionContext(ConflictResolutionsContext(props.conflict.id), "Loading resolutions...", (resolutions) => {
+  return useSubscriptionContexts(
+    {
+      me: {
+        context: MeContext(props.me.guid),
+        loadingMessage: 'Loading your information...',
+      },
+      resolutions: {
+        context: ConflictResolutionsContext(props.conflict.id),
+        loadingMessage: 'Loading resolutions...',
+      },
+    },
+    ({ me, resolutions }) => {
+      if (resolutions.some((r) => r.confirmed)) {
+        return null;
+      }
+
       if (!props.conflict.narrated) {
-        if (me.role == "gm") {
+        if (me.role == 'gm') {
           return (
-            <div>
+            <PopupForm label="Narrate the conflict" formComplete={false}>
               <p>Narrate the conflict. What's happening?</p>
               <button
                 className="btn btn-primary"
@@ -105,47 +132,61 @@ function Conflict(props: ConflictProps) {
               >
                 Finish Narration
               </button>
-            </div>
+            </PopupForm>
           );
         }
         return (
-          <div>
-            <h3>
-              A conflict has begun. The GM is explaining the situation.
-            </h3>
-            <em>Stand by to react.</em>
-          </div>
+          <Toast>
+            <Toast.Header closeButton={false}>
+              A conflict has begun.
+            </Toast.Header>
+            <Toast.Body>
+              The GM is explaining the situation. Stand by to react.
+            </Toast.Body>
+          </Toast>
         );
       }
 
       const activeResolutions = resolutions.filter((r) => !r.confirmed);
       if (activeResolutions.length > 0) {
         return (
-          <Resolution
-            gameId={props.conflict.gameId}
-            resolution={activeResolutions[0]}
-            me={me}
-          />
+          <PopupForm label="View conflict results" formComplete={false}>
+            <Resolution
+              gameId={props.conflict.gameId}
+              resolution={activeResolutions[0]}
+              me={me}
+            />
+          </PopupForm>
         );
       }
 
-      if (me.role === "gm") {
+      if (me.role === 'gm') {
         return (
-          <h3>The players are deciding who will face the challenge.</h3>
+          <Toast>
+            <Toast.Body>
+              The players are deciding who will face the challenge.
+            </Toast.Body>
+          </Toast>
         );
       }
 
       return (
-        <PlayerConflictOptions
-          conflict={props.conflict}
-        />
+        <PopupForm label="Handle the conflict" formComplete={false}>
+          <PlayerConflictOptions conflict={props.conflict} me={props.me} />
+        </PopupForm>
       );
-    });
-  });
+    },
+  );
 }
 
-export default function(props: ConflictProps) {
-  return <ModelListSubscription channel="ResolutionsChannel" params={{ conflict_id: props.conflict.id }} context={ConflictResolutionsContext(props.conflict.id)}>
-    <Conflict {...props} />
-  </ModelListSubscription>
+export default function (props: ConflictProps) {
+  return (
+    <ModelListSubscription
+      channel="ResolutionsChannel"
+      params={{ conflict_id: props.conflict.id, guid: props.me.guid }}
+      context={ConflictResolutionsContext(props.conflict.id)}
+    >
+      <Conflict {...props} />
+    </ModelListSubscription>
+  );
 }

@@ -1,15 +1,9 @@
 import type { FieldPresenceFlags } from '@candela/util/types';
 
-export type AdjacentParticipation = Omit<
-  Participation,
-  `left${Capitalize<string>}` | `right${Capitalize<string>}`
->;
-
 /**
  * Fields that will be filled in during character generation.
  */
 type FillableFields = {
-  cardOrder?: string; // todo
   vice?: string;
   writtenVice?: string;
   virtue?: string;
@@ -19,25 +13,26 @@ type FillableFields = {
   writtenBrink?: string;
 };
 
-export type TraitType = "virtue" | "vice" | "moment" | "brink";
+export type TraitType = 'virtue' | 'vice' | 'moment' | 'brink';
 export type Participation = {
   id: number;
   gameId: number;
   name: string;
   alive: boolean;
-  role: "player" | "gm";
-  leftParticipation: AdjacentParticipation;
-  rightParticipation: AdjacentParticipation;
-  rightPlayer: Omit<AdjacentParticipation, "role"> & { role: "player" };
-  leftPlayer: Omit<AdjacentParticipation, "role"> & { role: "player" };
+  role: 'player' | 'gm';
   characterConcept?: string;
   hopeDieCount: number;
   traits: {
-    type: TraitType;
-    value: string;
-    burned: boolean;
-  }[];
+    [Key in TraitType]?: {
+      burned: boolean;
+      value: string;
+    }
+  };
+  cardOrder: TraitType[];
   position: number;
 } & FieldPresenceFlags<FillableFields>;
 
-export type SelfParticipation = Participation & FillableFields;
+export type SelfParticipation = Participation &
+FillableFields & {
+  guid: string;
+};

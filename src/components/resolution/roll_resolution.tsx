@@ -2,10 +2,10 @@ import {
   BaseResolutionComponents,
   ConflictResult,
   type ResolutionProps,
-} from "@candela/components/resolution/base";
+} from '@candela/components/resolution/base';
 
 export default function RollResolution(
-  props: ResolutionProps & { resolution: { type: "RollResolution" } }
+  props: ResolutionProps & { resolution: { type: 'RollResolution' } },
 ) {
   return ConflictResult(BaseResolutionComponents(props));
 }

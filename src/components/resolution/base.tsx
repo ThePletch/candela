@@ -1,58 +1,82 @@
-import { type ChangeEvent, type ReactNode, useState } from "react";
+import { type ChangeEvent, type ReactNode, useState } from 'react';
 import Button from 'react-bootstrap/Button';
+import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import type { Participation } from "@candela/types/participation";
-import type { Resolution } from "@candela/types/resolution";
+import type {
+  Participation,
+  SelfParticipation,
+  TraitType,
+} from '@candela/types/participation';
+import type { Resolution } from '@candela/types/resolution';
 import { GameParticipationsContext } from '@candela/util/contexts';
-import { getTopTrait } from "@candela/util/participations";
-import { useHttpState, useSubscriptionContext } from "@candela/util/state";
+import { getTopTrait } from '@candela/state-helpers/participations';
+import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
-import DiceRoll from "./dice_roll";
+import DiceRoll from '@candela/components/resolution/dice_roll';
 
 export type ResolutionProps = {
-  gameId: number;
-  activeParticipation: Participation;
+  me: SelfParticipation;
   resolution: Resolution;
 };
 
-function BurnTraitButton(props: ResolutionProps) {
-  const topTrait = getTopTrait(props.activeParticipation);
+
+function isValidRecipient(participation: Participation, me: SelfParticipation) {
+  return participation.id !== me.id && participation.role !== 'gm';
+}
+
+function BurnTraitButton({
+  me,
+  resolution,
+}: ResolutionProps) {
+  const myTopTrait = getTopTrait(me);
   const { loading, makeRequest } = useHttpState(
-    `api/conflicts/${props.resolution.conflict.id}/resolutions`,
-    "POST",
+    `api/conflicts/${resolution.conflict.id}/resolutions`,
+    'POST',
+    me.guid,
     {
-      type: "TraitResolution",
-      resolution_id: props.resolution.id,
-      burned_trait_type: topTrait?.type,
-    }
+      type: 'TraitResolution',
+      resolution_id: resolution.id,
+      burned_trait_type: myTopTrait,
+    },
   );
 
-  if (!topTrait) {
+  if (!myTopTrait) {
     return null;
   }
 
-  function canBurnTrait(topTrait: Participation["traits"][number]) {
+  function canBurnTrait(topTrait: keyof Participation['traits']) {
     return (
-      ["virtue", "vice"].includes(topTrait.type ?? "no") &&
-      props.resolution.playerRollResult.includes("1")
+      ['virtue', 'vice'].includes(topTrait)
+      && resolution.playerRollResult.includes('1')
     );
   }
 
-  if (canBurnTrait(topTrait)) {
-    if (props.resolution.parentResolution) {
+  if (canBurnTrait(myTopTrait)) {
+    if (resolution.parentResolution) {
       return (
-        <Button variant="primary" disabled>
-          You cannot burn your {topTrait.type}. This result is final.
+        <Button variant="warning" disabled>
+          You cannot burn your
+          {' '}
+          {myTopTrait}
+          . This result is final.
         </Button>
       );
     }
     return (
-      <Button variant="primary"
+      <Button
+        variant="warning"
         disabled={loading}
         onClick={() => makeRequest()}
       >
-        Burn your {topTrait.type} ({topTrait.value}) to reroll ones.
+        Burn your
+        {' '}
+        {myTopTrait}
+        {' '}
+        (
+        {me.traits[myTopTrait]?.value || '[not set]'}
+        )
+        to reroll ones.
       </Button>
     );
   }
@@ -60,61 +84,69 @@ function BurnTraitButton(props: ResolutionProps) {
   return null;
 }
 
-function EmbraceBrinkButton(props: ResolutionProps) {
+function EmbraceBrinkButton({
+  resolution,
+  me,
+}: ResolutionProps) {
   const { loading, makeRequest } = useHttpState(
-    `api/conflicts/${props.resolution.conflict.id}/resolutions`,
-    "POST",
+    `api/conflicts/${resolution.conflict.id}/resolutions`,
+    'POST',
+    me.guid,
     {
-      type: "BrinkResolution",
-      resolution_id: props.resolution.id,
-    }
+      type: 'BrinkResolution',
+      resolution_id: resolution.id,
+    },
   );
 
-  const topTrait = getTopTrait(props.activeParticipation);
+  const myTopTrait = getTopTrait(me);
 
-  if (!topTrait) {
+  if (!myTopTrait) {
     return null;
   }
 
-  function canEmbraceBrink(topTrait: Participation["traits"][number]) {
+  function canEmbraceBrink(topTrait: TraitType) {
     return (
-      topTrait.type === "brink" &&
-      (props.resolution.successful ||
-        props.resolution.narrativeControl.id !== props.activeParticipation.id)
+      topTrait === 'brink'
+      && (resolution.successful
+        || resolution.narrativeControl.id !== me.id)
     );
   }
 
-  if (canEmbraceBrink(topTrait)) {
-    if (props.resolution.parentResolution != null) {
+  if (canEmbraceBrink(myTopTrait)) {
+    if (resolution.parentResolution != null) {
       return (
-        <Button variant="primary" disabled>
+        <Button variant="danger" disabled>
           You cannot embrace your brink. This result is final.
         </Button>
       );
-    } else {
-      return (
-        <Button variant="primary"
-          disabled={loading}
-          onClick={() => makeRequest()}
-        >
-          Embrace your brink ({topTrait.value})
-        </Button>
-      );
     }
-  } else {
-    return null;
+    return (
+      <Button
+        variant="danger"
+        disabled={loading}
+        onClick={() => makeRequest()}
+      >
+        Embrace your brink
+      </Button>
+    );
   }
+  return null;
 }
 
-function ConfirmResultButton(props: ResolutionProps) {
+function ConfirmResultButton({
+  resolution,
+  me,
+  gameId,
+}: ResolutionProps & { gameId: number }) {
   const [beneficiary, setBeneficiary] = useState<string | null>(null);
   const { loading, makeRequest } = useHttpState(
-    `api/resolutions/${props.resolution.id}/confirm`,
-    "PATCH"
+    `api/resolutions/${resolution.id}/confirm`,
+    'PATCH',
+    me.guid,
   );
 
   function confirm() {
-    let body = {} as {
+    const body = {} as {
       beneficiary_player_id?: string;
     };
 
@@ -129,22 +161,19 @@ function ConfirmResultButton(props: ResolutionProps) {
     setBeneficiary(event.target?.value);
   }
 
-  function playerWillDie() {
-    return !props.resolution.successful && props.resolution.conflict.dire;
+  function playerWillDie(): boolean {
+    return !resolution.successful && resolution.conflict.dire;
   }
 
-  return useSubscriptionContext(GameParticipationsContext,
-    "Loading players...",
+  return useSubscriptionContext(
+    GameParticipationsContext(gameId),
+    'Loading players...',
     (participations) => {
       if (
-        playerWillDie() &&
-        props.activeParticipation.hopeDieCount > 0 &&
-        props.resolution.type == "MartyrResolution"
+        playerWillDie()
+        && me.hopeDieCount > 0
+        && resolution.type === 'MartyrResolution'
       ) {
-        function isValidRecipient(participation: Participation) {
-          return participation.id != props.activeParticipation.id && participation.role !== "gm";
-        }
-
         return (
           <div>
             <select
@@ -153,98 +182,111 @@ function ConfirmResultButton(props: ResolutionProps) {
             >
               <option disabled={participations.length > 0}>
                 {participations.length === 0
-                  ? "Loading hope die recipients..."
-                  : "Choose who will receive your hope die."}
+                  ? 'Loading hope die recipients...'
+                  : 'Choose who will receive your hope die.'}
               </option>
               <option key="0" value={undefined}>
                 No one
               </option>
-              {participations.filter(isValidRecipient).map((participation) => (
+              {participations.filter((p) => isValidRecipient(p, me)).map((participation) => (
                 <option key={participation.id} value={participation.id}>
                   {participation.name}
                 </option>
               ))}
             </select>
-            <Button variant="primary"
-              onClick={confirm}
-              disabled={loading || beneficiary == null}
+            <Button
+              variant="primary"
+              onClick={() => confirm()}
+              disabled={loading || beneficiary === null}
             >
               Confirm Result
             </Button>
           </div>
         );
-      } else {
-        return (
-          <Button variant="primary"
-            disabled={loading}
-            onClick={confirm}
-          >
-            Confirm Result
-          </Button>
-        );
       }
-    }
+      return (
+        <Button variant="primary" disabled={loading} onClick={() => confirm()}>
+          Confirm Result
+        </Button>
+      );
+    },
   );
 }
 
-function ResolutionAcceptanceOptions(props: ResolutionProps) {
+function ResolutionAcceptanceOptions({
+  resolution,
+  me,
+  gameId,
+}: ResolutionProps & { gameId: number }) {
   const { loading: martyrLoading, makeRequest: martyr } = useHttpState(
-    `api/conflicts/${props.resolution.conflict.id}/resolutions`,
-    "POST",
+    `api/conflicts/${resolution.conflict.id}/resolutions`,
+    'POST',
+    me.guid,
     {
-      type: "MartyrResolution",
-      resolution_id: props.resolution.id,
-    }
+      type: 'MartyrResolution',
+      resolution_id: resolution.id,
+    },
   );
 
-  if (props.activeParticipation.id === props.resolution.resolver.id) {
+  if (me.id === resolution.resolver.id) {
     return (
-      <div>
-        <ConfirmResultButton {...props} />
-        <BurnTraitButton {...props} />
-        <EmbraceBrinkButton {...props} />
+      <div style={{ display: 'grid' }}>
+        <ButtonGroup>
+          <ConfirmResultButton resolution={resolution} me={me} gameId={gameId} />
+          <BurnTraitButton resolution={resolution} me={me} gameId={gameId} />
+          <EmbraceBrinkButton resolution={resolution} me={me} gameId={gameId} />
+        </ButtonGroup>
       </div>
     );
-  } else if (
-    props.resolution.conflict.dire &&
-    !props.resolution.successful &&
-    !props.resolution.parentResolution
+  } if (
+    resolution.conflict.dire
+    && !resolution.successful
+    && !resolution.parentResolution
   ) {
     return (
       <div>
-        <Button variant="primary"
+        <Button
+          variant="primary"
           disabled={martyrLoading}
           onClick={() => martyr()}
         >
-          Martyr yourself to save {props.resolution.resolver.name}
+          Martyr yourself to save
+          {' '}
+          {resolution.resolver.name}
         </Button>
       </div>
     );
   }
 
   return (
-    <em>Waiting for {props.resolution.resolver.name} to resolve this conflict.</em>
+    <em>
+      Waiting for
+      {' '}
+      {resolution.resolver.name}
+      {' '}
+      to resolve this conflict.
+    </em>
   );
 }
 
-export function PlayerRollResult(props: { resolution: Resolution }) {
+export function PlayerRollResult({ resolution }: { resolution: Resolution }) {
   return (
     <div>
       <DiceRoll
         roller="player"
-        roll={props.resolution.playerRollResult}
-        hopeDieCount={props.resolution.resolver.hopeDieCount}
+        roll={resolution.playerRollResult}
+        hopeDieCount={resolution.resolver.hopeDieCount}
       />
     </div>
   );
 }
 
-export function GmRollResult(props: { resolution: Resolution }) {
+export function GmRollResult({ resolution }: { resolution: Resolution }) {
   return (
     <div>
       <DiceRoll
         roller="gm"
-        roll={props.resolution.gmRollResult}
+        roll={resolution.gmRollResult}
         hopeDieCount={0}
       />
     </div>
@@ -256,52 +298,68 @@ type Components<T extends string> = {
 };
 
 type ConflictResultComponents = Components<
-  | "activePlayerInfo"
-  | "playerResult"
-  | "gmResult"
-  | "successMessage"
-  | "additionalInfo"
-  | "narrativeControlInfo"
-  | "acceptanceOptions"
+| 'activePlayerInfo'
+| 'playerResult'
+| 'gmResult'
+| 'successMessage'
+| 'additionalInfo'
+| 'narrativeControlInfo'
+| 'acceptanceOptions'
 >;
 
-export function ConflictResult(props: ConflictResultComponents) {
+export function ConflictResult({
+  activePlayerInfo,
+  playerResult,
+  gmResult,
+  successMessage,
+  additionalInfo,
+  narrativeControlInfo,
+  acceptanceOptions,
+}: ConflictResultComponents) {
   return (
-    <div>
+    <>
       <h3>Conflict results</h3>
       <ListGroup>
-        <ListGroup.Item>{props.activePlayerInfo}</ListGroup.Item>
+        <ListGroup.Item>{activePlayerInfo}</ListGroup.Item>
         <ListGroup.Item>
           <h5>PLAYER</h5>
-          {props.playerResult}
+          {playerResult}
         </ListGroup.Item>
         <ListGroup.Item>
           <h5>GM</h5>
-          {props.gmResult}
+          {gmResult}
         </ListGroup.Item>
-        <ListGroup.Item>{props.successMessage}</ListGroup.Item>
-        <ListGroup.Item>{props.additionalInfo}</ListGroup.Item>
-        <ListGroup.Item>{props.narrativeControlInfo}</ListGroup.Item>
+        <ListGroup.Item>{successMessage}</ListGroup.Item>
+        <ListGroup.Item>{additionalInfo}</ListGroup.Item>
+        <ListGroup.Item>{narrativeControlInfo}</ListGroup.Item>
       </ListGroup>
-      {props.acceptanceOptions}
-    </div>
+      {acceptanceOptions}
+    </>
   );
 }
 
 // todo better indicate when someone martyrs themselves
-export function BaseResolutionComponents(
-  props: ResolutionProps
-): ConflictResultComponents {
+export function BaseResolutionComponents({
+  resolution,
+  me,
+  gameId,
+}: ResolutionProps & { gameId: number }): ConflictResultComponents {
   function activePlayerInfo() {
     return (
-      <span>{props.resolution.resolver.name} chose to face this conflict.</span>
+      <span>
+        {resolution.resolver.name}
+        {' '}
+        chose to face this conflict.
+      </span>
     );
   }
 
   function successMessage() {
     return (
       <span>
-        ${props.resolution.resolver.name} ${(props.resolution.successful ? "succeeded." : "failed.")}
+        {resolution.resolver.name}
+        {' '}
+        {resolution.successful ? 'succeeded.' : 'failed.'}
       </span>
     );
   }
@@ -309,18 +367,21 @@ export function BaseResolutionComponents(
   function narrativeControlInfo() {
     return (
       <span>
-        Narrative control will go to {props.resolution.narrativeControl.name}.
+        Narrative control will go to
+        {' '}
+        {resolution.narrativeControl.name}
+        .
       </span>
     );
   }
 
   return {
     activePlayerInfo: activePlayerInfo(),
-    playerResult: <PlayerRollResult resolution={props.resolution} />,
-    gmResult: <GmRollResult resolution={props.resolution} />,
+    playerResult: <PlayerRollResult resolution={resolution} />,
+    gmResult: <GmRollResult resolution={resolution} />,
     additionalInfo: null,
     successMessage: successMessage(),
     narrativeControlInfo: narrativeControlInfo(),
-    acceptanceOptions: <ResolutionAcceptanceOptions {...props} />,
+    acceptanceOptions: <ResolutionAcceptanceOptions resolution={resolution} me={me} gameId={gameId} />,
   };
 }

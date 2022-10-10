@@ -1,72 +1,58 @@
-import Button from 'react-bootstrap/Button';
-
-import BrinkForm from "@candela/components/game_setup/brink_form";
-import SetupForm from "@candela/components/game_setup/setup_form";
-import type { Participation } from "@candela/types/participation";
-import type { GameProps } from "@candela/types/props";
+import BrinkForm from '@candela/components/game_setup/brink_form';
+import ProceedButton from '@candela/components/game_setup/proceed_button';
+import PopupForm from '@candela/components/popup_form';
+import type { Participation } from '@candela/types/participation';
+import type { GameProps } from '@candela/types/props';
 import { GameParticipationsContext } from '@candela/util/contexts';
-import { useHttpState, useSubscriptionContext } from "@candela/util/state";
+import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
 export default function BrinkPrompt(props: GameProps) {
-  const { loading, makeRequest: advanceStage } = useHttpState(
+  const advanceToCardOrder = useHttpState(
     `api/games/${props.game.id}/advance_setup_state`,
-    "PATCH",
-    { current_setup_state: "brinks" }
+    'PATCH',
+    props.me.guid,
+    { current_setup_state: 'brinks' },
   );
 
-  return useSubscriptionContext(GameParticipationsContext, "Loading players...", (participations) => {
-    function playersWithUnfilledBrink(participations: Participation[]) {
-      return participations.filter(playerWithBrinkUnfilled);
-    }
-
-    function playerWithBrinkUnfilled(participation: Participation) {
-      return !participation.hasWrittenBrink;
-    }
-
-    function actions(
-      participations: Participation[]
-    ) {
-      const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
-
-      if (props.me.role === "gm") {
-        if (unfilledBrinkPlayers.length === 0) {
-          return (
-            <>
-              <Button variant="primary"
-                disabled={loading}
-                onClick={() => advanceStage()}
-              >
-                Proceed to Card Order
-              </Button>
-              <BrinkForm participation={props.me} />
-            </>
-          );
-        }
+  return useSubscriptionContext(
+    GameParticipationsContext(props.game.id),
+    'Loading players...',
+    (participations) => {
+      function playersWithUnfilledBrink(participations: Participation[]) {
+        return participations.filter(playerWithBrinkUnfilled);
       }
-      return <BrinkForm participation={props.me} />;
-    }
 
-    function status(
-      participations: Participation[]
-    ) {
+      function playerWithBrinkUnfilled(participation: Participation) {
+        return !participation.hasWrittenBrink;
+      }
+
       const unfilledBrinkPlayers = playersWithUnfilledBrink(participations);
-
-      if (unfilledBrinkPlayers.length === 0) {
-        if (props.me.role == "player") {
-          return <em>All brinks submitted. Waiting for GM to continue...</em>;
-        }
-        return null;
-      } else {
+      const brinkForm = (
+        <PopupForm
+          label="Write your brink"
+          formComplete={props.me.writtenBrink != undefined}
+        >
+          <BrinkForm
+            participation={props.me}
+            allParticipations={participations}
+          />
+        </PopupForm>
+      );
+      if (props.me.role === 'gm') {
         return (
-          <ul>
-            {unfilledBrinkPlayers.map((player) => (
-              <li key={player.id}>{player.name} is writing their brink...</li>
-            ))}
-          </ul>
+          <>
+            <ProceedButton
+              label="Proceed to Card Order"
+              httpRequest={advanceToCardOrder}
+              disabled={unfilledBrinkPlayers.length > 0}
+              disabledTooltip="Some people are still writing their brinks."
+            />
+            {brinkForm}
+          </>
         );
       }
-    }
 
-    return SetupForm(actions(participations), status(participations));
-  });
+      return brinkForm;
+    },
+  );
 }

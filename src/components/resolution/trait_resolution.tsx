@@ -3,10 +3,10 @@ import {
   ConflictResult,
   PlayerRollResult,
   type ResolutionProps,
-} from "@candela/components/resolution/base";
+} from '@candela/components/resolution/base';
 
 export default function TraitResolution(
-  props: ResolutionProps & { resolution: { type: "TraitResolution" } }
+  props: ResolutionProps & { resolution: { type: 'TraitResolution' } },
 ) {
   const base = BaseResolutionComponents({
     ...props,
@@ -19,8 +19,15 @@ export default function TraitResolution(
       <div>
         {base.playerResult}
         <em>
-          But {props.resolution.resolver.name} burned their{" "}
-          {props.resolution.burnedTrait.type} to reroll ones.
+          But
+          {' '}
+          {props.resolution.resolver.name}
+          {' '}
+          burned their
+          {' '}
+          {props.resolution.burnedTrait.type}
+          {' '}
+          to reroll ones.
         </em>
         <PlayerRollResult resolution={props.resolution} />
       </div>

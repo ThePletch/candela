@@ -6,11 +6,11 @@ export type BaseResolution = {
     id: number;
     dire: boolean;
   };
-  participationId: number;
   narrativeControl: {
     id: number;
     name: string;
   };
+  // eslint-disable-next-line no-use-before-define
   parentResolution?: Resolution;
   playerRollResult: string;
   gmRollResult: string;
@@ -21,31 +21,35 @@ export type BaseResolution = {
   };
 };
 
+export type NonOverrideResolution = BaseResolution & {
+  parentResolution: undefined;
+};
+
 export type OverrideResolution = BaseResolution & {
+  // eslint-disable-next-line no-use-before-define
   parentResolution: Resolution;
 };
 
 export type BrinkResolution = OverrideResolution & {
-  type: "BrinkResolution";
+  type: 'BrinkResolution';
 };
 
 export type MartyrResolution = OverrideResolution & {
-  type: "MartyrResolution";
+  type: 'MartyrResolution';
 };
 
-export type MomentResolution = BaseResolution & {
-  type: "MomentResolution";
+export type MomentResolution = NonOverrideResolution & {
+  type: 'MomentResolution';
 };
 
-export type RollResolution = BaseResolution & {
-  type: "RollResolution";
+export type RollResolution = NonOverrideResolution & {
+  type: 'RollResolution';
 };
 
 export type TraitResolution = OverrideResolution & {
-  type: "TraitResolution";
+  type: 'TraitResolution';
   burnedTrait: {
-    type: "virtue" | "vice";
-    value: string;
+    type: 'virtue' | 'vice';
   };
 };
 

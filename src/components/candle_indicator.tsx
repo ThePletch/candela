@@ -1,5 +1,5 @@
-import _ from "lodash";
-import { useEffect, useState } from "react";
+import _ from 'lodash';
+import { useEffect, useState } from 'react';
 
 function Candle(props: {
   lit: boolean;
@@ -7,12 +7,13 @@ function Candle(props: {
   x: number;
   y: number;
 }) {
-  const dark = "#222222";
-  const orange = "#DDAA00";
-  const yellow = "#FFEE00";
-  const white = "#FFFFFF";
-  const brightBlue = "#BBBBFF";
-  const black = "#000000";
+  const dark = '#222222';
+  const ember = '#661100';
+  const orange = '#DDAA00';
+  const yellow = '#FFEE00';
+  const white = '#FFFFFF';
+  const brightBlue = '#BBBBFF';
+  const black = '#000000';
 
   function outerColor() {
     return props.lit ? orange : dark;
@@ -34,7 +35,7 @@ function Candle(props: {
       return props.dicePool ? brightBlue : white;
     }
 
-    return dark;
+    return ember;
   }
 
   return (
@@ -107,8 +108,8 @@ export default function CandleIndicator(props: {
   let dicePoolDelay: NodeJS.Timer;
   let dicePoolUpdater: NodeJS.Timer;
 
-  let [lit, setLit] = useState(0);
-  let [dicePool, setDicePool] = useState(props.dicePool);
+  const [lit, setLit] = useState(0);
+  const [dicePool, setDicePool] = useState(props.dicePool);
 
   const candleDistance = 25;
   const candleLightDelayMs = 500;
@@ -199,9 +200,7 @@ export default function CandleIndicator(props: {
       viewBox="0 0 90 90"
       className="candle-indicator"
     >
-      {_.times(10, (index) => {
-        return renderCandle(index);
-      })}
+      {_.times(10, (index) => renderCandle(index))}
     </svg>
   );
 }

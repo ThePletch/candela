@@ -10,12 +10,8 @@ WORKDIR /usr/src/app
 FROM baseline as nextjs
 
 COPY . .
-ENTRYPOINT ["./monitor.sh", "package.json", "monitors/package.json"]
 CMD ["npx", "next", "dev"]
 
-FROM baseline as npm-watcher
+FROM baseline as npm-installer
 
-RUN npm install -g onchange
-
-ENTRYPOINT ["npx", "onchange", "-i", "package.json", "--"]
-CMD ["bash", "-c", "npm install && ./md5 package.json > monitors/package.json"]
+CMD ["npm", "install"]

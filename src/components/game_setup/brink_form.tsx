@@ -1,30 +1,46 @@
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form';
 
-import type { SelfParticipation } from "@candela/types/participation";
-import { useHttpState } from "@candela/util/state";
+import { getLeftParticipation } from '@candela/state-helpers/participations';
+import type {
+  Participation,
+  SelfParticipation,
+} from '@candela/types/participation';
+import { useHttpState } from '@candela/util/state';
 
-type FormProps = { participation: SelfParticipation };
+type FormProps = {
+  participation: SelfParticipation;
+  allParticipations: Participation[];
+};
 
 function promptText(props: FormProps) {
-  if (props.participation.role == "gm") {
-    return `${props.participation.leftParticipation.name} has been seen by Them. What dark secret do They know?`;
-  } else {
-    if (props.participation.leftParticipation.role == "gm") {
-      return "You have uncovered something about the nature of Them. What have you found?";
-    }
-
-    return `You have seen ${props.participation.leftParticipation.name} at their lowest point. What are they hiding?`;
+  const leftParticipation = getLeftParticipation(
+    props.participation,
+    props.allParticipations,
+    { skipGm: false },
+  );
+  if (props.participation.role == 'gm') {
+    return `${leftParticipation.name} has been seen by Them. What dark secret do They know?`;
   }
+  if (leftParticipation.role == 'gm') {
+    return 'You have uncovered something about the nature of Them. What have you found?';
+  }
+
+  return `You have seen ${leftParticipation.name} at their lowest point. What are they hiding?`;
 }
 
 function placeholder(props: FormProps) {
-  if (props.participation.role == "gm") {
+  const leftParticipation = getLeftParticipation(
+    props.participation,
+    props.allParticipations,
+    { skipGm: false },
+  );
+  if (props.participation.role == 'gm') {
     return "They've seen you...";
   }
 
-  if (props.participation.leftParticipation.role == "gm") {
+  if (leftParticipation.role == 'gm') {
     return "You've seen Them...";
   }
 
@@ -41,7 +57,8 @@ export default function BrinkForm(props: FormProps) {
   });
   const { loading, makeRequest } = useHttpState(
     `api/participations/${props.participation.id}`,
-    "PATCH"
+    'PATCH',
+    props.participation.guid,
   );
   const onSubmit = (data: Record<string, unknown>) => {
     makeRequest(data);
@@ -67,7 +84,8 @@ export default function BrinkForm(props: FormProps) {
         </p>
         <p>
           If you're writing a brink for the GM, you get to describe something
-          about Them. The only rule is that{" "}
+          about Them. The only rule is that
+          {' '}
           <strong>you cannot give Them a weakness.</strong>
         </p>
         <p>
@@ -77,11 +95,15 @@ export default function BrinkForm(props: FormProps) {
         </p>
       </div>
       <em className="text-muted">{placeholder(props)}</em>
-      <Form.Control as="textarea"
+      <Form.Control
+        as="textarea"
         placeholder="...doing something unspeakable."
-        {...register('participation.written_brink', { required: true })} />
+        {...register('participation.written_brink', { required: true })}
+      />
 
-      <Button variant="primary" disabled={loading} type="submit">Submit</Button>
+      <Button variant="primary" disabled={loading} type="submit">
+        Submit
+      </Button>
     </Form>
   );
 }

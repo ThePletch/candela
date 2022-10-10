@@ -1,24 +1,25 @@
-import type { ReactElement } from "react";
+import type { ReactElement } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
-import { useForm } from "react-hook-form";
+import { useForm } from 'react-hook-form';
 
-import type { SelfParticipation } from "@candela/types/participation";
-import { useHttpState } from "@candela/util/state";
+import type { SelfParticipation } from '@candela/types/participation';
+import { useHttpState } from '@candela/util/state';
 
 export default function MomentForm(props: {
-  participation: SelfParticipation;
+  me: SelfParticipation;
 }): ReactElement {
   const { register, handleSubmit } = useForm({
     defaultValues: {
       participation: {
-        moment: props.participation.moment,
+        moment: props.me.moment,
       },
     },
   });
   const { loading, makeRequest } = useHttpState(
-    `api/participations/${props.participation.id}`,
-    "PATCH"
+    `api/participations/${props.me.id}`,
+    'PATCH',
+    props.me.guid,
   );
 
   return (
@@ -42,10 +43,14 @@ export default function MomentForm(props: {
         will burn your moment and be unable to live it in the future.
       </div>
       <em>I will find hope...</em>
-      <Form.Control as="textarea"
+      <Form.Control
+        as="textarea"
         {...register('participation.moment', { required: true })}
-        placeholder="...when [event]/...in [situation]" />
-      <Button variant="primary" disabled={loading} type="submit">Submit</Button>
+        placeholder="...when [event]/...in [situation]"
+      />
+      <Button variant="primary" disabled={loading} type="submit">
+        Submit
+      </Button>
     </Form>
   );
 }

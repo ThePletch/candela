@@ -1,20 +1,21 @@
-import { type FormEvent, useEffect, useRef } from "react";
+import { type FormEvent, useEffect, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
 import ListGroup from 'react-bootstrap/ListGroup';
-import Sortable from "sortablejs";
+import Sortable from 'sortablejs';
 
-import type { SelfParticipation } from "@candela/types/participation";
-import { useHttpState } from "@candela/util/state";
+import type { SelfParticipation } from '@candela/types/participation';
+import { useHttpState } from '@candela/util/state';
 
 export default function CardOrderForm(props: {
   participation: SelfParticipation;
 }) {
-  const sortableCards = ["virtue", "vice", "moment"];
+  const sortableCards = ['virtue', 'vice', 'moment'];
 
   const { loading, makeRequest } = useHttpState(
     `api/participations/${props.participation.id}`,
-    "PATCH"
+    'PATCH',
+    props.participation.guid,
   );
 
   let sortManager: Sortable;
@@ -24,7 +25,7 @@ export default function CardOrderForm(props: {
   useEffect(() => {
     if (cardList.current && !sortManager) {
       sortManager = Sortable.create(cardList.current, {
-        filter: ".disabled",
+        filter: '.disabled',
       });
     }
   });
@@ -37,7 +38,7 @@ export default function CardOrderForm(props: {
     // todo add a hamburger icon here to indicate draggability
     return (
       <ListGroup.Item
-        className={cardProps.sortable ? "" : "disabled"}
+        className={cardProps.sortable ? '' : 'disabled'}
         key={cardProps.index}
         data-id={cardProps.index}
       >
@@ -50,17 +51,20 @@ export default function CardOrderForm(props: {
     e.preventDefault();
     if (sortManager) {
       // slicing out the first three elements, since we aren't tracking brink's ordering
-      const cardOrder = sortManager?.toArray().join("").slice(0, 3);
+      const cardOrder = sortManager?.toArray().join('').slice(0, 3);
       makeRequest({
         participation: {
           card_order: cardOrder,
         },
       });
     } else {
-      console.warn("Sort manager not initialized, doing nothing.");
+      console.warn(
+        'Sort manager not initialized during sort submission, doing nothing.',
+      );
     }
   }
 
+  // TODO persist card order in the form if it's already set
   return (
     <Form onSubmit={submitCardOrder}>
       <em>Click and drag to order your cards from top to bottom.</em>
@@ -71,12 +75,14 @@ export default function CardOrderForm(props: {
       </div>
       <ListGroup className="card-order-group" ref={cardList as any}>
         {sortableCards.map((name, i) => (
-          <CardListItem key={i} name={name} index={i} sortable={true} />
+          <CardListItem key={i} name={name} index={i} sortable />
         ))}
         <CardListItem name="brink" index={3} sortable={false} />
       </ListGroup>
 
-      <Button variant="primary" disabled={loading} type="submit" />
+      <Button variant="primary" disabled={loading} type="submit">
+        Submit
+      </Button>
     </Form>
   );
 }

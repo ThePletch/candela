@@ -1,14 +1,11 @@
 import ListGroup from 'react-bootstrap/ListGroup';
 
-import type {
-  Participation,
-  TraitType,
-} from "@candela/types/participation";
+import type { Participation, TraitType } from '@candela/types/participation';
 
 type TraitCardProps = {
   burned: boolean;
-  giverRole: Participation["role"];
-  holderRole: Participation["role"];
+  giverRole: Participation['role'];
+  holderRole: Participation['role'];
   isTop: boolean;
   type: TraitType;
   value: string;
@@ -17,22 +14,22 @@ type TraitCardProps = {
 export default function TraitCard(props: TraitCardProps) {
   function pretext(): string {
     switch (props.type) {
-      case "brink":
+      case 'brink':
         if (props.giverRole == 'gm') {
-            return "They've seen you...";
+          return "They've seen you...";
         }
 
-        if (props.holderRole == "gm") {
+        if (props.holderRole == 'gm') {
           return "I've seen Them...";
         }
 
         return "I've seen you...";
-      case "virtue":
-        return "";
-      case "vice":
-        return "";
-      case "moment":
-        return "I will find hope...";
+      case 'virtue':
+        return '';
+      case 'vice':
+        return '';
+      case 'moment':
+        return 'I will find hope...';
     }
   }
 

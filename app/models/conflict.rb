@@ -22,7 +22,7 @@ class Conflict < ApplicationRecord
   end
 
   def confirmed_resolution
-    resolutions.confirmed.first
+    resolutions.confirmed.take
   end
 
   def active?

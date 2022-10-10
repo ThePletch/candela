@@ -1,7 +1,6 @@
 json.key_format! camelize: :lower
 
 json.extract! scene, :id, :state, :truths_remaining, :base_player_dice_pool
-json.failed scene.failed?
 
 if scene.all_truths_stated
   json.next_truth_stater nil

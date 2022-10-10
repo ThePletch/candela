@@ -1,10 +1,10 @@
-import Truth from "@candela/components/truth";
+import Truth from '@candela/components/truth';
 
 import { SceneTruthsContext } from '@candela/util/contexts';
-import { useSubscriptionContext } from "@candela/util/state";
+import { useSubscriptionContext } from '@candela/util/state';
 
-function AreWeAlive(props: { truthsAllStated: boolean }) {
-  if (props.truthsAllStated) {
+function AreWeAlive({ truthsAllStated }: { truthsAllStated: boolean }) {
+  if (truthsAllStated) {
     return <span>...and we are alive.</span>;
   }
 
@@ -16,11 +16,17 @@ type TruthsListProps = {
   truthsRemaining: number;
 };
 
-export default function TruthsList(props: TruthsListProps) {
-  return useSubscriptionContext(SceneTruthsContext(props.sceneId), "Loading truths...", (truths) => {
+export default function TruthsList({
+  sceneId,
+  truthsRemaining,
+}: TruthsListProps) {
+  return useSubscriptionContext(
+    SceneTruthsContext(sceneId),
+    'Loading truths...',
+    (truths) => {
       // we don't want to display this for the first scene.
-      if (truths.length === 0 && props.truthsRemaining === 0) {
-        return <div />;
+      if (truths.length === 0 && truthsRemaining === 0) {
+        return null;
       }
 
       return (
@@ -30,13 +36,13 @@ export default function TruthsList(props: TruthsListProps) {
             <li key="0">The world is dark.</li>
             {truths.map((truth) => (
               <li key={truth.id}>
-                <Truth {...truth} />
+                <Truth id={truth.id} description={truth.description} speaker={truth.speaker} />
               </li>
             ))}
           </ul>
-          <AreWeAlive truthsAllStated={props.truthsRemaining === 0} />
+          <AreWeAlive truthsAllStated={truthsRemaining === 0} />
         </div>
       );
-    }
+    },
   );
 }

@@ -13,7 +13,7 @@ class ConflictsChannel < ApplicationCable::AuthorizedChannel
   def self.broadcast_update(target_conflict)
     broadcast_to(
       target_conflict.scene,
-      game_parcel(target_conflict)
+      conflict_parcel(target_conflict)
     )
   end
 

@@ -1,32 +1,43 @@
 import { useRouter } from 'next/router';
-import { useEffect } from 'react';
 
 import Game from '@candela/components/game';
 import { GameContext, MeContext } from '@candela/util/contexts';
-import { GUID_STORAGE_KEY, SingletonSubscription, useSubscriptionContext } from '@candela/util/state';
+import {
+  SingletonSubscription,
+  useSubscriptionContext,
+} from '@candela/util/state';
 
-function Play() {
-  return useSubscriptionContext(MeContext, "Loading your information...", (me) => {
-    return <SingletonSubscription channel="GameChannel" context={GameContext} params={{ id: me.gameId }} >
-      <Game me={me} />
-    </SingletonSubscription>
-  });
+function Play(props: { guid: string }) {
+  return useSubscriptionContext(
+    MeContext(props.guid),
+    'Loading your information...',
+    (me) => {
+      const gameIdParams = { id: me.gameId, ...props };
+      return (
+        <SingletonSubscription
+          channel="GameChannel"
+          context={GameContext(me.gameId)}
+          params={gameIdParams}
+        >
+          <Game me={me} />
+        </SingletonSubscription>
+      );
+    },
+  );
 }
 
-export default function () {
-  const { guid } = useRouter().query;
+export default function PlayPage() {
+  const { guid: rawGuid } = useRouter().query;
 
-  useEffect(() => {
-    if (typeof guid === 'string') {
-      localStorage.setItem(GUID_STORAGE_KEY, guid);
-    }
-  });
+  const guid = (rawGuid as string | undefined) || '';
 
-  if (typeof guid === 'string') {
-    return <SingletonSubscription channel="ParticipationChannel" context={MeContext}>
-      <Play />
-    </SingletonSubscription>;
-  }
-
-  return <em>Reading your ID...</em>;
+  return (
+    <SingletonSubscription
+      channel="ParticipationChannel"
+      context={MeContext(guid)}
+      params={{ guid }}
+    >
+      <Play guid={guid} />
+    </SingletonSubscription>
+  );
 }

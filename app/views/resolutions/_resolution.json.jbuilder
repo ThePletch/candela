@@ -1,12 +1,22 @@
-json.extract! resolution, :id, :state, :type, :burned_trait_name
+json.key_format! camelize: :lower
+
+json.extract! resolution, :id, :state, :type
+json.burned_trait do
+	json.type resolution.burned_trait_name
+end
+json.conflict do
+	json.extract! resolution.conflict, :id, :dire
+end
 json.player_roll_result resolution.player_roll_result
-json.hope_die_count resolution.active_player.hope_die_count
 json.gm_roll_result resolution.gm_roll_result
-json.active_player resolution.active_player.name
-json.active_player_id resolution.active_player.id
+json.resolver do
+	json.extract! resolution.active_player, :id, :name, :hope_die_count
+end
 json.successful resolution.successful?
-json.narrative_control resolution.narrative_control.name
-json.is_override resolution.parent_resolution.present?
+json.confirmed resolution.state == 'confirmed'
+json.narrative_control do
+	json.extract! resolution.narrative_control, :id, :name
+end
 if resolution.parent_resolution.present?
 	json.parent_resolution do
 		json.partial! 'resolutions/resolution', resolution: resolution.parent_resolution

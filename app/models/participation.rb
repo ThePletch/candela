@@ -25,6 +25,7 @@ class Participation < ApplicationRecord
 	# card order is the characters 0, 1, and 2 in any order
 	validate :card_order_format_is_correct
 	validates :position, uniqueness: { scope: :game }
+	validate :game_not_started, on: :create
 
 	# only one gm per game
 	validates :role, uniqueness: { scope: :game }, if: :gm?
@@ -45,18 +46,7 @@ class Participation < ApplicationRecord
 	end
 
 	def card_ids
-		case game.setup_state
-		when 'nascent', 'traits'
-			[]
-		when 'module_intro', 'character_concept', 'moments'
-			['0', '1']
-		when 'brinks'
-			['0', '1', '2']
-		when 'order_cards'
-			['0', '1', '2', '3']
-		else
-			(card_order or '').split('') + ['3']
-		end
+		(card_order or '012').split('') + ['3']
 	end
 
 	def card_ids_visible_to(participation, as_of: nil)
@@ -64,7 +54,7 @@ class Participation < ApplicationRecord
 		return card_ids if participation == self
 
 		as_of ||= Time.current
-		if card_order
+		if card_order.present?
 			burned_down_to = card_ids.slice_after(top_trait_id(as_of: as_of)).first
 		else
 			# don't show the top card until they've explicitly chosen one
@@ -168,7 +158,11 @@ class Participation < ApplicationRecord
 		when 'moment'
 			moment
 		when 'brink'
-			([self, self.right_player(skip_gm: false)].include?(viewer) or brink_embraced) ? brink : '(hidden)'
+			if brink.present?
+				([self, self.right_player(skip_gm: false)].include?(viewer) or brink_embraced) ? brink : '(hidden)'
+			else
+				nil
+			end
 		end
 	end
 
@@ -208,6 +202,12 @@ class Participation < ApplicationRecord
 	end
 
 	private
+
+	def game_not_started
+		unless game.nascent?
+			self.errors.add(:base, "Cannot join a game that has already started")
+		end
+	end
 
 	def card_order_format_is_correct
 		if card_order.present? and game.ready?

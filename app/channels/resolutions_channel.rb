@@ -2,24 +2,25 @@ class ResolutionsChannel < ApplicationCable::AuthorizedChannel
   def subscribed
     target_conflict = conflict
     reject and return unless target_conflict.game.participations.includes(current_user)
+
     stream_for target_conflict
 
     target_conflict.resolutions.each do |resolution|
-      transmit({identifier: @identifier, **ResolutionsChannel.resolution_parcel(resolution, current_user)})
+      transmit({identifier: @identifier, **ResolutionsChannel.resolution_parcel(resolution)})
     end
   end
 
   def self.broadcast_update(target_resolution)
     broadcast_to(
       target_resolution.conflict,
-      resolution_parcel(target_resolution, current_user)
+      resolution_parcel(target_resolution)
     )
   end
 
   private
 
-  def self.resolution_parcel(resolution, current_user)
-    JSON.parse(ResolutionsController.render(partial: 'resolutions/resolution', locals: {current_user: current_user, resolution: resolution}))
+  def self.resolution_parcel(resolution)
+    JSON.parse(ResolutionsController.render(partial: 'resolutions/resolution', locals: {resolution: resolution}))
   end
 
   def conflict

@@ -2,14 +2,12 @@
 # See README for docker setup and package.json
 # for docker command aliases
 ###############################################################
-version: '3.8' # latest docker-compose
+version: "3.8" # latest docker-compose
 volumes:
   database-data:
   database-test-data:
   node-modules:
   vendor-bundle:
-  gemfile-monitor:
-  package-monitor:
 
 # Mount node_modules as a shared volume, but don't try and overwrite its contents on mount.
 # Use this for every container that needs node_modules except the app to avoid
@@ -38,18 +36,17 @@ services:
       PORT: 3000
       PIDFILE: /tmp/pid/rails.pid
     ports:
-      - '23000:3000'
+      - "23000:3000"
     container_name: candela-app
     volumes:
-      - vendor-bundle:/usr/src/app/vendor/bundle/:cached
+      - type: volume
+        source: vendor-bundle
+        target: /usr/src/app/vendor/bundle/
+        volume:
+          nocopy: true
       - *ssh-pass
       - *cache-app-dir
       - *ssh-keys
-      - type: volume
-        source: gemfile-monitor
-        target: /usr/src/app/monitors/
-        volume:
-          nocopy: true
     tmpfs:
       - /tmp/pid
     depends_on:
@@ -57,6 +54,10 @@ services:
         condition: service_healthy
       redis:
         condition: service_healthy
+      bundle-installer:
+        condition: service_completed_successfully
+      db-migrater:
+        condition: service_completed_successfully
   nextjs:
     <<: *servicedefaults
     build:
@@ -69,62 +70,65 @@ services:
       - *cache-app-dir
       - *ssh-keys
       - type: volume
-        source: package-monitor
-        target: /usr/src/app/monitors/
-        volume:
-          nocopy: true
-      - node-modules:/usr/src/app/node_modules/:cached
-    ports:
-      - '23001:3000'
-    depends_on:
-      api:
-        condition: service_started
-  npm-watcher:
-    <<: *servicedefaults
-    build:
-      <<: *builddefaults
-      dockerfile: Dockerfile-next
-      target: npm-watcher
-    volumes:
-      - *ssh-pass
-      - *cache-app-dir
-      - *ssh-keys
-      - package-monitor:/usr/src/app/monitors/
-      - type: volume
         source: node-modules
         target: /usr/src/app/node_modules/
         volume:
           nocopy: true
+    ports:
+      - "23001:3000"
     depends_on:
-      nextjs:
+      api:
         condition: service_started
-  gemfile-watcher:
+      npm-installer:
+        condition: service_completed_successfully
+  npm-installer:
     <<: *servicedefaults
     build:
       <<: *builddefaults
-      dockerfile: Dockerfile-rails
-      target: gemfile-watcher
+      dockerfile: Dockerfile-next
+      target: npm-installer
     volumes:
       - *ssh-pass
       - *cache-app-dir
       - *ssh-keys
-      - gemfile-monitor:/usr/src/app/monitors/
+      - node-modules:/usr/src/app/node_modules/
+  bundle-installer:
+    <<: *servicedefaults
+    build:
+      <<: *builddefaults
+      dockerfile: Dockerfile-rails
+      target: bundle-installer
+    volumes:
+      - *ssh-pass
+      - *cache-app-dir
+      - *ssh-keys
+      - vendor-bundle:/usr/src/app/vendor/bundle/
+  db-migrater:
+    <<: *servicedefaults
+    build:
+      <<: *builddefaults
+      dockerfile: Dockerfile-rails
+      target: db-migrater
+    volumes:
+      - *ssh-pass
+      - *cache-app-dir
+      - *ssh-keys
       - type: volume
         source: vendor-bundle
         target: /usr/src/app/vendor/bundle/
         volume:
           nocopy: true
     depends_on:
-      api:
-        condition: service_started
+      postgres:
+        condition: service_healthy
   redis:
     container_name: candela-redis
     image: redis
     ports:
-      - '26379:6379'
+      - "26379:6379"
     restart: on-failure
     healthcheck:
-      test: ['CMD', 'redis-cli', '-h', 'localhost', '-p', '6379', 'ping']
+      test: ["CMD", "redis-cli", "-h", "localhost", "-p", "6379", "ping"]
       interval: 5s
       timeout: 4s
       retries: 3
@@ -137,15 +141,15 @@ services:
       - POSTGRES_DB=development
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
-      - '25432:5432'
+      - "25432:5432"
     restart: on-failure
     volumes:
       - database-data:/var/lib/postgresql/data/:cached # persist data even if container shuts down
-    entrypoint: 'docker-entrypoint.sh -i'
+    entrypoint: "docker-entrypoint.sh -i"
     healthcheck:
       # we have to hardcode the host and database because health checks are configured during build,
       # and docker-compose env vars aren't available in the build
-      test: 'pg_isready -h localhost -U dev -d development'
+      test: "pg_isready -h localhost -U dev -d development"
       interval: 5s
       timeout: 4s
       retries: 3
@@ -159,15 +163,15 @@ services:
       - POSTGRES_DB=test
       - POSTGRES_HOST_AUTH_METHOD=trust
     ports:
-      - '25433:5432'
+      - "25433:5432"
     restart: on-failure
     volumes:
       - database-test-data:/var/lib/postgresql/data/:cached # persist data even if container shuts down
-    entrypoint: 'docker-entrypoint.sh -i'
+    entrypoint: "docker-entrypoint.sh -i"
     healthcheck:
       # we have to hardcode the host and database because health checks are configured during build,
       # and docker-compose env vars aren't available in the build
-      test: 'pg_isready -h localhost -U dev -d test'
+      test: "pg_isready -h localhost -U dev -d test"
       interval: 5s
       timeout: 4s
       retries: 3

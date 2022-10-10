@@ -1,10 +1,14 @@
-import type { Truth as TruthObject } from "@candela/types/truth";
+import type { Truth as TruthObject } from '@candela/types/truth';
 
-export default function Truth(props: TruthObject) {
+export default function Truth({ description, speaker }: TruthObject) {
   return (
     <div>
-      <span>{props.description}</span>
-      <em> - {props.speaker.name}</em>
+      <span>{description}</span>
+      <em>
+        {' '}
+        -
+        {speaker.name}
+      </em>
     </div>
   );
 }

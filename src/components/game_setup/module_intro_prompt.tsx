@@ -1,45 +1,38 @@
-import Button from 'react-bootstrap/Button';
+import Toast from 'react-bootstrap/Toast';
 
-import SetupForm from "@candela/components/game_setup/setup_form";
-import type { SelfParticipation } from "@candela/types/participation";
+import ProceedButton from '@candela/components/game_setup/proceed_button';
 import type { GameProps } from '@candela/types/props';
 import { MeContext } from '@candela/util/contexts';
-import { useHttpState, useSubscriptionContext } from "@candela/util/state";
+import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
 export default function ModuleIntroPrompt(props: GameProps) {
-  const { loading, makeRequest: advanceStage } = useHttpState(
+  const moveOnToConcept = useHttpState(
     `api/games/${props.game.id}/advance_setup_state`,
-    "PATCH",
-    { current_setup_state: "module_intro" }
+    'PATCH',
+    props.me.guid,
+    { current_setup_state: 'module_intro' },
   );
 
-  return useSubscriptionContext(MeContext, "Loading your information...", (me) => {
-    function actions(participation: SelfParticipation) {
-      if (participation.role === "gm") {
+  return useSubscriptionContext(
+    MeContext(props.me.guid),
+    'Loading your information...',
+    (me) => {
+      if (me.role === 'gm') {
         return (
-          <div>
-            <em>Introduce the scenario for the game to your players.</em>
-            <Button variant="primary"
-              className="d-block"
-              disabled={loading}
-              onClick={() => advanceStage()}
-            >
-              Done introducing scenario
-            </Button>
-          </div>
+          <ProceedButton
+            label="Done introducing scenario"
+            httpRequest={moveOnToConcept}
+            disabled={false}
+            disabledTooltip=""
+          />
         );
       }
 
-      return null;
-    }
-
-    function status(participation: SelfParticipation) {
-      if (participation.role === "player") {
-        return <em>GM is introducing the scenario...</em>;
-      }
-      return null;
-    }
-
-    return SetupForm(actions(me), status(me))
-  });
+      return (
+        <Toast>
+          <Toast.Body>The GM is introducing the scenario.</Toast.Body>
+        </Toast>
+      );
+    },
+  );
 }

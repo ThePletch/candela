@@ -1,3 +1,5 @@
+import lodashIsEmpty from 'lodash/isEmpty';
+
 import type { Game } from '@candela/types/game';
 import type { Participation } from '@candela/types/participation';
 
@@ -23,7 +25,7 @@ function isPending(
     case 'brinks':
       return !participation.hasWrittenBrink;
     case 'order_cards':
-      return isPlayer && !participation.cardOrder;
+      return isPlayer && lodashIsEmpty(participation.cardOrder);
     default:
       return false;
   }

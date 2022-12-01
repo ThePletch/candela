@@ -3,14 +3,16 @@ json.key_format! camelize: :lower
 is_self = viewer.id == participation.id
 
 json.extract! participation, :id, :name, :role, :position, :character_concept, :hope_die_count
-json.card_order participation.card_order.try(:split, '').try(:map) do |card_id|
+json.card_order (participation.card_order.try(:split, '').try(:map) do |card_id|
   Participation::CARD_MAPPING[card_id]
-end or []
+end.to_a) or []
 json.game_id participation.game_id
 json.alive participation.alive?
 
 burned_traits = participation.burned_traits
-json.traits do
+json.set! 'traits' do
+  # necessary so this key isn't omitted if empty
+  json.set! :dummy, ''
   participation.card_ids_visible_to(viewer).each do |card_id|
     card_value = participation.trait_value(card_id, viewer: viewer)
     # don't show cards that don't have a set value yet

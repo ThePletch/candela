@@ -1,3 +1,4 @@
+import lodashIsEmpty from 'lodash/isEmpty';
 import ListGroup from 'react-bootstrap/ListGroup';
 
 import TraitCard from '@candela/components/minimap/tooltip/trait_card';
@@ -37,9 +38,18 @@ export default function TraitCardList({
     }
   }
 
+  const defaultCardOrder: TraitType[] = [
+    'virtue',
+    'vice',
+    'moment',
+    'brink',
+  ];
+
+  const cardOrder = lodashIsEmpty(participation.cardOrder) ? defaultCardOrder : participation.cardOrder;
+
   return (
     <ListGroup>
-      {participation.cardOrder.map((trait, i) => {
+      {cardOrder.map((trait, i) => {
         const traitInfo = participation.traits[trait];
         if (traitInfo === undefined) {
           return null;
@@ -50,7 +60,7 @@ export default function TraitCardList({
             key={trait}
             giverRole={getGiver(trait).role}
             holderRole={participation.role}
-            isTop={i === 0}
+            isTop={i === 0 && !lodashIsEmpty(participation.cardOrder)}
             type={trait}
             value={traitInfo.value}
           />

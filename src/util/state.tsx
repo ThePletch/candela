@@ -46,6 +46,7 @@ export function useHttpState<T = void>(
       );
       const json = await rawResponse.json();
       if (rawResponse.status >= 400) {
+        console.error(json);
         throw new Error(json);
       }
       setResponse(json);
@@ -153,13 +154,8 @@ export function Subscription<T, LoadingType, ParcelType = T>({
 
   useEffect(() => {
     if (subscription !== null) {
-      console.warn(
-        'Subscribing to channel while subscription already defined.',
-      );
-      console.warn(subscription);
+      subscription?.unsubscribe();
     }
-
-    console.debug(channel, params);
 
     setSubscription(
       consumer().subscriptions.create(

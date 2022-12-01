@@ -30,7 +30,7 @@ export default function BrinkPrompt({ game, me }: GameProps) {
       const brinkForm = (
         <PopupForm
           label="Write your brink"
-          formComplete={me.writtenBrink !== undefined}
+          formComplete={me.writtenBrink !== null}
         >
           <BrinkForm participation={me} allParticipations={participations} />
         </PopupForm>

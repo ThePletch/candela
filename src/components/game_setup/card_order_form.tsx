@@ -1,3 +1,4 @@
+import lodashIsEmpty from 'lodash/isEmpty';
 import { type FormEvent, useEffect, useRef } from 'react';
 import Button from 'react-bootstrap/Button';
 import Form from 'react-bootstrap/Form';
@@ -20,7 +21,7 @@ function CardListItem({
   return (
     <ListGroup.Item
       className={sortable ? '' : 'disabled'}
-      key={index}
+      key={name}
       data-id={index}
     >
       <span>{name}</span>
@@ -33,8 +34,11 @@ export default function CardOrderForm({
 }: {
   participation: SelfParticipation;
 }) {
-  const sortableCards = ['virtue', 'vice', 'moment'];
+  const defaultSortOrder = ['virtue', 'vice', 'moment'];
+  const myCardOrder = participation.cardOrder;
 
+  const formCardOrder = lodashIsEmpty(myCardOrder) ? defaultSortOrder : myCardOrder;
+  console.log(participation);
   const { loading, makeRequest } = useHttpState(
     `api/participations/${participation.id}`,
     'PATCH',
@@ -51,14 +55,15 @@ export default function CardOrderForm({
         filter: '.disabled',
       });
     }
-  }, [cardList.current]);
+  });
 
   const submitCardOrder = (e: FormEvent) => {
     e.preventDefault();
     if (sortManager) {
       // slicing out the first three elements, since we aren't tracking brink's ordering
       const cardOrder = sortManager?.toArray().join('').slice(0, 3);
-      makeRequest({
+      console.log(cardOrder);
+      return makeRequest({
         participation: {
           card_order: cardOrder,
         },
@@ -67,6 +72,7 @@ export default function CardOrderForm({
       console.warn(
         'Sort manager not initialized during sort submission, doing nothing.',
       );
+      return Promise.resolve();
     }
   };
 
@@ -80,8 +86,8 @@ export default function CardOrderForm({
         brink must always be on the bottom.
       </div>
       <ListGroup className="card-order-group" ref={cardList}>
-        {sortableCards.map((name, i) => (
-          <CardListItem key={name} name={name} index={i} sortable />
+        {formCardOrder.map((name) => (
+          <CardListItem key={name} name={name} index={defaultSortOrder.indexOf(name)} sortable />
         ))}
         <CardListItem name="brink" index={3} sortable={false} />
       </ListGroup>

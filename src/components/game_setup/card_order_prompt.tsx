@@ -8,7 +8,7 @@ import { GameParticipationsContext } from '@candela/util/contexts';
 import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
 function playerWithCardOrderUnfilled(participation: Participation) {
-  return participation.role === 'player' && !participation.cardOrder;
+  return participation.role === 'player' && lodashIsEmpty(participation.cardOrder);
 }
 
 function playersWithUnfilledCardOrder(participations: Participation[]) {
@@ -28,7 +28,6 @@ export default function CardOrderPrompt({ game, me }: GameProps) {
     'Loading players...',
     (participations) => {
       const unfilledCardOrderPlayers = playersWithUnfilledCardOrder(participations);
-
       if (me.role === 'gm') {
         return (
           <ProceedButton

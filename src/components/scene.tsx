@@ -107,46 +107,48 @@ function ConflictManager({
     createConflict({ dire: true });
   }
 
-  return useSubscriptionContext(
-    ConflictResolutionsContext(lastConflict?.id || 0),
-    'Loading conflict info...',
-    (resolutions) => {
-      if (resolutions.every((r) => !r.confirmed)) {
-        // Don't render conflict starting options if the latest conflict is unresolved.
-        return null;
-      }
+  const conflictButtons = <ButtonGroup style={{ width: '100%' }}>
+    <Button
+      variant="primary"
+      disabled={createLoading}
+      onClick={() => createUndireConflict()}
+    >
+      Start a conflict
+    </Button>
+    <Button
+      variant="danger"
+      disabled={createLoading}
+      onClick={() => createDireConflict()}
+    >
+      Start a dire conflict
+    </Button>
+  </ButtonGroup>;
 
-      if (me.role === 'gm') {
-        return (
-          <ButtonGroup style={{ width: '100%' }}>
-            <Button
-              variant="primary"
-              disabled={createLoading}
-              onClick={() => createUndireConflict()}
-            >
-              Start a conflict
-            </Button>
-            <Button
-              variant="danger"
-              disabled={createLoading}
-              onClick={() => createDireConflict()}
-            >
-              Start a dire conflict
-            </Button>
-          </ButtonGroup>
-        );
-      }
+  const sceneUnderwayToast = <Toast>
+    <Toast.Header closeButton={false}>
+      The scene is underway.
+    </Toast.Header>
+    <Toast.Body>When a conflict occurs, you will be notified.</Toast.Body>
+  </Toast>;
 
-      return (
-        <Toast>
-          <Toast.Header closeButton={false}>
-            The scene is underway.
-          </Toast.Header>
-          <Toast.Body>When a conflict occurs, you will be notified.</Toast.Body>
-        </Toast>
-      );
-    },
-  );
+  const interfaceToRender = me.role === 'gm' ? conflictButtons : sceneUnderwayToast;
+
+  if (lastConflict) {
+    return useSubscriptionContext(
+      ConflictResolutionsContext(lastConflict.id),
+      'Loading conflict info...',
+      (resolutions) => {
+        if (resolutions.every((r) => !r.confirmed)) {
+          // Don't render conflict starting options if the latest conflict is unresolved.
+          return null;
+        }
+
+        return interfaceToRender;
+      },
+    );
+  }
+
+  return interfaceToRender;
 }
 
 function Scene(props: { scene: SceneType; me: SelfParticipation }) {
@@ -155,12 +157,15 @@ function Scene(props: { scene: SceneType; me: SelfParticipation }) {
     SceneConflictsContext(scene.id),
     'Loading conflicts...',
     (conflicts) => {
+      console.log(conflicts);
+      const lastConflict = conflicts.length > 0 ? conflicts[conflicts.length - 1] : undefined;
+
       function OptionalConflictManager() {
         if (scene.state === 'truths_stated') {
           return (
             <ConflictManager
               {...props}
-              lastConflict={conflicts[conflicts.length - 1]}
+              lastConflict={lastConflict}
             />
           );
         }
@@ -183,13 +188,14 @@ function Scene(props: { scene: SceneType; me: SelfParticipation }) {
         );
       }
 
-      function ActiveConflict() {
-        const lastConflict = conflicts[conflicts.length - 1];
-        if (lastConflict) {
-          return <Conflict me={me} conflict={lastConflict} />;
-        }
-        return null;
-      }
+      const conflictElements = lastConflict ? <ModelListSubscription
+        channel="ResolutionsChannel"
+        params={{ conflict_id: lastConflict.id, guid: me.guid }}
+        context={ConflictResolutionsContext(lastConflict.id)}
+      >
+        <OptionalConflictManager />
+        <Conflict me={me} conflict={lastConflict} />
+      </ModelListSubscription> : <OptionalConflictManager />;
 
       return (
         <>
@@ -198,8 +204,7 @@ function Scene(props: { scene: SceneType; me: SelfParticipation }) {
             truthsRemaining={scene.truthsRemaining}
           />
           <OptionalTruthsPrompt />
-          <OptionalConflictManager />
-          <ActiveConflict />
+          {conflictElements}
         </>
       );
     },

@@ -11,7 +11,6 @@ import { ConflictResolutionsContext } from '@candela/util/contexts';
 
 import {
   type HttpState,
-  ModelListSubscription,
   useHttpState,
   useSubscriptionContext,
 } from '@candela/util/state';
@@ -98,7 +97,7 @@ function PlayerConflictOptions({ conflict, me }: ConflictProps) {
   return <h4>You have passed on and cannot face this conflict.</h4>;
 }
 
-function Conflict({ conflict, me }: ConflictProps) {
+export default function Conflict({ conflict, me }: ConflictProps) {
   const { loading, makeRequest: finishNarration } = useHttpState(
     `api/conflicts/${conflict.id}/finish_narration`,
     'PATCH',
@@ -118,13 +117,15 @@ function Conflict({ conflict, me }: ConflictProps) {
           return (
             <PopupForm label="Narrate the conflict" formComplete={false}>
               <p>Narrate the conflict. What&apos;s happening?</p>
-              <Button
-                variant="primary"
-                disabled={loading}
-                onClick={() => finishNarration()}
-              >
-                Finish Narration
-              </Button>
+              <div style={{ display: 'grid' }}>
+                <Button
+                  variant="primary"
+                  disabled={loading}
+                  onClick={() => finishNarration()}
+                >
+                  Finish Narration
+                </Button>
+              </div>
             </PopupForm>
           );
         }
@@ -146,7 +147,7 @@ function Conflict({ conflict, me }: ConflictProps) {
           <PopupForm label="View conflict results" formComplete={false}>
             <Resolution
               gameId={me.gameId}
-              resolution={activeResolutions[0]}
+              resolution={activeResolutions[activeResolutions.length - 1]}
               me={me}
             />
           </PopupForm>
@@ -169,20 +170,5 @@ function Conflict({ conflict, me }: ConflictProps) {
         </PopupForm>
       );
     },
-  );
-}
-
-export default function ConflictWithSubscriptions({
-  conflict,
-  me,
-}: ConflictProps) {
-  return (
-    <ModelListSubscription
-      channel="ResolutionsChannel"
-      params={{ conflict_id: conflict.id, guid: me.guid }}
-      context={ConflictResolutionsContext(conflict.id)}
-    >
-      <Conflict conflict={conflict} me={me} />
-    </ModelListSubscription>
   );
 }

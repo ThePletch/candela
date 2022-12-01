@@ -122,16 +122,14 @@ export default function CandleIndicator({
   dicePool: number;
 }) {
   let candleUpdater: NodeJS.Timer;
-  let dicePoolDelay: NodeJS.Timer;
   let dicePoolUpdater: NodeJS.Timer;
 
   const [litState, setLit] = useState(0);
-  const [dicePoolState, setDicePool] = useState(dicePool);
+  const [dicePoolState, setDicePool] = useState(0);
 
   function cleanup() {
-    clearInterval(candleUpdater);
-    clearInterval(dicePoolUpdater);
-    clearInterval(dicePoolDelay);
+    clearTimeout(candleUpdater);
+    clearTimeout(dicePoolUpdater);
   }
 
   function incrementCandleLitness() {
@@ -139,8 +137,6 @@ export default function CandleIndicator({
       setLit(litState - 1);
     } else if (litState < lit) {
       setLit(litState + 1);
-    } else if (litState === lit) {
-      clearInterval(candleUpdater);
     }
   }
 
@@ -149,40 +145,34 @@ export default function CandleIndicator({
       setDicePool(dicePoolState - 1);
     } else if (dicePoolState < dicePool) {
       setDicePool(dicePoolState + 1);
-    } else if (dicePoolState === dicePool) {
-      clearInterval(dicePoolUpdater);
     }
   }
 
   function setUpCandleUpdater() {
-    clearInterval(candleUpdater);
-    candleUpdater = setInterval(incrementCandleLitness, candleLightDelayMs);
+    clearTimeout(candleUpdater);
+    candleUpdater = setTimeout(incrementCandleLitness, candleLightDelayMs);
   }
 
   function setUpDicePoolUpdater() {
-    clearInterval(dicePoolDelay);
-    clearInterval(dicePoolUpdater);
-    dicePoolUpdater = setInterval(incrementDicePool, candleLightDelayMs);
+    clearTimeout(dicePoolUpdater);
+    dicePoolUpdater = setTimeout(incrementDicePool, candleLightDelayMs);
   }
-
-  useEffect(() => {
-    setUpCandleUpdater();
-    dicePoolDelay = setTimeout(setUpDicePoolUpdater, candleLightDelayMs / 2);
-
-    return cleanup;
-  }, []);
 
   useEffect(() => {
     if (litState !== lit) {
       setUpCandleUpdater();
     }
 
+    return cleanup;
+  }, [litState]);
+
+  useEffect(() => {
     if (dicePoolState !== dicePool) {
       setUpDicePoolUpdater();
     }
 
     return cleanup;
-  }, [litState, dicePoolState]);
+  }, [dicePoolState]);
 
   function renderCandle(index: number) {
     return (

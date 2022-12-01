@@ -10,7 +10,7 @@ import type {
 } from '@candela/types/participation';
 import type { Resolution } from '@candela/types/resolution';
 import { GameParticipationsContext } from '@candela/util/contexts';
-import { getTopTrait } from '@candela/state-helpers/participations';
+import { getTopTrait, getTraitId } from '@candela/state-helpers/participations';
 import { useHttpState, useSubscriptionContext } from '@candela/util/state';
 
 import DiceRoll from '@candela/components/resolution/dice_roll';
@@ -33,7 +33,7 @@ function BurnTraitButton({ me, resolution }: ResolutionProps) {
     {
       type: 'TraitResolution',
       resolution_id: resolution.id,
-      burned_trait_type: myTopTrait,
+      burned_trait_type: myTopTrait && getTraitId(myTopTrait),
     },
   );
 
@@ -256,6 +256,7 @@ function ResolutionAcceptanceOptions({
   return (
     <em>
       Waiting for
+      {' '}
       {resolution.resolver.name}
       {' '}
       to resolve this conflict.

@@ -1,4 +1,4 @@
-import { forwardRef } from 'react';
+import { forwardRef, type ForwardedRef } from 'react';
 import Badge from 'react-bootstrap/Badge';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Popover from 'react-bootstrap/Popover';
@@ -59,11 +59,11 @@ function YouBadge({ isSelf }: { isSelf: boolean }) {
   return null;
 }
 
-const ParticipationIcon = forwardRef<SVGSVGElement, MinimapParticipationProps>(
-  (forwardedProps, ref) => {
+const ParticipationIcon = forwardRef<SVGSVGElement, Omit<MinimapParticipationProps, 'allParticipations'>>(
+  (props, ref) => {
     const {
-      participation, x, y, isSelf, game,
-    } = forwardedProps;
+      participation, x, y, isSelf, game, ...forwardedProps
+    } = props;
     if (participation.role === 'gm') {
       return (
         <svg {...forwardedProps} ref={ref}>
@@ -116,64 +116,38 @@ const ParticipationIcon = forwardRef<SVGSVGElement, MinimapParticipationProps>(
   },
 );
 
-function ParticipationInfo({
-  participation,
-  allParticipations,
-  isSelf,
-  ...subprops
-}: {
-  participation: Participation;
-  allParticipations: Participation[];
-  isSelf: boolean;
-}) {
-  return (
-    <Popover className="text-body" id={participation.name} {...subprops}>
-      <Popover.Header>
-        {participation.name}
-        <YouBadge isSelf={isSelf} />
-        <Badge bg="info" className="float-right">
-          {participation.role}
-        </Badge>
-        <ParticipationDeathInfo participation={participation} />
-      </Popover.Header>
-      <Popover.Body>
-        {participation.characterConcept}
-        <HopeDieIndicator participation={participation} />
-        <TraitCardList
-          participation={participation}
-          allParticipations={allParticipations}
-        />
-      </Popover.Body>
-    </Popover>
-  );
-}
-
 function MinimapParticipation(props: MinimapParticipationProps) {
   const {
     participation, allParticipations, isSelf, x, y, game,
   } = props;
 
-  // we have to extend unknown here so React doesn't parse the angle brackets
-  // as JSX
-  // eslint-disable-next-line @typescript-eslint/no-unnecessary-type-constraint
-  const renderParticipationInfo = <K extends unknown>(additionalProps: K) => (
-    <ParticipationInfo
-      participation={participation}
-      allParticipations={allParticipations}
-      isSelf={isSelf}
-      {...additionalProps}
-    />
-  );
+  const participationInfo = <Popover className="text-body" id={participation.name}>
+    <Popover.Header>
+      {participation.name}
+      <YouBadge isSelf={isSelf} />
+      <Badge bg="info" className="float-right">
+        {participation.role}
+      </Badge>
+      <ParticipationDeathInfo participation={participation} />
+    </Popover.Header>
+    <Popover.Body>
+      {participation.characterConcept}
+      <HopeDieIndicator participation={participation} />
+      <TraitCardList
+        participation={participation}
+        allParticipations={allParticipations}
+      />
+    </Popover.Body>
+  </Popover>;
 
   return (
-    <OverlayTrigger placement="auto" overlay={renderParticipationInfo}>
+    <OverlayTrigger placement="auto" overlay={participationInfo}>
       <ParticipationIcon
         game={game}
         isSelf={isSelf}
         x={x}
         y={y}
         participation={participation}
-        allParticipations={allParticipations}
       />
     </OverlayTrigger>
   );

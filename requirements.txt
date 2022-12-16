@@ -1,0 +1,79 @@
+requirements
+
+minimap icon
+    X role (square [gm] vs circle [player])
+    X is it you? (bright vs muted color)
+    X alive/dead (gray/red border)
+    X pending action ('...' badge in bottom right?)
+
+arrows between icons during setup phase
+    - arrows from/to your icon should be brighter
+    - arrows have a tooltip indicating what they represent
+
+minimap tooltip
+    X name
+    X role
+    X concept
+    X hope dice
+    X cards
+        X visible to viewer
+        X top card highlighted as active
+        - [opt] cards indicate why you can see them? might be too busy
+    X note indicating what we're waiting for them to do, if they're marked as pending action
+
+toast for actions occurring
+    what does it need to cover?
+
+improvements to look into
+    * [New feature] Add option to darken candle and claim narrative control for all players (only if their player doesn't already have narrative control from the roll). Should have confirm dialog.
+    * In resolution rundown, indicate how narrative control was determined
+    * Show why you can see a card on the card (bigger feature)
+    * The GM should have a fixed character concept to fill space in their tooltip a bit. It should be italicized, to differentiate it.
+    * Setup prompt buttons should update their text to indicate that you can still change your answers after submitting - greying out implies that they're fixed
+    * 'Introduce scenario' should include a prompt for the GM telling them what they're expected to do at that step.
+        * 'Done introducing scenario' -> 'Proceed to character concepts'
+    * Disabled 'proceed to X' buttons should be gray, not blue
+    * Add tooltips for 'proceed to X' buttons to briefly indicate what the next step is
+    * Pending marker should display for GM when players are done with setup steps
+    * Setup prompts should have a header instead of just an italicized line
+    * Always display name next to minimap icons
+    * Probably not worth displaying the dice pool/candle counter until the game starts
+        * Also, it looks like a progress bar. It should either work like one or be updated to not be full-width.
+
+bugs
+    style bugs
+    * Role badge on index page is illegibly dark
+    * No margin between role badge and name for small minimap tooltips
+    X GM brink shouldn't be highlighted as the "top card" since GMs don't have a card order
+    X "Top card" shouldn't be highlighted during setup until card order is chosen
+    X "Narrate the conflict" finish button should be full width
+
+    warnings
+    * Transfer arrows don't have unique keys (probably related to the left/right player data bug)
+    * popper complains about using `margin` in tooltips, likely bootstrap incompatibility. might need a wrapper div?
+
+    channel behavior inconsistencies that go away on reload
+    X On initial load, player 1's virtue/vice arrows point at themselves
+        * This is likely because left/right players are considered part of a player's data parcel. We should calculate them on the fly rather than send them from the backend.
+    * Candles not lighting on game state update
+        X Partially resolved - not happening for game start
+        * Dice pool not updating when game dice pool changes
+            * Probably because only game updates trigger a pool update
+    ? Can't see brinks on the player you passed them to when you advance to card order
+        * Probably because participation updates aren't triggered by game updates.
+        * Should be fixable by avoiding using game state in calculations - we can determine visibility of records by position of viewer vs viewed in the game rather than game status
+    X Card ordering isn't reflected in player info after game starts
+    * "Loading resolutions" persists until reload every time a conflict updates
+    * Confirming resolution doesn't update conflict
+        * Calculate whether conflict is resolved on client side rather than server side
+
+    direct bugs
+    * Burned cards not showing as burned (and thus not affecting 'top card' display)
+    X you can add a resolution to a resolved conflict directly
+    X Card ordering reverts to original order on submission
+    * Toasts and UI elements can block interaction with the minimap
+    X 'cannot override an override' validation triggered erroneously
+    * resolving a conflict doesn't properly hide the conflict upstream
+    X 'loading resolutions' keeps displaying during conflict renders until reload
+
+still need to evaluate truth stating/end of game behavior

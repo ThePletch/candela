@@ -58,10 +58,14 @@ export default function TraitsForm({
             possesses. It should create more problems than it solves.
           </li>
         </ul>
-        <span>
+        <p>
+          You'll be writing a virtue for the player to your right, and a vice for
+          the player to your left.
+        </p>
+        <p>
           You can burn your virtue or vice to reroll all the ones rolled in a
           conflict, but only by acting in accordance with the trait.
-        </span>
+        </p>
       </div>
 
       <Form.Group>

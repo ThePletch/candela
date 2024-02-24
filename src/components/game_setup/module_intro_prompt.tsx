@@ -19,12 +19,20 @@ export default function ModuleIntroPrompt(props: GameProps) {
     (me) => {
       if (me.role === 'gm') {
         return (
-          <ProceedButton
-            label="Done introducing scenario"
-            httpRequest={moveOnToConcept}
-            disabled={false}
-            disabledTooltip=""
-          />
+          <>
+            <Toast>
+              <Toast.Body>
+                Introduce the scenario to the players, including the setting
+                and how the world has become dark in the last few days to weeks.
+              </Toast.Body>
+            </Toast>
+            <ProceedButton
+              label="Done introducing scenario"
+              httpRequest={moveOnToConcept}
+              disabled={false}
+              disabledTooltip=""
+            />
+          </>
         );
       }
 

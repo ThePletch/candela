@@ -16,6 +16,9 @@ import {
   useSubscriptionContext,
 } from '@candela/util/state';
 
+// TODO LOW PRI - websocket connection for browse page for live updates,
+//   including "game closed"
+
 function GameParticipation({
   participation,
 }: {

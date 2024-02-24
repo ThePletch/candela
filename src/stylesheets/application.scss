@@ -15,6 +15,7 @@
 
 .candle-indicator {
   @extend .background-svg;
+  background-color: #000;
 
   // SASS gets upset by comparing vw/vh, but this is valid raw CSS, so we can just
   // pass it through literally.

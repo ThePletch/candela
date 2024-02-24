@@ -1,37 +1,14 @@
-import Button from 'react-bootstrap/Button';
-import Form from 'react-bootstrap/Form';
-import { useForm } from 'react-hook-form';
+import { ParticipationAttributeForm } from '@candela/components/game_setup/participation_attribute_form';
 
-import type { SelfParticipation } from '@candela/types/participation';
-import { useHttpState } from '@candela/util/state';
+const information = (<>
+  <em>Describe your character concept in a sentence or three.</em>
+  <div>
+    This should include their name, general appearance, and overall
+    personality.
+  </div>
+</>);
 
-export default function CharacterConceptForm({
-  me,
-}: {
-  me: SelfParticipation;
-}) {
-  const { register, handleSubmit } = useForm();
-  const { loading, makeRequest } = useHttpState(
-    `api/participations/${me.id}`,
-    'PATCH',
-    me.guid,
-  );
-
-  return (
-    <Form onSubmit={handleSubmit(makeRequest)}>
-      <em>Describe your character concept in a sentence or three.</em>
-      <div>
-        This should include their name, general appearance, and overall
-        personality.
-      </div>
-      <Form.Control
-        as="textarea"
-        {...register('participation[character_concept]', { required: true })}
-      />
-
-      <Button variant="primary" disabled={loading} type="submit">
-        Submit
-      </Button>
-    </Form>
-  );
-}
+export default ParticipationAttributeForm({
+  fieldname: 'characterConcept',
+  information,
+});

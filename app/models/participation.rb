@@ -13,7 +13,13 @@ class Participation < ApplicationRecord
 							.arel.exists) }
 	scope :dead, -> { players.joins(resolutions: :conflict).where(conflicts: {dire: true}, resolutions: {succeeded: false}) }
 
-  after_commit BroadcastChange.new([ParticipationChannel, ParticipationsChannel])
+  after_commit BroadcastChange.new(
+  	[ParticipationChannel, ParticipationsChannel],
+  	[
+  		[GameChannel, Proc.new(&:game)],
+  		[GamesChannel, Proc.new(&:game)],
+  	],
+  )
 
 	before_create do |record|
 		record.guid = SecureRandom.uuid

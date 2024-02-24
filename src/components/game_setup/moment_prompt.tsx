@@ -1,3 +1,5 @@
+import Toast from 'react-bootstrap/Toast';
+
 import MomentForm from '@candela/components/game_setup/moment_form';
 import ProceedButton from '@candela/components/game_setup/proceed_button';
 import PopupForm from '@candela/components/popup_form';
@@ -40,12 +42,21 @@ export default function MomentPrompt(props: GameProps) {
 
       if (me.role === 'gm') {
         return (
-          <ProceedButton
-            label="Proceed to Brinks"
-            httpRequest={advanceToBrinks}
-            disabled={unfilledMomentPlayers.length > 0}
-            disabledTooltip="Some players are still writing their moment."
-          />
+          <>
+            <Toast>
+              <Toast.Body>
+                The players are writing their moments. Pay attention to these.
+                You'll want to look for chances throughout the story to let players
+                get their moments of hope.
+              </Toast.Body>
+            </Toast>
+            <ProceedButton
+              label="Proceed to Brinks"
+              httpRequest={advanceToBrinks}
+              disabled={unfilledMomentPlayers.length > 0}
+              disabledTooltip="Some players are still writing their moment."
+            />
+          </>
         );
       }
 

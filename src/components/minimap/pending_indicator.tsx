@@ -2,6 +2,7 @@ import lodashIsEmpty from 'lodash/isEmpty';
 
 import type { Game } from '@candela/types/game';
 import type { Participation } from '@candela/types/participation';
+import { Coordinate } from '@candela/types/svg';
 
 // TODO Mark GM pending when no players are pending in a player-driven step
 function isPending(
@@ -32,28 +33,26 @@ function isPending(
 }
 
 export default function PendingIndicator({
-  x,
-  y,
+  position,
   game,
   participation,
 }: {
-  x: number;
-  y: number;
+  position: Coordinate;
   game: Game;
   participation: Participation;
 }) {
   if (isPending(participation, game.setupState)) {
+    const [x, y] = position;
     return (
       <text
         x={x}
         y={y}
-        dy={2.5}
-        dx={1}
+        textAnchor="middle"
+        dy={0.75}
         stroke="none"
-        fill="#ffffff"
-        style={{ fontSize: '3px' }}
+        style={{ fontSize: '2px' }}
       >
-        ...
+        ⏳
       </text>
     );
   }

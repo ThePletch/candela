@@ -5,12 +5,12 @@ import {
   getLeftParticipation,
   getRightParticipation,
 } from '@candela/state-helpers/participations';
-import { distributedPointX, distributedPointY } from '@candela/util/circle';
+import { distributedPointAngleRadians, positionFor, tangentFrom } from '@candela/util/circle';
+import { TRAIT_ICON_DISTANCE } from './trait_icons';
 
 const youOutgoingColor = '#6666DD';
 const youIncomingColor = '#3333BB';
 const otherColor = '#555555';
-const minimapIconDistance = 40;
 
 function color(fromMe: boolean, toMe: boolean): string {
   if (fromMe) {
@@ -37,7 +37,7 @@ export default function TransferArrows({
         <>
           {participations
             .filter((p) => p.role === 'player')
-            .map((p) => {
+            .flatMap((p) => {
               const leftPlayer = getLeftParticipation(p, participations, {
                 skipGm: true,
               });
@@ -52,27 +52,12 @@ export default function TransferArrows({
                 <Arrow
                   key={`${p.id}-${rightPlayer.id}-virtue`}
                   color={color(fromMe, virtueToMe)}
-                  startX={distributedPointX(
-                    minimapIconDistance,
-                    p.position,
-                    participations.length,
+                  startCoordinate={positionFor(p.position, participations.length)}
+                  endCoordinate={tangentFrom(
+                    positionFor(rightPlayer.position, participations.length),
+                    distributedPointAngleRadians(rightPlayer.position, participations.length),
+                    TRAIT_ICON_DISTANCE,
                   )}
-                  startY={distributedPointY(
-                    minimapIconDistance,
-                    p.position,
-                    participations.length,
-                  )}
-                  endX={distributedPointX(
-                    minimapIconDistance,
-                    rightPlayer.position,
-                    participations.length,
-                  )}
-                  endY={distributedPointY(
-                    minimapIconDistance,
-                    rightPlayer.position,
-                    participations.length,
-                  )}
-                  lateralOffset={-minimapIconDistance / 4}
                   title={`${p.name} is writing a virtue for ${rightPlayer.name}`}
                 />
               );
@@ -80,27 +65,15 @@ export default function TransferArrows({
                 <Arrow
                   key={`${p.id}-${leftPlayer.id}-vice`}
                   color={color(fromMe, viceToMe)}
-                  startX={distributedPointX(
-                    minimapIconDistance,
+                  startCoordinate={positionFor(
                     p.position,
                     participations.length,
                   )}
-                  startY={distributedPointY(
-                    minimapIconDistance,
-                    p.position,
-                    participations.length,
+                  endCoordinate={tangentFrom(
+                    positionFor(leftPlayer.position, participations.length),
+                    distributedPointAngleRadians(leftPlayer.position, participations.length),
+                    -TRAIT_ICON_DISTANCE,
                   )}
-                  endX={distributedPointX(
-                    minimapIconDistance,
-                    leftPlayer.position,
-                    participations.length,
-                  )}
-                  endY={distributedPointY(
-                    minimapIconDistance,
-                    leftPlayer.position,
-                    participations.length,
-                  )}
-                  lateralOffset={-minimapIconDistance / 2}
                   title={`${p.name} is writing a vice for ${leftPlayer.name}`}
                 />
               );
@@ -119,7 +92,6 @@ export default function TransferArrows({
         </>
       );
     case 'brinks':
-      // TODO hide brink arrow if brink written
       return (
         <>
           {participations.map((p) => {
@@ -128,34 +100,25 @@ export default function TransferArrows({
             });
             const fromMe = p.id === me.id;
             const toMe = leftParticipation.id === me.id;
-            return (
-              <Arrow
-                key={`${p.id}-${leftParticipation.id}-brink`}
-                color={color(fromMe, toMe)}
-                startX={distributedPointX(
-                  minimapIconDistance,
-                  p.position,
-                  participations.length,
-                )}
-                startY={distributedPointY(
-                  minimapIconDistance,
-                  p.position,
-                  participations.length,
-                )}
-                endX={distributedPointX(
-                  minimapIconDistance,
-                  leftParticipation.position,
-                  participations.length,
-                )}
-                endY={distributedPointY(
-                  minimapIconDistance,
-                  leftParticipation.position,
-                  participations.length,
-                )}
-                lateralOffset={-minimapIconDistance / 4}
-                title={`${p.name} is writing a brink for ${leftParticipation.name}`}
-              />
-            );
+            if (!p.hasWrittenBrink) {
+              return (
+                <Arrow
+                  key={`${p.id}-${leftParticipation.id}-brink`}
+                  color={color(fromMe, toMe)}
+                  startCoordinate={positionFor(
+                    p.position,
+                    participations.length,
+                  )}
+                  endCoordinate={positionFor(
+                    leftParticipation.position,
+                    participations.length,
+                  )}
+                  title={`${p.name} is writing a brink for ${leftParticipation.name}`}
+                />
+              );
+            }
+
+            return <></>;
           })}
         </>
       );

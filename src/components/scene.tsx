@@ -1,8 +1,8 @@
-import { useState } from 'react';
 import Button from 'react-bootstrap/Button';
 import ButtonGroup from 'react-bootstrap/ButtonGroup';
 import Form from 'react-bootstrap/Form';
 import Toast from 'react-bootstrap/Toast';
+import { useForm } from 'react-hook-form';
 
 import Conflict from '@candela/components/conflict';
 import TruthsList from '@candela/components/truths_list';
@@ -34,31 +34,25 @@ type TruthsPromptProps = {
   sceneId: number;
 };
 
-// TODO hook form
 function FormOrWaiting({ me, nextTruthStater, sceneId }: TruthsPromptProps) {
   const {
     loading,
-    error,
-    makeRequest: createTruth,
+    makeRequest
   } = useHttpState(`api/scenes/${sceneId}/truths`, 'POST', me.guid);
 
-  const [truth, setTruth] = useState<string>('');
+  const { register, handleSubmit } = useForm();
 
   if (me.id === nextTruthStater.id) {
     return (
-      <Form onSubmit={() => createTruth({ description: truth })}>
+      <Form onSubmit={handleSubmit(makeRequest)}>
         <Form.Control
           as="textarea"
-          name="description"
-          onChange={(e) => setTruth(e.target.value)}
+          {...register('truth.description', { required: true })}
         />
-        {error && <span>{error.message}</span>}
-        <input
-          className="btn btn-primary"
-          type="submit"
-          value="State Truth"
-          disabled={loading}
-        />
+
+        <Button variant="primary" disabled={loading} type="submit">
+          State Truth
+        </Button>
       </Form>
     );
   }
@@ -66,6 +60,7 @@ function FormOrWaiting({ me, nextTruthStater, sceneId }: TruthsPromptProps) {
   return (
     <em>
       Waiting for
+      {' '}
       {nextTruthStater.name}
       {' '}
       to state a truth.
@@ -88,11 +83,10 @@ function TruthsPrompt(props: TruthsPromptProps & { truthsRemaining: number }) {
   );
 }
 
-function ConflictManager({
+function ConflictStartManager({
   scene,
   me,
-  lastConflict,
-}: SceneProps & { lastConflict: ConflictType | undefined }) {
+}: SceneProps) {
   const { loading: createLoading, makeRequest: createConflict } = useHttpState(
     `api/scenes/${scene.id}/conflicts`,
     'POST',
@@ -131,71 +125,64 @@ function ConflictManager({
     <Toast.Body>When a conflict occurs, you will be notified.</Toast.Body>
   </Toast>;
 
-  const interfaceToRender = me.role === 'gm' ? conflictButtons : sceneUnderwayToast;
+  return me.role === 'gm' ? conflictButtons : sceneUnderwayToast;
+}
 
-  if (lastConflict) {
-    return useSubscriptionContext(
-      ConflictResolutionsContext(lastConflict.id),
-      'Loading conflict info...',
-      (resolutions) => {
-        if (resolutions.every((r) => !r.confirmed)) {
-          // Don't render conflict starting options if the latest conflict is unresolved.
-          return null;
-        }
 
-        return interfaceToRender;
-      },
-    );
+function OptionalConflictManager({
+  scene,
+  me,
+  conflicts,
+}: SceneProps & { conflicts: ConflictType[] }) {
+  if (scene.state === 'truths_stated') {
+    if (conflicts.every((c) => c.resolved)) {
+      return (
+        <ConflictStartManager
+          scene={scene}
+          me={me}
+        />
+      );
+    }
+
+    const lastConflict = conflicts[conflicts.length - 1];
+
+    return <ModelListSubscription
+      channel="ResolutionsChannel"
+      params={{ conflict_id: lastConflict.id, guid: me.guid }}
+      context={ConflictResolutionsContext(lastConflict.id)}
+    >
+      <Conflict me={me} conflict={lastConflict} />
+    </ModelListSubscription>
   }
 
-  return interfaceToRender;
+  return null;
+}
+
+function OptionalTruthsPrompt({
+  scene,
+  me,
+}: SceneProps) {
+  if (scene.state !== 'transitioning') {
+    return null;
+  }
+
+  return (
+    <TruthsPrompt
+      me={me}
+      nextTruthStater={scene.nextTruthStater}
+      sceneId={scene.id}
+      truthsRemaining={scene.truthsRemaining}
+    />
+  );
 }
 
 function Scene(props: { scene: SceneType; me: SelfParticipation }) {
   const { scene, me } = props;
+
   return useSubscriptionContext(
     SceneConflictsContext(scene.id),
     'Loading conflicts...',
     (conflicts) => {
-      console.log(conflicts);
-      const lastConflict = conflicts.length > 0 ? conflicts[conflicts.length - 1] : undefined;
-
-      function OptionalConflictManager() {
-        if (scene.state === 'truths_stated') {
-          return (
-            <ConflictManager
-              {...props}
-              lastConflict={lastConflict}
-            />
-          );
-        }
-
-        return null;
-      }
-
-      function OptionalTruthsPrompt() {
-        if (scene.state !== 'transitioning') {
-          return null;
-        }
-
-        return (
-          <TruthsPrompt
-            me={me}
-            nextTruthStater={scene.nextTruthStater}
-            sceneId={scene.id}
-            truthsRemaining={scene.truthsRemaining}
-          />
-        );
-      }
-
-      const conflictElements = lastConflict ? <ModelListSubscription
-        channel="ResolutionsChannel"
-        params={{ conflict_id: lastConflict.id, guid: me.guid }}
-        context={ConflictResolutionsContext(lastConflict.id)}
-      >
-        <OptionalConflictManager />
-        <Conflict me={me} conflict={lastConflict} />
-      </ModelListSubscription> : <OptionalConflictManager />;
 
       return (
         <>
@@ -203,8 +190,8 @@ function Scene(props: { scene: SceneType; me: SelfParticipation }) {
             sceneId={scene.id}
             truthsRemaining={scene.truthsRemaining}
           />
-          <OptionalTruthsPrompt />
-          {conflictElements}
+          <OptionalTruthsPrompt scene={scene} me={me} />
+          <OptionalConflictManager scene={scene} me={me} conflicts={conflicts} />
         </>
       );
     },

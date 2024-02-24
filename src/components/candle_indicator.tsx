@@ -164,7 +164,7 @@ export default function CandleIndicator({
     }
 
     return cleanup;
-  }, [litState]);
+  }, [litState, lit]);
 
   useEffect(() => {
     if (dicePoolState !== dicePool) {
@@ -172,7 +172,7 @@ export default function CandleIndicator({
     }
 
     return cleanup;
-  }, [dicePoolState]);
+  }, [dicePoolState, dicePool]);
 
   function renderCandle(index: number) {
     return (

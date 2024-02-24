@@ -16,7 +16,7 @@ export default function PopupForm({
 
   return (
     <>
-      <div style={{ display: 'grid' }}>
+      <div className="float-right">
         <Button
           variant={formComplete ? 'secondary' : 'primary'}
           onClick={() => setShow(true)}

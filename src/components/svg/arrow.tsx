@@ -1,12 +1,11 @@
 import type { SVGProps } from 'react';
 import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
 import Tooltip from 'react-bootstrap/Tooltip';
+import { Coordinate } from '@candela/types/svg';
 
 type ArrowProps = {
-  startX: number;
-  startY: number;
-  endX: number;
-  endY: number;
+  startCoordinate: Coordinate;
+  endCoordinate: Coordinate;
   arrowHeight?: number;
   arrowWidth?: number;
   lateralOffset?: number;
@@ -15,27 +14,20 @@ type ArrowProps = {
 } & Omit<SVGProps<SVGPathElement>, 'd' | 'children'>;
 
 export default function Arrow({
-  startX,
-  startY,
-  endX,
-  endY,
+  startCoordinate,
+  endCoordinate,
   arrowHeight = 2,
   arrowWidth = 3,
-  lateralOffset = 0,
   color = '#ff0000',
   title = undefined,
 }: ArrowProps) {
+  const [startX, startY] = startCoordinate;
+  const [endX, endY] = endCoordinate;
   const dy = endY - startY;
   const dx = endX - startX;
   const lineAngle = Math.atan2(dy, dx);
-  const horizontalOffset = lateralOffset * Math.cos(lineAngle + Math.PI / 4);
-  const verticalOffset = lateralOffset * Math.sin(lineAngle + Math.PI / 4);
-  const startXCurve = startX + horizontalOffset;
-  const startYCurve = startY + verticalOffset;
   const adjustedEndX = endX - (arrowHeight / 2 + 3) * Math.cos(lineAngle);
-  const endXCurve = adjustedEndX + horizontalOffset;
   const adjustedEndY = endY - (arrowHeight / 2 + 3) * Math.sin(lineAngle);
-  const endYCurve = adjustedEndY + verticalOffset;
   const tooltip = <Tooltip>{title}</Tooltip>;
   const arrowSvg = (
     <svg>
@@ -64,7 +56,7 @@ export default function Arrow({
          * Move the cursor to startX, startY (M command), then
          * draw a line from there to endX, endY (L command)
          */
-        d={`M${startX},${startY} C${startXCurve},${startYCurve},${endXCurve},${endYCurve},${adjustedEndX},${adjustedEndY}`}
+        d={`M${startX},${startY} L${adjustedEndX},${adjustedEndY}`}
       />
     </svg>
   );

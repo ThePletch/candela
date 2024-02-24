@@ -3,7 +3,13 @@ class Conflict < ApplicationRecord
 	has_many :resolutions, dependent: :destroy
   validate :no_other_active_conflicts_in_scene
 
-  after_commit BroadcastChange.new([ConflictsChannel])
+  after_commit BroadcastChange.new(
+    [ConflictsChannel],
+    [
+      [ScenesChannel, Proc.new(&:scene)],
+      [GamesChannel, Proc.new(&:game)],
+    ],
+  )
 
 	scope :failed, -> { joins(:resolutions).where(resolutions: {succeeded: false, state: :confirmed}) }
 	scope :succeeded, -> { joins(:resolutions).where(resolutions: {succeeded: true, state: :confirmed}) }
@@ -31,6 +37,10 @@ class Conflict < ApplicationRecord
 
   def succeeded?
     confirmed_resolution.try(:succeeded) or false
+  end
+
+  def resolved
+    confirmed_resolution.try(:present?) or false
   end
 
   def no_other_active_conflicts_in_scene

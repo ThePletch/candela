@@ -5,7 +5,7 @@ module ApplicationCable
     end
 
     def current_user
-      @current_user ||= Participation.find_by(guid: params[:guid])
+      @current_user ||= ::Participation.find_by(guid: params[:guid])
     end
   end
 end

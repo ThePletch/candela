@@ -32,7 +32,7 @@ export default function BrinkPrompt({ game, me }: GameProps) {
           label="Write your brink"
           formComplete={me.writtenBrink !== null}
         >
-          <BrinkForm participation={me} allParticipations={participations} />
+          <BrinkForm me={me} allParticipations={participations} />
         </PopupForm>
       );
       if (me.role === 'gm') {

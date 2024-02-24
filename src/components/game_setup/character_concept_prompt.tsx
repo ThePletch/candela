@@ -1,3 +1,5 @@
+import Toast from 'react-bootstrap/Toast';
+
 import CharacterConceptForm from '@candela/components/game_setup/character_concept_form';
 import PopupForm from '@candela/components/popup_form';
 import ProceedButton from '@candela/components/game_setup/proceed_button';
@@ -40,18 +42,28 @@ export default function CharacterConceptPrompt(props: GameProps) {
 
       if (me.role === 'gm') {
         return (
-          <ProceedButton
-            label="Proceed to Moments"
-            httpRequest={advanceToMoments}
-            disabled={unfilledConceptPlayers.length > 0}
-            disabledTooltip="Some players are still writing their character concept."
-          />
+          <>
+            <Toast>
+              <Toast.Body>
+                The players will now write their character concepts. Be ready
+                to answer their questions about the setting.
+              </Toast.Body>
+            </Toast>
+            <ProceedButton
+              label="Proceed to Moments"
+              httpRequest={advanceToMoments}
+              disabled={unfilledConceptPlayers.length > 0}
+              disabledTooltip="Some players are still writing their character concept."
+            />
+          </>
         );
       }
 
+      const label = me.characterConcept ? "Update your character concept" : "Write your character concept";
+
       return (
         <PopupForm
-          label="Write your character concept"
+          label={label}
           formComplete={me.characterConcept !== null}
         >
           <CharacterConceptForm me={me} />

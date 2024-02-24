@@ -16,7 +16,7 @@ export default function ProceedButton<T>({
   disabledTooltip: string;
 }) {
   const button = (
-    <div style={{ display: 'grid' }}>
+    <div className="float-left">
       <Button
         variant="primary"
         onClick={() => httpRequest.makeRequest()}

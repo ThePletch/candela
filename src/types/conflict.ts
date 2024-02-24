@@ -3,4 +3,5 @@ export type Conflict = {
   narrated: boolean;
   gameId: number;
   dire: boolean;
+  resolved: boolean;
 };

@@ -303,7 +303,7 @@ export function useSubscriptionContexts<T extends ContextList>(
   thunk: (records: RecordMapping<T>) => ReactElement | null,
 ): ReactElement | null {
   const recordsAndLoading = Object.entries(contexts).reduce<
-  RecordsAndLoading<T>
+    RecordsAndLoading<T>
   >(
     (acc, [key, contextInfo]) => {
       const context = useContext(contextInfo.context);

@@ -30,7 +30,8 @@
     "noEmit": true,
     "incremental": true,
     "resolveJsonModule": true,
-    "isolatedModules": true
+    "isolatedModules": true,
+    "types": ["jest"]
   },
   "exclude": ["node_modules"]
 }

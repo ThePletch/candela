@@ -1,0 +1,16 @@
+docs/*
+# logs
+*.log
+
+# typescript output
+dist/
+
+# dependency directories
+node_modules
+
+# nextjs configs
+next.config.js
+next-env.d.ts
+
+# ouroboros guard
+.eslintrc.js

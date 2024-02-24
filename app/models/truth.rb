@@ -4,10 +4,25 @@ class Truth < ApplicationRecord
 
   validate :scene_has_unstated_truths
 
+  after_commit BroadcastChange.new(
+    [TruthsChannel],
+    [
+      [ParticipationChannel, Proc.new(&:participation)],
+      [ParticipationsChannel, Proc.new(&:participation)],
+      [ScenesChannel, Proc.new(&:scene)],
+      [GameChannel, Proc.new(&:game)],
+      [GamesChannel, Proc.new(&:game)],
+    ],
+  )
+
   after_create do
     if scene.all_truths_stated
       scene.finish_stating_truths!
     end
+  end
+
+  def game
+    scene.game
   end
 
   def scene_has_unstated_truths

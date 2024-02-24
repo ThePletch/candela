@@ -37,3 +37,10 @@
 yarn-debug.log*
 .yarn-integrity
 .DS_Store
+
+# Compiled JS
+.next
+target/*
+vendor/bundle
+
+tsconfig.tsbuildinfo

@@ -12,6 +12,18 @@ class Resolution < ApplicationRecord
 
 	validate :cannot_override_an_override
 
+  after_commit BroadcastChange.new(
+  	[ResolutionsChannel],
+  	[
+  		[ConflictsChannel, Proc.new(&:conflict)],
+  		[ScenesChannel, Proc.new(&:scene)],
+  		[GameChannel, Proc.new(&:game)],
+  		[GamesChannel, Proc.new(&:game)],
+  		[ParticipationChannel, Proc.new(&:active_player)],
+  		[ParticipationsChannel, Proc.new(&:active_player)],
+  	],
+  )
+
 	scope :successful, -> { confirmed.where(succeeded: true) }
 	scope :failed, -> { confirmed.where(succeeded: false) }
 	scope :deadly, -> { joins(:conflict).where(conflicts: {dire: true}) }
@@ -41,6 +53,10 @@ class Resolution < ApplicationRecord
 	end
 
 	before_create :record_rolls
+
+	def game
+		conflict.scene.game
+	end
 
 	# default logic implementations that can have new logic added in subclasses
 

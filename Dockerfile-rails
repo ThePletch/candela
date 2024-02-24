@@ -1,0 +1,19 @@
+FROM public.ecr.aws/docker/library/ruby:3.1-alpine as baseline
+RUN apk update && apk upgrade && apk add bash openssh alpine-sdk libpq-dev tzdata
+WORKDIR /usr/src/app
+RUN bundle config set --local path 'vendor/bundle'
+RUN gem update bundler
+
+FROM baseline as api
+
+COPY . .
+CMD ["bundle", "exec", "rails", "server", "-b", "0.0.0.0"]
+
+FROM baseline as bundle-installer
+
+COPY Gemfile Gemfile.lock .
+CMD ["bundle", "install"]
+
+FROM api as db-migrater
+
+CMD ["bundle", "exec", "rails", "db:migrate"]

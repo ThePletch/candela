@@ -2,9 +2,6 @@ class ResolutionsController < ApplicationController
   before_action :require_owned_resolution!, only: [:confirm]
   before_action :require_player_in_game!, only: [:create]
 
-  # should happen after any actions that alter game state
-  after_action :broadcast_state, only: [:create, :confirm]
-
   def create
     @game = @conflict.scene.game
     @resolution = @conflict.resolutions.build(resolution_params)
@@ -12,7 +9,7 @@ class ResolutionsController < ApplicationController
 
     if @resolution.save
       if ['MomentResolution', 'TraitResolution', 'BrinkResolution'].include?(@resolution.type)
-        ParticipantsChannel.broadcast_update(@resolution.active_player)
+        ParticipationsChannel.broadcast_update(@resolution.active_player)
       end
 
       render :show, status: :created
@@ -31,7 +28,7 @@ class ResolutionsController < ApplicationController
     if @resolution.confirm!
       if @resolution.conflict.dire? and !@resolution.successful?
         # f's in chat
-        ParticipantsChannel.broadcast_update(@resolution.active_player)
+        ParticipationsChannel.broadcast_update(@resolution.active_player)
       end
       render :show, status: :ok
     else
@@ -68,9 +65,5 @@ class ResolutionsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def resolution_params
       params.require(:resolution).permit(:resolution_id, :beneficiary_player_id, :type, :burned_trait_type)
-    end
-
-    def broadcast_state
-      GameChannel.broadcast_update(@game)
     end
 end

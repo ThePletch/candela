@@ -1,9 +1,6 @@
 class TruthsController < ApplicationController
   before_action :require_in_scenes_game!, only: [:create]
 
-  # should happen after any actions that alter game state
-  after_action :broadcast_state, only: [:create]
-
   def show
   end
 
@@ -34,9 +31,5 @@ class TruthsController < ApplicationController
     # Only allow a list of trusted parameters through.
     def truth_params
       params.require(:truth).permit(:description, :participation_id)
-    end
-
-    def broadcast_state
-      GameChannel.broadcast_update(@game)
     end
 end

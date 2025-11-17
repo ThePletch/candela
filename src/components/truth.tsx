@@ -1,14 +1,10 @@
-import type { Truth as TruthObject } from '@candela/types/truth';
+import type { Truth as TruthType } from "@candela/types/truth";
 
-export default function Truth({ description, speaker }: TruthObject) {
+export default function Truth({ description, speaker }: TruthType) {
   return (
     <div>
       <span>{description}</span>
-      <em>
-        {' '}
-        -
-        {speaker.name}
-      </em>
+      <em> -{speaker.name}</em>
     </div>
   );
 }

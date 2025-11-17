@@ -1,3 +1,3 @@
-import GameForm from '@candela/components/browse/game_form';
+import GameForm from "@candela/components/browse/GameForm";
 
 export default GameForm;

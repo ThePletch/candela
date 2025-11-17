@@ -1,5 +1,5 @@
-export type RequestPayloadMethod = 'POST' | 'PATCH' | 'PUT' | 'DELETE';
-export type RequestMethod = 'GET' | RequestPayloadMethod;
+export type RequestPayloadMethod = "POST" | "PATCH" | "PUT" | "DELETE";
+export type RequestMethod = "GET" | RequestPayloadMethod;
 
 export function request(
   url: string,
@@ -9,11 +9,11 @@ export function request(
 ) {
   const defaultOptions: RequestInit = {
     headers: {
-      'Content-Type': 'application/json',
-      Accept: 'application/json',
-      'X-Participation-Guid': guid,
+      "Content-Type": "application/json",
+      Accept: "application/json",
+      "X-Participation-Guid": guid,
     },
-    credentials: 'include',
+    credentials: "include",
     method,
   };
 
@@ -21,7 +21,7 @@ export function request(
     (response: unknown) => {
       if (response instanceof Response) {
         response.json().then((json) => {
-          let text = 'Request failed.';
+          let text = "Request failed.";
           Object.keys(json).forEach((key) => {
             text += `\n${json[key]}`;
           });
@@ -29,7 +29,7 @@ export function request(
           throw new Error(text);
         });
       }
-      throw new Error('Unknown error.');
+      throw new Error("Unknown error.");
     },
   );
 }
@@ -46,7 +46,7 @@ export function makePayloadRequest(
 }
 
 export function makeGetRequest(url: string, guid: string) {
-  return request(url, 'GET', guid, {});
+  return request(url, "GET", guid, {});
 }
 
 export function makePostRequest(
@@ -54,7 +54,7 @@ export function makePostRequest(
   guid: string,
   body: Record<string, unknown>,
 ) {
-  return makePayloadRequest(url, 'POST', guid, body);
+  return makePayloadRequest(url, "POST", guid, body);
 }
 
 export function makePutRequest(
@@ -62,7 +62,7 @@ export function makePutRequest(
   guid: string,
   body: Record<string, unknown>,
 ) {
-  return makePayloadRequest(url, 'PUT', guid, body);
+  return makePayloadRequest(url, "PUT", guid, body);
 }
 
 export function makePatchRequest(
@@ -70,5 +70,5 @@ export function makePatchRequest(
   guid: string,
   body: Record<string, unknown>,
 ) {
-  return makePayloadRequest(url, 'PATCH', guid, body);
+  return makePayloadRequest(url, "PATCH", guid, body);
 }

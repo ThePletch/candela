@@ -1,33 +1,31 @@
-import type { ResolutionProps } from '@candela/components/resolution/base';
-import BrinkResolution from '@candela/components/resolution/brink_resolution';
-import MartyrResolution from '@candela/components/resolution/martyr_resolution';
-import MomentResolution from '@candela/components/resolution/moment_resolution';
-import RollResolution from '@candela/components/resolution/roll_resolution';
-import TraitResolution from '@candela/components/resolution/trait_resolution';
+import type { ResolutionProps } from "@candela/components/resolution/base";
+import BrinkResolution from "@candela/components/resolution/BrinkResolution";
+import MartyrResolution from "@candela/components/resolution/MartyrResolution";
+import MomentResolution from "@candela/components/resolution/MomentResolution";
+import RollResolution from "@candela/components/resolution/RollResolution";
+import TraitResolution from "@candela/components/resolution/TraitResolution";
 
-// consistent-return can't detect exhaustive types :/
-// eslint-disable-next-line consistent-return
 export function renderResolutionByType({
   me,
   resolution,
   gameId,
 }: ResolutionProps & { gameId: number }) {
   switch (resolution.type) {
-    case 'BrinkResolution':
+    case "BrinkResolution":
       return (
         <BrinkResolution resolution={resolution} me={me} gameId={gameId} />
       );
-    case 'MartyrResolution':
+    case "MartyrResolution":
       return (
         <MartyrResolution resolution={resolution} me={me} gameId={gameId} />
       );
-    case 'MomentResolution':
+    case "MomentResolution":
       return (
         <MomentResolution resolution={resolution} me={me} gameId={gameId} />
       );
-    case 'RollResolution':
+    case "RollResolution":
       return <RollResolution resolution={resolution} me={me} gameId={gameId} />;
-    case 'TraitResolution':
+    case "TraitResolution":
       return (
         <TraitResolution resolution={resolution} me={me} gameId={gameId} />
       );

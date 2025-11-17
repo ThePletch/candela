@@ -1,5 +1,5 @@
-import type { Game } from '@candela/types/game';
-import type { SelfParticipation } from '@candela/types/participation';
+import type { Game } from "./game";
+import type { SelfParticipation } from "./participation";
 
 export type ParticipationProps = {
   participationId: number;

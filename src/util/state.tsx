@@ -1,6 +1,6 @@
-import type { Subscription as CableSubscription } from '@rails/actioncable';
-import _ from 'lodash';
-import getConfig from 'next/config';
+import type { Subscription as CableSubscription } from "@rails/actioncable";
+import _ from "lodash";
+import getConfig from "next/config";
 import {
   type Context,
   type ReactElement,
@@ -8,14 +8,14 @@ import {
   useEffect,
   useReducer,
   useState,
-} from 'react';
+} from "react";
 
-import consumer from '@candela/consumer';
-import type { ListContext, SingletonContext } from '@candela/util/contexts';
+import consumer from "@candela/consumer";
+import type { ListContext, SingletonContext } from "@candela/util/contexts";
 import {
   makePayloadRequest,
   type RequestPayloadMethod,
-} from '@candela/util/requests';
+} from "@candela/util/requests";
 
 export type HttpState<T> = {
   loading: boolean;
@@ -55,7 +55,7 @@ export function useHttpState<T = void>(
       if (e instanceof Error) {
         setError(e);
       } else {
-        console.error('NON-ERROR', e);
+        console.error("NON-ERROR", e);
       }
       throw e;
     } finally {
@@ -84,9 +84,9 @@ export function listStateReducer<T>(
     const sortResult = getIdentifier(a) - getIdentifier(b);
 
     if (Number.isNaN(sortResult)) {
-      console.error('NaN-causing records:', a, b);
+      console.error("NaN-causing records:", a, b);
       throw new Error(
-        'Got NaN while sorting records. Responsible records logged to console.',
+        "Got NaN while sorting records. Responsible records logged to console.",
       );
     }
 
@@ -111,17 +111,17 @@ type SubscriptionMessage<T> = T | SyncConfirmationMessage;
 
 type SubscriptionState<T, LoadingType = T> =
   | {
-    record: T;
-    loading: false;
-  }
+      record: T;
+      loading: false;
+    }
   | {
-    record: LoadingType;
-    loading: true;
-  };
+      record: LoadingType;
+      loading: true;
+    };
 
 type SubscriptionReducer<T, LoadingType, ParcelType = T> = (
   currentState: SubscriptionState<T, LoadingType>,
-  newParcel: SubscriptionMessage<ParcelType>
+  newParcel: SubscriptionMessage<ParcelType>,
 ) => SubscriptionState<T, LoadingType>;
 
 type GuidParam = { guid: string };
@@ -198,7 +198,7 @@ export function SingletonSubscription<T>(props: {
     ...props,
     initialValue: null,
     reducerFn: (state, parcel) => {
-      if ('synchronized' in parcel) {
+      if ("synchronized" in parcel) {
         return state;
       }
 
@@ -223,7 +223,7 @@ export function ListSubscription<T>(props: {
     ...props,
     initialValue: [],
     reducerFn: (state, message) => {
-      if ('synchronized' in message) {
+      if ("synchronized" in message) {
         return {
           ...state,
           loading: false,
@@ -259,14 +259,14 @@ type ContextList = {
 };
 
 type ContextMapping<T extends ContextList> = {
-  [K in keyof T]: T[K]['context'] extends Context<infer State> ? State : null;
+  [K in keyof T]: T[K]["context"] extends Context<infer State> ? State : null;
 };
 
 type RecordMapping<T extends ContextList> = {
   [K in keyof T]: ContextMapping<T>[K] extends SubscriptionState<
-  infer RecordType,
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  any
+    infer RecordType,
+    // eslint-disable-next-line @typescript-eslint/no-explicit-any
+    any
   >
     ? RecordType
     : null;
@@ -280,17 +280,17 @@ type FullyLoadedRecords<T extends ContextList> = {
 type RecordsAndLoading<T extends ContextList> =
   | FullyLoadedRecords<T>
   | {
-    loadingMessages: {
-      [K in keyof T]: string;
-    };
-    records: Record<string, never>;
-  }
+      loadingMessages: {
+        [K in keyof T]: string;
+      };
+      records: Record<string, never>;
+    }
   | {
-    loadingMessages: {
-      [K in keyof T]?: string;
+      loadingMessages: {
+        [K in keyof T]?: string;
+      };
+      records: Partial<RecordMapping<T>>;
     };
-    records: Partial<RecordMapping<T>>;
-  };
 
 function recordsAllLoaded<T extends ContextList>(
   recordsAndLoading: RecordsAndLoading<T>,

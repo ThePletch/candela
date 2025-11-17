@@ -9,6 +9,7 @@ module.exports = {
     "airbnb",
     "airbnb-typescript",
     "plugin:import/typescript",
+    "plugin:prettier/recommended",
     "plugin:@typescript-eslint/eslint-recommended",
     "plugin:@typescript-eslint/recommended",
   ],
@@ -21,7 +22,10 @@ module.exports = {
     project: "./tsconfig.json",
     sourceType: "module",
   },
-  plugins: ["react", "@typescript-eslint"],
+  plugins: [
+    "react",
+    "@typescript-eslint",
+  ],
   rules: {
     // handled by @typescript-eslint/switch-exhaustiveness-check
     "default-case": "off",
@@ -30,6 +34,15 @@ module.exports = {
       {
         allow: ["warn", "error", "debug"],
       },
+    ],
+    "no-nested-ternary": "off",
+    // handled by type-aware return checks
+    "consistent-return": "off",
+    "@typescript-eslint/no-use-before-define": [
+      "error",
+      {
+        typedefs: false
+      }
     ],
     "react/jsx-props-no-spreading": "off",
     "react/react-in-jsx-scope": "off",

@@ -39,6 +39,7 @@ improvements to look into
     * Always display name next to minimap icons
     * Probably not worth displaying the dice pool/candle counter until the game starts
         * Also, it looks like a progress bar. It should either work like one or be updated to not be full-width.
+    * BIG LIFT: Generally the GM should be able to overrule most results.
 
 bugs
     style bugs

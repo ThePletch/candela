@@ -1,19 +1,19 @@
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import Toast from 'react-bootstrap/Toast';
+import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import Toast from "react-bootstrap/Toast";
 
-import PopupForm from '@candela/components/popup_form';
-import { Resolution } from '@candela/components/resolution/resolution';
-import { getTopTrait } from '@candela/state-helpers/participations';
-import type { Conflict as ConflictType } from '@candela/types/conflict';
-import type { SelfParticipation } from '@candela/types/participation';
-import { ConflictResolutionsContext } from '@candela/util/contexts';
+import { getTopTrait } from "@candela/state-helpers/participations";
+import type { Conflict as ConflictType } from "@candela/types/conflict";
+import type { SelfParticipation } from "@candela/types/participation";
+import { ConflictResolutionsContext } from "@candela/util/contexts";
 
 import {
   type HttpState,
   useHttpState,
   useSubscriptionContext,
-} from '@candela/util/state';
+} from "@candela/util/state";
+import PopupForm from "./PopupForm";
+import { Resolution } from "./resolution/Resolution";
 
 type ConflictProps = {
   conflict: ConflictType;
@@ -42,10 +42,10 @@ function LiveMomentButton({
   const { loading, makeRequest } = resolutionHttpState;
 
   const liveMoment = () => {
-    makeRequest({ type: 'MomentResolution' });
+    makeRequest({ type: "MomentResolution" });
   };
 
-  if (getTopTrait(me) === 'moment') {
+  if (getTopTrait(me) === "moment") {
     return (
       <Button variant="info" disabled={loading} onClick={liveMoment}>
         Live Moment
@@ -59,12 +59,12 @@ function LiveMomentButton({
 function PlayerConflictOptions({ conflict, me }: ConflictProps) {
   const resolutionHttpState = useHttpState(
     `api/conflicts/${conflict.id}/resolutions`,
-    'POST',
+    "POST",
     me.guid,
   );
 
   const rollForConflict = () => {
-    resolutionHttpState.makeRequest({ type: 'RollResolution' });
+    resolutionHttpState.makeRequest({ type: "RollResolution" });
   };
 
   if (me.alive) {
@@ -75,7 +75,7 @@ function PlayerConflictOptions({ conflict, me }: ConflictProps) {
           If your character will face this conflict, click the button below.
         </p>
         <DireConflictWarning conflict={conflict} />
-        <div style={{ display: 'grid' }}>
+        <div style={{ display: "grid" }}>
           <ButtonGroup>
             <Button
               variant="primary"
@@ -100,24 +100,24 @@ function PlayerConflictOptions({ conflict, me }: ConflictProps) {
 export default function Conflict({ conflict, me }: ConflictProps) {
   const { loading, makeRequest: finishNarration } = useHttpState(
     `api/conflicts/${conflict.id}/finish_narration`,
-    'PATCH',
+    "PATCH",
     me.guid,
   );
 
   return useSubscriptionContext(
     ConflictResolutionsContext(conflict.id),
-    'Loading resolutions...',
+    "Loading resolutions...",
     (resolutions) => {
       if (resolutions.some((r) => r.confirmed)) {
         return null;
       }
 
       if (!conflict.narrated) {
-        if (me.role === 'gm') {
+        if (me.role === "gm") {
           return (
             <PopupForm label="Narrate the conflict" formComplete={false}>
               <p>Narrate the conflict. What&apos;s happening?</p>
-              <div style={{ display: 'grid' }}>
+              <div style={{ display: "grid" }}>
                 <Button
                   variant="primary"
                   disabled={loading}
@@ -154,7 +154,7 @@ export default function Conflict({ conflict, me }: ConflictProps) {
         );
       }
 
-      if (me.role === 'gm') {
+      if (me.role === "gm") {
         return (
           <Toast>
             <Toast.Body>

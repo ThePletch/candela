@@ -1,6 +1,6 @@
-import { type FunctionComponent } from 'react';
+import { type FunctionComponent } from "react";
 
-import '@candela/stylesheets/application.scss';
+import "@candela/stylesheets/application.scss";
 
 type AppProps<T> = {
   Component: FunctionComponent<T>;

@@ -1,4 +1,4 @@
-import type { FieldPresenceFlags } from '@candela/util/types';
+import type { FieldPresenceFlags } from "@candela/util/types";
 
 /**
  * Fields that will be filled in during character generation.
@@ -13,13 +13,17 @@ type FillableFields = {
   writtenBrink?: string;
 };
 
-export type TraitType = 'virtue' | 'vice' | 'moment' | 'brink';
+export type TraitCardType = "virtue" | "vice";
+export type TraitType = TraitCardType | "moment" | "brink";
+
+export type ParticipationRole = "player" | "gm";
+
 export type Participation = {
   id: number;
   gameId: number;
   name: string;
   alive: boolean;
-  role: 'player' | 'gm';
+  role: ParticipationRole;
   characterConcept?: string;
   hopeDieCount: number;
   traits: {
@@ -33,6 +37,6 @@ export type Participation = {
 } & FieldPresenceFlags<FillableFields>;
 
 export type SelfParticipation = Participation &
-FillableFields & {
-  guid: string;
-};
+  FillableFields & {
+    guid: string;
+  };

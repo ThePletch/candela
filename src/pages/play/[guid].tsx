@@ -1,16 +1,16 @@
-import { useRouter } from 'next/router';
+import { useRouter } from "next/router";
 
-import Game from '@candela/components/game';
-import { GameContext, MeContext } from '@candela/util/contexts';
+import Game from "@candela/components/Game";
+import { GameContext, MeContext } from "@candela/util/contexts";
 import {
   SingletonSubscription,
   useSubscriptionContext,
-} from '@candela/util/state';
+} from "@candela/util/state";
 
 function Play(props: { guid: string }) {
   return useSubscriptionContext(
     MeContext(props.guid),
-    'Loading your information...',
+    "Loading your information...",
     (me) => {
       const gameIdParams = { id: me.gameId, ...props };
       return (
@@ -29,7 +29,7 @@ function Play(props: { guid: string }) {
 export default function PlayPage() {
   const { guid: rawGuid } = useRouter().query;
 
-  const guid = (rawGuid as string | undefined) || '';
+  const guid = (rawGuid as string | undefined) || "";
 
   return (
     <SingletonSubscription

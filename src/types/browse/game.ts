@@ -1,4 +1,4 @@
-import type { Participation } from '@candela/types/browse/participation';
+import type { Participation } from "./participation";
 
 export type Game = {
   id: number;

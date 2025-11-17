@@ -1,20 +1,21 @@
-import type { Participation, TraitType } from '@candela/types/participation';
+import type { Participation, TraitType } from "@candela/types/participation";
 
-const traitsInOrder = ['virtue', 'vice', 'moment', 'brink'];
+const traitsInOrder = ["virtue", "vice", "moment", "brink"];
 
 function getAdjacentParticipation(
   participation: Participation,
   participations: Participation[],
   { skipGm }: { skipGm: boolean },
-  direction: 'left' | 'right',
+  direction: "left" | "right",
 ): Participation {
   // avoid infinite loops if there's only one participation in the list
   if (participations.length <= 1) {
     return participation;
   }
 
-  let targetPosition = (participation.position + (direction === 'right' ? 1 : -1))
-    % participations.length;
+  let targetPosition =
+    (participation.position + (direction === "right" ? 1 : -1)) %
+    participations.length;
   if (targetPosition < 0) {
     targetPosition = participations.length + targetPosition;
   }
@@ -27,7 +28,7 @@ function getAdjacentParticipation(
     );
   }
 
-  if (skipGm && targetParticipation.role === 'gm') {
+  if (skipGm && targetParticipation.role === "gm") {
     return getAdjacentParticipation(
       targetParticipation,
       participations,
@@ -48,7 +49,7 @@ export function getLeftParticipation(
     participation,
     participations,
     options,
-    'left',
+    "left",
   );
 }
 
@@ -61,7 +62,7 @@ export function getRightParticipation(
     participation,
     participations,
     options,
-    'right',
+    "right",
   );
 }
 

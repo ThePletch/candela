@@ -1,3 +1,3 @@
-import Games from '@candela/components/browse/games';
+import Games from "@candela/components/browse/Games";
 
 export default Games;

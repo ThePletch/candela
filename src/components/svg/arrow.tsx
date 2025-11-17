@@ -1,24 +1,23 @@
-import type { SVGProps } from 'react';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
-import { Coordinate } from '@candela/types/svg';
+import type { SVGProps } from "react";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
+import { Coordinate } from "@candela/types/svg";
 
 type ArrowProps = {
   startCoordinate: Coordinate;
   endCoordinate: Coordinate;
   arrowHeight?: number;
   arrowWidth?: number;
-  lateralOffset?: number;
   color?: string;
   title?: string;
-} & Omit<SVGProps<SVGPathElement>, 'd' | 'children'>;
+} & Omit<SVGProps<SVGPathElement>, "d" | "children">;
 
 export default function Arrow({
   startCoordinate,
   endCoordinate,
   arrowHeight = 2,
   arrowWidth = 3,
-  color = '#ff0000',
+  color = "#ff0000",
   title = undefined,
 }: ArrowProps) {
   const [startX, startY] = startCoordinate;

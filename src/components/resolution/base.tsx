@@ -1,19 +1,19 @@
-import { type ChangeEvent, type ReactNode, useState } from 'react';
-import Button from 'react-bootstrap/Button';
-import ButtonGroup from 'react-bootstrap/ButtonGroup';
-import ListGroup from 'react-bootstrap/ListGroup';
+import { type ChangeEvent, type ReactNode, useState } from "react";
+import Button from "react-bootstrap/Button";
+import ButtonGroup from "react-bootstrap/ButtonGroup";
+import ListGroup from "react-bootstrap/ListGroup";
 
 import type {
   Participation,
   SelfParticipation,
   TraitType,
-} from '@candela/types/participation';
-import type { Resolution } from '@candela/types/resolution';
-import { GameParticipationsContext } from '@candela/util/contexts';
-import { getTopTrait, getTraitId } from '@candela/state-helpers/participations';
-import { useHttpState, useSubscriptionContext } from '@candela/util/state';
+} from "@candela/types/participation";
+import type { Resolution } from "@candela/types/resolution";
+import { GameParticipationsContext } from "@candela/util/contexts";
+import { getTopTrait, getTraitId } from "@candela/state-helpers/participations";
+import { useHttpState, useSubscriptionContext } from "@candela/util/state";
 
-import DiceRoll from '@candela/components/resolution/dice_roll';
+import DiceRoll from "@candela/components/resolution/DiceRoll";
 
 export type ResolutionProps = {
   me: SelfParticipation;
@@ -21,17 +21,17 @@ export type ResolutionProps = {
 };
 
 function isValidRecipient(participation: Participation, me: SelfParticipation) {
-  return participation.id !== me.id && participation.role !== 'gm';
+  return participation.id !== me.id && participation.role !== "gm";
 }
 
 function BurnTraitButton({ me, resolution }: ResolutionProps) {
   const myTopTrait = getTopTrait(me);
   const { loading, makeRequest } = useHttpState(
     `api/conflicts/${resolution.conflict.id}/resolutions`,
-    'POST',
+    "POST",
     me.guid,
     {
-      type: 'TraitResolution',
+      type: "TraitResolution",
       resolution_id: resolution.id,
       burned_trait_type: myTopTrait && getTraitId(myTopTrait),
     },
@@ -41,10 +41,10 @@ function BurnTraitButton({ me, resolution }: ResolutionProps) {
     return null;
   }
 
-  function canBurnTrait(topTrait: keyof Participation['traits']) {
+  function canBurnTrait(topTrait: keyof Participation["traits"]) {
     return (
-      ['virtue', 'vice'].includes(topTrait)
-      && resolution.playerRollResult.includes('1')
+      ["virtue", "vice"].includes(topTrait) &&
+      resolution.playerRollResult.includes("1")
     );
   }
 
@@ -52,10 +52,7 @@ function BurnTraitButton({ me, resolution }: ResolutionProps) {
     if (resolution.parentResolution) {
       return (
         <Button variant="warning" disabled>
-          You cannot burn your
-          {' '}
-          {myTopTrait}
-          . This result is final.
+          You cannot burn your {myTopTrait}. This result is final.
         </Button>
       );
     }
@@ -65,13 +62,7 @@ function BurnTraitButton({ me, resolution }: ResolutionProps) {
         disabled={loading}
         onClick={() => makeRequest()}
       >
-        Burn your
-        {' '}
-        {myTopTrait}
-        {' '}
-        (
-        {me.traits[myTopTrait]?.value || '[not set]'}
-        )
+        Burn your {myTopTrait} ({me.traits[myTopTrait]?.value || "[not set]"})
         to reroll ones.
       </Button>
     );
@@ -83,10 +74,10 @@ function BurnTraitButton({ me, resolution }: ResolutionProps) {
 function EmbraceBrinkButton({ resolution, me }: ResolutionProps) {
   const { loading, makeRequest } = useHttpState(
     `api/conflicts/${resolution.conflict.id}/resolutions`,
-    'POST',
+    "POST",
     me.guid,
     {
-      type: 'BrinkResolution',
+      type: "BrinkResolution",
       resolution_id: resolution.id,
     },
   );
@@ -99,8 +90,8 @@ function EmbraceBrinkButton({ resolution, me }: ResolutionProps) {
 
   function canEmbraceBrink(topTrait: TraitType) {
     return (
-      topTrait === 'brink'
-      && (resolution.successful || resolution.narrativeControl.id !== me.id)
+      topTrait === "brink" &&
+      (resolution.successful || resolution.narrativeControl.id !== me.id)
     );
   }
 
@@ -129,7 +120,7 @@ function ConfirmResultButton({
   const [beneficiary, setBeneficiary] = useState<string | null>(null);
   const { loading, makeRequest } = useHttpState(
     `api/resolutions/${resolution.id}/confirm`,
-    'PATCH',
+    "PATCH",
     me.guid,
   );
 
@@ -155,12 +146,12 @@ function ConfirmResultButton({
 
   return useSubscriptionContext(
     GameParticipationsContext(gameId),
-    'Loading players...',
+    "Loading players...",
     (participations) => {
       if (
-        playerWillDie()
-        && me.hopeDieCount > 0
-        && resolution.type === 'MartyrResolution'
+        playerWillDie() &&
+        me.hopeDieCount > 0 &&
+        resolution.type === "MartyrResolution"
       ) {
         return (
           <div>
@@ -170,8 +161,8 @@ function ConfirmResultButton({
             >
               <option disabled={participations.length > 0}>
                 {participations.length === 0
-                  ? 'Loading hope die recipients...'
-                  : 'Choose who will receive your hope die.'}
+                  ? "Loading hope die recipients..."
+                  : "Choose who will receive your hope die."}
               </option>
               <option key="0" value={undefined}>
                 No one
@@ -210,17 +201,17 @@ function ResolutionAcceptanceOptions({
 }: ResolutionProps & { gameId: number }) {
   const { loading: martyrLoading, makeRequest: martyr } = useHttpState(
     `api/conflicts/${resolution.conflict.id}/resolutions`,
-    'POST',
+    "POST",
     me.guid,
     {
-      type: 'MartyrResolution',
+      type: "MartyrResolution",
       resolution_id: resolution.id,
     },
   );
 
   if (me.id === resolution.resolver.id) {
     return (
-      <div style={{ display: 'grid' }}>
+      <div style={{ display: "grid" }}>
         <ButtonGroup>
           <ConfirmResultButton
             resolution={resolution}
@@ -234,9 +225,9 @@ function ResolutionAcceptanceOptions({
     );
   }
   if (
-    resolution.conflict.dire
-    && !resolution.successful
-    && !resolution.parentResolution
+    resolution.conflict.dire &&
+    !resolution.successful &&
+    !resolution.parentResolution
   ) {
     return (
       <div>
@@ -245,22 +236,14 @@ function ResolutionAcceptanceOptions({
           disabled={martyrLoading}
           onClick={() => martyr()}
         >
-          Martyr yourself to save
-          {' '}
-          {resolution.resolver.name}
+          Martyr yourself to save {resolution.resolver.name}
         </Button>
       </div>
     );
   }
 
   return (
-    <em>
-      Waiting for
-      {' '}
-      {resolution.resolver.name}
-      {' '}
-      to resolve this conflict.
-    </em>
+    <em>Waiting for {resolution.resolver.name} to resolve this conflict.</em>
   );
 }
 
@@ -289,13 +272,13 @@ type Components<T extends string> = {
 };
 
 type ConflictResultComponents = Components<
-| 'activePlayerInfo'
-| 'playerResult'
-| 'gmResult'
-| 'successMessage'
-| 'additionalInfo'
-| 'narrativeControlInfo'
-| 'acceptanceOptions'
+  | "activePlayerInfo"
+  | "playerResult"
+  | "gmResult"
+  | "successMessage"
+  | "additionalInfo"
+  | "narrativeControlInfo"
+  | "acceptanceOptions"
 >;
 
 export function ConflictResult({
@@ -336,21 +319,14 @@ export function BaseResolutionComponents({
   gameId,
 }: ResolutionProps & { gameId: number }): ConflictResultComponents {
   function activePlayerInfo() {
-    return (
-      <span>
-        {resolution.resolver.name}
-        {' '}
-        chose to face this conflict.
-      </span>
-    );
+    return <span>{resolution.resolver.name} chose to face this conflict.</span>;
   }
 
   function successMessage() {
     return (
       <span>
-        {resolution.resolver.name}
-        {' '}
-        {resolution.successful ? 'succeeded.' : 'failed.'}
+        {resolution.resolver.name}{" "}
+        {resolution.successful ? "succeeded." : "failed."}
       </span>
     );
   }
@@ -358,10 +334,7 @@ export function BaseResolutionComponents({
   function narrativeControlInfo() {
     return (
       <span>
-        Narrative control will go to
-        {' '}
-        {resolution.narrativeControl.name}
-        .
+        Narrative control will go to {resolution.narrativeControl.name}.
       </span>
     );
   }

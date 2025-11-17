@@ -1,16 +1,16 @@
-import { createContext, type Context } from 'react';
+import { createContext, type Context } from "react";
 
-import type { Conflict } from '@candela/types/conflict';
-import type { Game } from '@candela/types/game';
-import type { Game as BrowseGame } from '@candela/types/browse/game';
-import type { Resolution } from '@candela/types/resolution';
-import type { Scene } from '@candela/types/scene';
-import type { Truth } from '@candela/types/truth';
+import type { Conflict } from "@candela/types/conflict";
+import type { Game } from "@candela/types/game";
+import type { Game as BrowseGame } from "@candela/types/browse/game";
+import type { Resolution } from "@candela/types/resolution";
+import type { Scene } from "@candela/types/scene";
+import type { Truth } from "@candela/types/truth";
 import type {
   Participation,
   SelfParticipation,
-} from '@candela/types/participation';
-import type { ListState, SingletonState } from '@candela/util/state';
+} from "@candela/types/participation";
+import type { ListState, SingletonState } from "@candela/util/state";
 
 export type ListContext<T> = Context<ListState<T>>;
 export type SingletonContext<T> = Context<SingletonState<T>>;

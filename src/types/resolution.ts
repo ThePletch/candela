@@ -1,3 +1,5 @@
+import type { TraitCardType } from "./participation";
+
 export type BaseResolution = {
   id: number;
   successful: boolean;
@@ -10,7 +12,6 @@ export type BaseResolution = {
     id: number;
     name: string;
   };
-  // eslint-disable-next-line no-use-before-define
   parentResolution?: Resolution;
   playerRollResult: string;
   gmRollResult: string;
@@ -26,30 +27,29 @@ export type NonOverrideResolution = BaseResolution & {
 };
 
 export type OverrideResolution = BaseResolution & {
-  // eslint-disable-next-line no-use-before-define
   parentResolution: Resolution;
 };
 
 export type BrinkResolution = OverrideResolution & {
-  type: 'BrinkResolution';
+  type: "BrinkResolution";
 };
 
 export type MartyrResolution = OverrideResolution & {
-  type: 'MartyrResolution';
+  type: "MartyrResolution";
 };
 
 export type MomentResolution = NonOverrideResolution & {
-  type: 'MomentResolution';
+  type: "MomentResolution";
 };
 
 export type RollResolution = NonOverrideResolution & {
-  type: 'RollResolution';
+  type: "RollResolution";
 };
 
 export type TraitResolution = OverrideResolution & {
-  type: 'TraitResolution';
+  type: "TraitResolution";
   burnedTrait: {
-    type: 'virtue' | 'vice';
+    type: TraitCardType;
   };
 };
 

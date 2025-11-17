@@ -1,31 +1,31 @@
-import { useEffect, useState } from 'react';
-import Badge from 'react-bootstrap/Badge';
-import Container from 'react-bootstrap/Container';
-import OverlayTrigger from 'react-bootstrap/OverlayTrigger';
-import Tooltip from 'react-bootstrap/Tooltip';
+import { useEffect, useState } from "react";
+import Badge from "react-bootstrap/Badge";
+import Container from "react-bootstrap/Container";
+import OverlayTrigger from "react-bootstrap/OverlayTrigger";
+import Tooltip from "react-bootstrap/Tooltip";
 
-import CandleIndicator from '@candela/components/candle_indicator';
-import StartGamePrompt from '@candela/components/game_setup/start_game_prompt';
-import TraitsPrompt from '@candela/components/game_setup/traits_prompt';
-import ModuleIntroPrompt from '@candela/components/game_setup/module_intro_prompt';
-import CharacterConceptPrompt from '@candela/components/game_setup/character_concept_prompt';
-import MomentPrompt from '@candela/components/game_setup/moment_prompt';
-import BrinkPrompt from '@candela/components/game_setup/brink_prompt';
-import CardOrderPrompt from '@candela/components/game_setup/card_order_prompt';
-import Minimap from '@candela/components/minimap';
-import Scene from '@candela/components/scene';
-import type { SelfParticipation } from '@candela/types/participation';
-import type { GameProps } from '@candela/types/props';
-import type { Scene as SceneType } from '@candela/types/scene';
+import CandleIndicator from "@candela/components/CandleIndicator";
+import StartGamePrompt from "@candela/components/game-setup/StartGamePrompt";
+import TraitsPrompt from "@candela/components/game-setup/traits/TraitsPrompt";
+import ModuleIntroPrompt from "@candela/components/game-setup/ModuleIntroPrompt";
+import CharacterConceptPrompt from "@candela/components/game-setup/character-concept/CharacterConceptPrompt";
+import MomentPrompt from "@candela/components/game-setup/moment/MomentPrompt";
+import BrinkPrompt from "@candela/components/game-setup/brink/BrinkPrompt";
+import CardOrderPrompt from "@candela/components/game-setup/card-order/CardOrderPrompt";
+import Minimap from "@candela/components/Minimap";
+import Scene from "@candela/components/Scene";
+import type { SelfParticipation } from "@candela/types/participation";
+import type { GameProps } from "@candela/types/props";
+import type { Scene as SceneType } from "@candela/types/scene";
 import {
   GameContext,
   GameParticipationsContext,
   GameScenesContext,
-} from '@candela/util/contexts';
+} from "@candela/util/contexts";
 import {
   ModelListSubscription,
   useSubscriptionContext,
-} from '@candela/util/state';
+} from "@candela/util/state";
 
 function CurrentSetupStatePrompt({
   me,
@@ -46,21 +46,21 @@ function CurrentSetupStatePrompt({
   }
 
   switch (game.setupState) {
-    case 'nascent':
+    case "nascent":
       return <StartGamePrompt game={game} me={me} />;
-    case 'traits':
+    case "traits":
       return <TraitsPrompt game={game} me={me} />;
-    case 'module_intro':
+    case "module_intro":
       return <ModuleIntroPrompt game={game} me={me} />;
-    case 'character_concept':
+    case "character_concept":
       return <CharacterConceptPrompt game={game} me={me} />;
-    case 'moments':
+    case "moments":
       return <MomentPrompt game={game} me={me} />;
-    case 'brinks':
+    case "brinks":
       return <BrinkPrompt game={game} me={me} />;
-    case 'order_cards':
+    case "order_cards":
       return <CardOrderPrompt game={game} me={me} />;
-    case 'ready':
+    case "ready":
       if (!scene) {
         return <em>No active scene yet. Error?</em>;
       }
@@ -72,7 +72,7 @@ function CurrentSetupStatePrompt({
 }
 
 function Game({ game, me }: GameProps) {
-  const [pageTitle, setPageTitle] = useState('Loading game...');
+  const [pageTitle, setPageTitle] = useState("Loading game...");
 
   useEffect(() => {
     document.title = pageTitle;
@@ -80,7 +80,7 @@ function Game({ game, me }: GameProps) {
 
   return useSubscriptionContext(
     GameScenesContext(game.id),
-    'Loading scenes...',
+    "Loading scenes...",
     (scenes) => {
       const activeScene = scenes[scenes.length - 1];
 
@@ -95,15 +95,9 @@ function Game({ game, me }: GameProps) {
 
       const dicePoolInfo = (
         <Tooltip>
-          Players are rolling
-          {' '}
-          {dicePoolCount(activeScene)}
-          {' '}
-          dice for conflicts.
+          Players are rolling {dicePoolCount(activeScene)} dice for conflicts.
           <br />
-          {game.candlesLit}
-          {' '}
-          candles remain lit.
+          {game.candlesLit} candles remain lit.
         </Tooltip>
       );
 
@@ -111,9 +105,7 @@ function Game({ game, me }: GameProps) {
         <Container fluid className="game-interface">
           <OverlayTrigger overlay={dicePoolInfo} placement="bottom">
             <Badge bg="info" className="game-actions">
-              {game.candlesLit}
-              /
-              {dicePoolCount(activeScene)}
+              {game.candlesLit}/{dicePoolCount(activeScene)}
             </Badge>
           </OverlayTrigger>
           <div className="game-actions">
@@ -137,7 +129,7 @@ export default function GameWithSubscriptions({
 }) {
   return useSubscriptionContext(
     GameContext(me.gameId),
-    'Loading game...',
+    "Loading game...",
     (game) => {
       const gameIdParams = { game_id: game.id, guid: me.guid };
 
